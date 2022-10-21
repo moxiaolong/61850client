@@ -10,9 +10,10 @@ type MMSpdu struct {
 	initiateResponsePDU  *InitiateResponsePDU
 	initiateErrorPDU     *InitiateErrorPDU
 	concludeRequestPDU   *ConcludeRequestPDU
+	InitiateRequestPDU   *InitiateRequestPDU
 }
 
-func newMMSpdu() *MMSpdu {
+func NewMMSpdu() *MMSpdu {
 	return &MMSpdu{}
 }
 func (s *MMSpdu) encode(stream *ReverseByteArrayOutputStream) {
@@ -83,6 +84,22 @@ func (s *MMSpdu) decode(is *ByteBufferInputStream) int {
 
 }
 
-func constructInitRequestPdu(int, int, int, int, []byte) *MMSpdu {
-	return &MMSpdu{}
+func constructInitRequestPdu(proposedMaxPduSize int, proposedMaxServOutstandingCalling int, proposedMaxServOutstandingCalled int, proposedDataStructureNestingLevel int, servicesSupportedCalling []byte) *MMSpdu {
+	initRequestDetail := NewInitRequestDetail()
+	initRequestDetail.ProposedVersionNumber = NewInteger16([]byte{0x01, 0x01})
+	initRequestDetail.ProposedParameterCBB = NewParameterSupportOptions([]byte{0x03, 0x05, 0xf1, 0x00})
+	initRequestDetail.ServicesSupportedCalling = NewServiceSupportOptions(servicesSupportedCalling, 85)
+
+	initiateRequestPdu := NewInitiateRequestPDU()
+	initiateRequestPdu.LocalDetailCalling = NewInteger32(proposedMaxPduSize)
+	initiateRequestPdu.ProposedMaxServOutstandingCalling = NewInteger16Int(proposedMaxServOutstandingCalling)
+
+	initiateRequestPdu.ProposedMaxServOutstandingCalled = NewInteger16Int(proposedMaxServOutstandingCalled)
+	initiateRequestPdu.ProposedDataStructureNestingLevel = NewInteger8(proposedDataStructureNestingLevel)
+	initiateRequestPdu.InitRequestDetail = initRequestDetail
+
+	initiateRequestMMSpdu := NewMMSpdu()
+	initiateRequestMMSpdu.InitiateRequestPDU = initiateRequestPdu
+
+	return initiateRequestMMSpdu
 }
