@@ -1,9 +1,11 @@
 package src
 
+import "bytes"
+
 type RejectPDU struct {
 }
 
-func (p *RejectPDU) decode(is *ByteBufferInputStream, b bool) int {
+func (p *RejectPDU) decode(is *bytes.Buffer, b bool) int {
 	return 0
 }
 

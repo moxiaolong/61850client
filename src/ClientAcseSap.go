@@ -10,7 +10,7 @@ type ClientAcseSap struct {
 
 func (s *ClientAcseSap) associate(address string, port int, apdu *bytes.Buffer) *AcseAssociation {
 
-	a := NewAcseAssociation([]byte{0, 0, 0, 1})
+	a := NewAcseAssociation(nil, []byte{0, 0, 0, 1})
 
 	a.startAssociation(
 		apdu,

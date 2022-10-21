@@ -103,14 +103,14 @@ func (a *AcseAssociation) startAssociation(payload *bytes.Buffer, address string
 
 func decodePConResponse(ppdu *bytes.Buffer) *bytes.Buffer {
 	cpa_ppdu := NewCPAPPDU()
-	cpa_ppdu.decode(iStream)
+	cpa_ppdu.decode(ppdu)
 
 	acseApdu := NewACSEApdu()
 	acseApdu.decode(ppdu)
 	return bytes.NewBuffer(acseApdu.Aare.UserInformation.Myexternal[0].Encoding.SingleASN1Type.value)
 }
 
-func (a *AcseAssociation) startSConnection(ssduList [][]byte, ssduOffsets []int, ssduLengths []int, address string, port int, tSAP *ClientTSap, sSelRemote []byte, sSelLocal []byte) *ByteBuffer {
+func (a *AcseAssociation) startSConnection(ssduList [][]byte, ssduOffsets []int, ssduLengths []int, address string, port int, tSAP *ClientTSap, sSelRemote []byte, sSelLocal []byte) *bytes.Buffer {
 	if a.connected {
 		Throw("io error")
 	}
@@ -346,15 +346,82 @@ parameterLoop:
 }
 
 func (a *AcseAssociation) extractInteger(buffer *bytes.Buffer, length byte) int64 {
-
+	return 0
 }
 
 func getSPDUTypeString(spduType byte) string {
-
+	switch spduType {
+	case 0:
+		return "EXCEPTION REPORT (ER)"
+	case 1:
+		return "DATA TRANSFER (DT)"
+	case 2:
+		return "PLEASE TOKENS (PT)"
+	case 5:
+		return "EXPEDITED (EX)"
+	case 7:
+		return "PREPARE (PR)"
+	case 8:
+		return "NOT FINISHED (NF)"
+	case 9:
+		return "FINISH (FN)"
+	case 10:
+		return "DISCONNECT (DN)"
+	case 12:
+		return "REFUSE (RF)"
+	case 13:
+		return "CONNECT (CN)"
+	case 14:
+		return "ACCEPT (AC)"
+	case 15:
+		return "CONNECT DATA OVERFLOW (CDO)"
+	case 16:
+		return "OVERFLOW ACCEPT (OA)"
+	case 21:
+		return "GIVE TOKENS CONFIRM (GTC)"
+	case 22:
+		return "GIVE TOKENS ACK (GTA)"
+	case 25:
+		return "ABORT (AB)"
+	case 26:
+		return "ABORT ACCEPT (AA)"
+	case 29:
+		return "ACTIVITY RESUME (AR)"
+	case 33:
+		return "TYPED DATA (TD)"
+	case 34:
+		return "RESYNCHRONIZE ACK (RA)"
+	case 41:
+		return "MAJOR SYNC POINT (MAP)"
+	case 42:
+		return "MAJOR SYNC ACK (MAA)"
+	case 45:
+		return "ACTIVITY START (AS)"
+	case 48:
+		return "EXCEPTION DATA (ED)"
+	case 49:
+		return "MINOR SYNC POINT (MIP)"
+	case 50:
+		return "MINOR SYNC ACK (MIA)"
+	case 53:
+		return "RESYNCHRONIZE (RS)"
+	case 57:
+		return "ACTIVITY DISCARD (AD)"
+	case 58:
+		return "ACTIVITY DISCARD ACK (ADA)"
+	case 61:
+		return "CAPABILITY DATA (CD)"
+	case 62:
+		return "CAPABILITY DATA ACK (CDA)"
+	case 64:
+		return "UNIT DATA (UD)"
+	default:
+		return "<unknown SPDU type>"
+	}
 }
 
 func getPresentationUserDataField(array []byte) *UserData {
-
+	return nil
 }
 
 func NewAcseAssociation(tConnection *TConnection, pSelLocal []byte) *AcseAssociation {

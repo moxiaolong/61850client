@@ -1,6 +1,9 @@
 package src
 
-import "strconv"
+import (
+	"bytes"
+	"strconv"
+)
 
 type BerTag struct {
 	tagClass  int
@@ -8,14 +11,15 @@ type BerTag struct {
 	tagNumber int
 }
 
-func (t *BerTag) decode(is *ByteBufferInputStream) int {
-	nextByte := is.read()
-	if nextByte == -1 {
+func (t *BerTag) decode(is *bytes.Buffer) int {
+	nextByte, err := is.ReadByte()
+
+	if err != nil {
 		Throw("Unexpected end of input stream.")
 	} else {
-		t.tagClass = nextByte & 192
-		t.primitive = nextByte & 32
-		t.tagNumber = nextByte & 31
+		t.tagClass = int(nextByte & 192)
+		t.primitive = int(nextByte & 32)
+		t.tagNumber = int(nextByte & 31)
 		codeLength := 1
 
 		if t.tagNumber == 31 {
@@ -25,8 +29,9 @@ func (t *BerTag) decode(is *ByteBufferInputStream) int {
 			i := 0
 			for i == 0 || (nextByte&128) != 0 {
 				i++
-				nextByte = is.read()
-				if nextByte == -1 {
+
+				nextByte, err := is.ReadByte()
+				if err != nil {
 					Throw("Unexpected end of input stream.")
 				}
 				codeLength++
@@ -34,7 +39,7 @@ func (t *BerTag) decode(is *ByteBufferInputStream) int {
 					Throw("Tag is too large.")
 				}
 				t.tagNumber <<= 7
-				t.tagNumber |= nextByte & 127
+				t.tagNumber |= int(nextByte & 127)
 				numTagBytes++
 			}
 		}

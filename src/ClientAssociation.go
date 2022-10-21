@@ -42,7 +42,7 @@ func NewClientAssociation(address string, port int, acseSap *ClientAcseSap, prop
 
 	initiateResponseMmsPdu := NewMMSpdu()
 
-	initiateResponseMmsPdu.decode(NewByteBufferInputStream(initResponse))
+	initiateResponseMmsPdu.decode(initResponse)
 
 	c.handleInitiateResponse(
 		initiateResponseMmsPdu,

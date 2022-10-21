@@ -1,9 +1,11 @@
 package src
 
+import "bytes"
+
 type UnconfirmedPDU struct {
 }
 
-func (p *UnconfirmedPDU) decode(is *ByteBufferInputStream, b bool) int {
+func (p *UnconfirmedPDU) decode(is *bytes.Buffer, b bool) int {
 	return 0
 }
 

@@ -1,9 +1,11 @@
 package src
 
+import "bytes"
+
 type ConcludeRequestPDU struct {
 }
 
-func (p ConcludeRequestPDU) decode(is *ByteBufferInputStream, b bool) int {
+func (p ConcludeRequestPDU) decode(is *bytes.Buffer, b bool) int {
 	return 0
 }
 

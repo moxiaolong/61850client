@@ -1,5 +1,7 @@
 package src
 
+import "bytes"
+
 type InitiateRequestPDU struct {
 	LocalDetailCalling                *Integer32
 	ProposedMaxServOutstandingCalling *Integer16
@@ -8,7 +10,7 @@ type InitiateRequestPDU struct {
 	InitRequestDetail                 *InitRequestDetail
 }
 
-func (p *InitiateRequestPDU) decode(is *ByteBufferInputStream, b bool) int {
+func (p *InitiateRequestPDU) decode(is *bytes.Buffer, b bool) int {
 	return 0
 }
 

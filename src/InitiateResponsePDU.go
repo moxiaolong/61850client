@@ -1,5 +1,7 @@
 package src
 
+import "bytes"
+
 type InitiateResponsePDU struct {
 	LocalDetailCalled                   *LocalDetailCalled
 	NegotiatedMaxServOutstandingCalling *NegotiatedMaxServOutstandingCalling
@@ -8,7 +10,7 @@ type InitiateResponsePDU struct {
 	InitResponseDetail                  *InitResponseDetail
 }
 
-func (p *InitiateResponsePDU) decode(is *ByteBufferInputStream, b bool) int {
+func (p *InitiateResponsePDU) decode(is *bytes.Buffer, b bool) int {
 	return 0
 }
 

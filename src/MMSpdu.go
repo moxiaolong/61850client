@@ -1,5 +1,7 @@
 package src
 
+import "bytes"
+
 type MMSpdu struct {
 	confirmedRequestPDU  *ConfirmedRequestPDU
 	confirmedResponsePDU *ConfirmedResponsePDU
@@ -20,7 +22,7 @@ func (s *MMSpdu) encode(stream *ReverseByteArrayOutputStream) {
 
 }
 
-func (s *MMSpdu) decode(is *ByteBufferInputStream) int {
+func (s *MMSpdu) decode(is *bytes.Buffer) int {
 	tlvByteCount := 0
 
 	berTag := NewBerTag()
