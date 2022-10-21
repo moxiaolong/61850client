@@ -4,5 +4,5 @@ type ServerModel struct {
 }
 
 func SclParserParse(path string) []ServerModel {
-	return nil
+	return make([]ServerModel, 1)
 }

@@ -4,7 +4,7 @@ type ClientReceiver struct {
 }
 
 func NewClientReceiver(size int) *ClientReceiver {
-	return nil
+	return &ClientReceiver{}
 }
 func (r *ClientReceiver) start() {
 

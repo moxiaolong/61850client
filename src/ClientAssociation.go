@@ -1,7 +1,5 @@
 package src
 
-import "C"
-
 type ClientAssociation struct {
 	ServerModel          *ServerModel
 	responseTimeout      int
@@ -60,31 +58,31 @@ func NewClientAssociation(address string, port int, acseSap *ClientAcseSap, prop
 }
 
 func (c *ClientAssociation) handleInitiateResponse(responsePdu *MMSpdu, proposedMaxPduSize int, proposedMaxServOutstandingCalling int, proposedMaxServOutstandingCalled int, proposedDataStructureNestingLevel int) {
-	if responsePdu.InitiateErrorPDU != nil {
-		Throw("Got response error of class: ", responsePdu.InitiateErrorPDU.ErrorClass)
+	if responsePdu.initiateErrorPDU != nil {
+		Throw("Got response error of class: ", responsePdu.initiateErrorPDU.ErrorClass)
 	}
 
-	if responsePdu.InitiateResponsePDU == nil {
+	if responsePdu.initiateResponsePDU == nil {
 		c.acseAssociation.disconnect()
 		Throw("Error decoding InitiateResponse Pdu")
 	}
 
-	initiateResponsePdu := responsePdu.InitiateResponsePDU
+	initiateResponsePDU := responsePdu.initiateResponsePDU
 
-	if initiateResponsePdu.LocalDetailCalled != nil {
-		c.negotiatedMaxPduSize = initiateResponsePdu.LocalDetailCalled.intValue()
+	if initiateResponsePDU.LocalDetailCalled != nil {
+		c.negotiatedMaxPduSize = initiateResponsePDU.LocalDetailCalled.intValue()
 	}
 
 	negotiatedMaxServOutstandingCalling :=
-		initiateResponsePdu.NegotiatedMaxServOutstandingCalling.intValue()
+		initiateResponsePDU.NegotiatedMaxServOutstandingCalling.intValue()
 
 	negotiatedMaxServOutstandingCalled :=
-		initiateResponsePdu.NegotiatedMaxServOutstandingCalled.intValue()
+		initiateResponsePDU.NegotiatedMaxServOutstandingCalled.intValue()
 
 	var negotiatedDataStructureNestingLevel int
-	if initiateResponsePdu.NegotiatedDataStructureNestingLevel != nil {
+	if initiateResponsePDU.NegotiatedDataStructureNestingLevel != nil {
 		negotiatedDataStructureNestingLevel =
-			initiateResponsePdu.NegotiatedDataStructureNestingLevel.intValue()
+			initiateResponsePDU.NegotiatedDataStructureNestingLevel.intValue()
 	} else {
 		negotiatedDataStructureNestingLevel = proposedDataStructureNestingLevel
 	}
@@ -96,21 +94,21 @@ func (c *ClientAssociation) handleInitiateResponse(responsePdu *MMSpdu, proposed
 	}
 
 	version :=
-		initiateResponsePdu.InitResponseDetail.NegotiatedVersionNumber.intValue()
+		initiateResponsePDU.InitResponseDetail.NegotiatedVersionNumber.intValue()
 	if version != 1 {
 		Throw("Unsupported version number was negotiated.")
 	}
 
-	c.servicesSupported = initiateResponsePdu.InitResponseDetail.ServicesSupportedCalled.value
+	c.servicesSupported = initiateResponsePDU.InitResponseDetail.ServicesSupportedCalled.value
 	if (c.servicesSupported[0] & 0x40) != 0x40 {
 		Throw("Obligatory services are not supported by the server.")
 	}
 }
 
-func (a *ClientAssociation) close() {
+func (a *ClientAssociation) Close() {
 
 }
 
-func (a *ClientAssociation) retrieveModel() ServerModel {
+func (a *ClientAssociation) RetrieveModel() ServerModel {
 	return ServerModel{}
 }

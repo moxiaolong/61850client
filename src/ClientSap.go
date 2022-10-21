@@ -4,7 +4,7 @@ type ClientSap struct {
 	acseSap *ClientAcseSap
 }
 
-func newClientSap() *ClientSap {
+func NewClientSap() *ClientSap {
 	r := &ClientSap{}
 	acseSap := newClientAcseSap()
 	acseSap.tSap.tSelLocal = []byte{0, 0}
@@ -14,7 +14,7 @@ func newClientSap() *ClientSap {
 	return r
 }
 
-func (c *ClientSap) associate(address string, port int, eventListener *EventListener) *ClientAssociation {
+func (c *ClientSap) Associate(address string, port int, eventListener *EventListener) *ClientAssociation {
 	clientAssociation :=
 		NewClientAssociation(
 			address,
