@@ -4,6 +4,6 @@ type BerAny struct {
 	value []byte
 }
 
-func NewBerAny([]byte) *BerAny {
-	return &BerAny{}
+func NewBerAny(value []byte) *BerAny {
+	return &BerAny{value: value}
 }

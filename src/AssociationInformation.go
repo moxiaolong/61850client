@@ -1,14 +1,26 @@
 package src
 
 type AssociationInformation struct {
-	Myexternal []*Myexternal
+	seqOf []*Myexternal
+	Tag   *BerTag
 }
 
-func (i AssociationInformation) encode(os *ReverseByteArrayOutputStream, b bool) int {
-	//TODO
-	return 0
+func (a *AssociationInformation) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
+
+	codeLength := 0
+	for i := len(a.seqOf) - 1; i >= 0; i-- {
+		codeLength += a.seqOf[i].encode(reverseOS, true)
+	}
+
+	codeLength += encodeLength(reverseOS, codeLength)
+
+	if withTag {
+		codeLength += a.Tag.encode(reverseOS)
+	}
+
+	return codeLength
 }
 
 func NewAssociationInformation() *AssociationInformation {
-	return &AssociationInformation{}
+	return &AssociationInformation{Tag: NewBerTag(0, 32, 16)}
 }

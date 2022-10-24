@@ -2,6 +2,7 @@ package src
 
 import (
 	"bytes"
+	"encoding/binary"
 	"strconv"
 )
 
@@ -21,7 +22,10 @@ func (a *AcseAssociation) getAssociateResponseAPdu() *bytes.Buffer {
 }
 
 func (a *AcseAssociation) disconnect() {
-
+	a.connected = false
+	if a.tConnection != nil {
+		a.tConnection.disconnect()
+	}
 }
 
 func (a *AcseAssociation) startAssociation(payload *bytes.Buffer, address string, port int, sSelRemote []byte, sSelLocal []byte, pSelRemote []byte, tSAP *ClientTSap, apTitleCalled []int, apTitleCalling []int, aeQualifierCalled int, aeQualifierCalling int) {
@@ -48,7 +52,7 @@ func (a *AcseAssociation) startAssociation(payload *bytes.Buffer, address string
 	myExternal.Encoding = encoding
 
 	userInformation := NewAssociationInformation()
-	userInformation.Myexternal = append(userInformation.Myexternal, myExternal)
+	userInformation.seqOf = append(userInformation.seqOf, myExternal)
 
 	aarq := NewAARQApdu()
 	aarq.ApplicationContextName = NewBerObjectIdentifier([]byte{0x05, 0x28, 0xca, 0x22, 0x02, 0x03}) //static
@@ -345,8 +349,27 @@ parameterLoop:
 	return pduBuffer
 }
 
-func (a *AcseAssociation) extractInteger(buffer *bytes.Buffer, length byte) int64 {
-	return 0
+func (a *AcseAssociation) extractInteger(buffer *bytes.Buffer, size byte) int64 {
+	t := make([]byte, size)
+	_, err := buffer.Read(t)
+	if err != nil {
+		panic(err)
+	}
+	switch size {
+	case 1:
+		return int64(t[0])
+	case 2:
+		return int64(binary.LittleEndian.Uint16(t))
+	case 4:
+		return int64(binary.LittleEndian.Uint32(t))
+
+	case 8:
+		return int64(binary.LittleEndian.Uint64(t))
+
+	default:
+		Throw("invalid length for reading numeric value")
+	}
+	return -1
 }
 
 func getSPDUTypeString(spduType byte) string {

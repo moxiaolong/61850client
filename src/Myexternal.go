@@ -6,6 +6,10 @@ type Myexternal struct {
 	Encoding          *MyexternalEncoding
 }
 
+func (m *Myexternal) encode(os *ReverseByteArrayOutputStream, b bool) int {
+
+}
+
 func NewMyexternal() *Myexternal {
 	return &Myexternal{}
 }
