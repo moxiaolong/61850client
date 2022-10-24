@@ -25,7 +25,7 @@ func (s *MMSpdu) encode(stream *ReverseByteArrayOutputStream) {
 func (s *MMSpdu) decode(is *bytes.Buffer) int {
 	tlvByteCount := 0
 
-	berTag := NewBerTag()
+	berTag := NewBerTag(0, 0, 0)
 	tlvByteCount += berTag.decode(is)
 
 	if berTag.equals(128, 32, 0) {

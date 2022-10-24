@@ -2,6 +2,7 @@ package main
 
 import (
 	"Go61850Client/src"
+	"time"
 )
 
 var (
@@ -28,4 +29,22 @@ func main() {
 	association.ServerModel = &serverModel
 
 	serverModel = association.RetrieveModel()
+
+	for {
+		time.Sleep(time.Millisecond * 10)
+	}
 }
+
+//func main() {
+//
+//	buffer := []byte{1, 2, 3, 4}
+//	index := 0
+//	subBuffer := buffer[index+1:]
+//	fmt.Printf("%s", subBuffer)
+//	//subBufferLength := len(buffer) - index - 1;
+//
+//	//byte[] subBuffer = new byte[subBufferLength];
+//	//System.arraycopy(buffer, index + 1, subBuffer, 0, subBufferLength);
+//	//System.out.println(Arrays.toString(subBuffer));
+//
+//}

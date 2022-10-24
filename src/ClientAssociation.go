@@ -29,7 +29,7 @@ func NewClientAssociation(address string, port int, acseSap *ClientAcseSap, prop
 			proposedDataStructureNestingLevel,
 			servicesSupportedCalling)
 
-	reverseOStream := NewReverseByteArrayOutputStream(500, true)
+	reverseOStream := NewReverseByteArrayOutputStream(500)
 	initiateRequestMMSpdu.encode(reverseOStream)
 
 	c.acseAssociation =

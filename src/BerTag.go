@@ -2,13 +2,16 @@ package src
 
 import (
 	"bytes"
+	"math"
 	"strconv"
 )
 
 type BerTag struct {
-	tagClass  int
-	primitive int
-	tagNumber int
+	tagClass        int
+	primitive       int
+	tagNumber       int
+	identifierClass int
+	tagBytes        []byte
 }
 
 func (t *BerTag) decode(is *bytes.Buffer) int {
@@ -57,6 +60,41 @@ func (t *BerTag) toString() string {
 
 }
 
-func NewBerTag() *BerTag {
-	return &BerTag{}
+func (t *BerTag) code() {
+	if t.tagNumber < 31 {
+		t.tagBytes = make([]byte, 1)
+		t.tagBytes[0] = (byte)(t.tagClass | t.primitive | t.tagNumber)
+	} else {
+
+		tagLength := 1
+		for float64(t.tagNumber) > math.Pow(2.0, float64(7*tagLength))-1.0 {
+			tagLength++
+		}
+
+		t.tagBytes = make([]byte, 1+tagLength)
+		t.tagBytes[0] = (byte)(t.tagClass | t.primitive | 31)
+
+		for j := 0; j <= tagLength-1; j++ {
+			t.tagBytes[j] = (byte)(t.tagNumber>>7*(tagLength-j)&255 | 128)
+		}
+		t.tagBytes[tagLength] = (byte)(t.tagNumber & 127)
+	}
+}
+
+func (t *BerTag) encode(reverseOS *ReverseByteArrayOutputStream) int {
+	if t.tagBytes == nil {
+		t.code()
+	}
+
+	for i := len(t.tagBytes) - 1; i >= 0; i-- {
+		reverseOS.writeByte(t.tagBytes[i])
+	}
+
+	return len(t.tagBytes)
+}
+
+func NewBerTag(identifierClass int, primitive int, tagNumber int) *BerTag {
+	b := &BerTag{identifierClass: identifierClass, primitive: primitive, tagNumber: tagNumber}
+	b.code()
+	return b
 }

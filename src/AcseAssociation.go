@@ -61,7 +61,7 @@ func (a *AcseAssociation) startAssociation(payload *bytes.Buffer, address string
 	acse := NewACSEApdu()
 	acse.Aarq = aarq
 
-	reverseOStream := NewReverseByteArrayOutputStream(200, true)
+	reverseOStream := NewReverseByteArrayOutputStream(200)
 	acse.encode(reverseOStream)
 
 	userData := getPresentationUserDataField(reverseOStream.getArray())
