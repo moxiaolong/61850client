@@ -20,7 +20,14 @@ func (a *ACSEApdu) encode(reverseOS *ReverseByteArrayOutputStream) int {
 	return -1
 }
 
-func (a *ACSEApdu) decode(ppdu *bytes.Buffer) {
+func (a *ACSEApdu) decode(is *bytes.Buffer) int {
+
+	tlvByteCount := 0
+
+	berTag := NewBerTag(0, 0, 0)
+	tlvByteCount += berTag.decode(is)
+
+	return 0
 
 }
 

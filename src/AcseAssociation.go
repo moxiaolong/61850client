@@ -420,8 +420,20 @@ func getSPDUTypeString(spduType byte) string {
 	}
 }
 
-func getPresentationUserDataField(array []byte) *UserData {
-	return nil
+func getPresentationUserDataField(userDataBytes []byte) *UserData {
+	presDataValues := NewPDVListPresentationDataValues()
+	presDataValues.SingleASN1Type = NewBerAny(userDataBytes)
+	pdvList := NewPDVList()
+	pdvList.PresentationContextIdentifier = NewPresentationContextIdentifier()
+	pdvList.PresentationDataValues = presDataValues
+
+	fullyEncodedData := NewFullyEncodedData()
+	pdvListList := fullyEncodedData.getPDVList()
+	pdvListList = append(pdvListList, pdvList)
+
+	userData := NewUserData()
+	userData.FullyEncodedData = fullyEncodedData
+	return userData
 }
 
 func NewAcseAssociation(tConnection *TConnection, pSelLocal []byte) *AcseAssociation {
