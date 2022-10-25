@@ -14,6 +14,10 @@ func (p *InitiateRequestPDU) decode(is *bytes.Buffer, b bool) int {
 	return 0
 }
 
+func (p *InitiateRequestPDU) encode(os *ReverseByteArrayOutputStream, b bool) int {
+	return 0
+}
+
 func NewInitiateRequestPDU() *InitiateRequestPDU {
 	return &InitiateRequestPDU{}
 }

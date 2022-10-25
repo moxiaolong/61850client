@@ -1,15 +1,11 @@
 package src
 
-import "bytes"
-
 type ConcludeRequestPDU struct {
-}
-
-func (p ConcludeRequestPDU) decode(is *bytes.Buffer, b bool) int {
-	return 0
+	BerNull
 }
 
 func NewConcludeRequestPDU() *ConcludeRequestPDU {
-	return &ConcludeRequestPDU{}
+	berNull := NewBerNull()
+	return &ConcludeRequestPDU{*berNull}
 
 }

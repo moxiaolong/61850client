@@ -1,16 +1,13 @@
 package src
 
-import "bytes"
-
 type InitiateErrorPDU struct {
-	ErrorClass string
-}
-
-func (p *InitiateErrorPDU) decode(is *bytes.Buffer, b bool) int {
-	return 0
+	ServiceError
+	additionalDescription *BerVisibleString
+	additionalCode        *BerInteger
 }
 
 func NewInitiateErrorPDU() *InitiateErrorPDU {
-	return &InitiateErrorPDU{}
+	serviceError := NewServiceError()
+	return &InitiateErrorPDU{ServiceError: *serviceError}
 
 }

@@ -3,8 +3,7 @@ package src
 import "math"
 
 type ApTitleForm2 struct {
-	value []byte
-	Tag   *BerTag
+	BerObjectIdentifier
 }
 
 func (a *ApTitleForm2) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
@@ -42,6 +41,7 @@ func (a *ApTitleForm2) encode(reverseOS *ReverseByteArrayOutputStream, withTag b
 	return codeLength
 }
 
-func NewApTitleForm2([]int) *ApTitleForm2 {
-	return &ApTitleForm2{Tag: NewBerTag(0, 0, 6)}
+func NewApTitleForm2(value []int) *ApTitleForm2 {
+	identifier := NewBerObjectIdentifierOfValue(value)
+	return &ApTitleForm2{*identifier}
 }

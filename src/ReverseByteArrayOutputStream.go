@@ -39,8 +39,7 @@ func NewReverseByteArrayOutputStream(bufferSize int) *ReverseByteArrayOutputStre
 
 func (s *ReverseByteArrayOutputStream) write(byteArray []byte) {
 	for {
-		//TODO
-		s.buffer = append(s.buffer, byteArray...)
+		copy(s.buffer, byteArray)
 		s.index -= len(byteArray)
 		return
 	}
@@ -53,4 +52,8 @@ func (s *ReverseByteArrayOutputStream) writeByte(byte byte) {
 		s.index -= 1
 		return
 	}
+}
+
+func (s *ReverseByteArrayOutputStream) read() int {
+	return 0
 }

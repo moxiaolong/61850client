@@ -59,7 +59,7 @@ func NewClientAssociation(address string, port int, acseSap *ClientAcseSap, prop
 
 func (c *ClientAssociation) handleInitiateResponse(responsePdu *MMSpdu, proposedMaxPduSize int, proposedMaxServOutstandingCalling int, proposedMaxServOutstandingCalled int, proposedDataStructureNestingLevel int) {
 	if responsePdu.initiateErrorPDU != nil {
-		Throw("Got response error of class: ", responsePdu.initiateErrorPDU.ErrorClass)
+		Throw("Got response error of class: ") //responsePdu.initiateErrorPDU.ErrorClass) TODO
 	}
 
 	if responsePdu.initiateResponsePDU == nil {

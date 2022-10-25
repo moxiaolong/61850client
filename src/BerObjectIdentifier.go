@@ -54,3 +54,21 @@ func (t *BerObjectIdentifier) encode(reverseOS *ReverseByteArrayOutputStream, wi
 func NewBerObjectIdentifier(code []byte) *BerObjectIdentifier {
 	return &BerObjectIdentifier{code: code, Tag: NewBerTag(0, 0, 6)}
 }
+func NewBerObjectIdentifierOfValue(value []int) *BerObjectIdentifier {
+	if len(value) >= 2 && (value[0] != 0 && value[0] != 1 || value[1] <= 39) && value[0] <= 2 {
+		var2 := value
+		var3 := len(value)
+
+		for var4 := 0; var4 < var3; var4++ {
+			objectIdentifierComponent := var2[var4]
+			if objectIdentifierComponent < 0 {
+				Throw("invalid object identifier components")
+			}
+		}
+
+	} else {
+		Throw("invalid object identifier components")
+	}
+
+	return &BerObjectIdentifier{value: value, Tag: NewBerTag(0, 0, 6)}
+}

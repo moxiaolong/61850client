@@ -18,8 +18,83 @@ type MMSpdu struct {
 func NewMMSpdu() *MMSpdu {
 	return &MMSpdu{}
 }
-func (s *MMSpdu) encode(stream *ReverseByteArrayOutputStream) {
+func (s *MMSpdu) encode(reverseOS *ReverseByteArrayOutputStream) int {
 
+	codeLength := 0
+	if s.concludeRequestPDU != nil {
+		codeLength += s.concludeRequestPDU.encode(reverseOS, false)
+		// write tag: CONTEXT_CLASS, PRIMITIVE, 11
+		reverseOS.writeByte(0x8B)
+		codeLength += 1
+		return codeLength
+	}
+
+	if s.initiateErrorPDU != nil {
+		codeLength += s.initiateErrorPDU.encode(reverseOS, false)
+		// write tag: CONTEXT_CLASS, CONSTRUCTED, 10
+		reverseOS.writeByte(0xAA)
+		codeLength += 1
+		return codeLength
+	}
+
+	if s.initiateResponsePDU != nil {
+		codeLength += s.initiateResponsePDU.encode(reverseOS, false)
+		// write tag: CONTEXT_CLASS, CONSTRUCTED, 9
+		reverseOS.writeByte(0xA9)
+		codeLength += 1
+		return codeLength
+	}
+
+	if s.initiateRequestPDU != nil {
+		codeLength += s.initiateRequestPDU.encode(reverseOS, false)
+		// write tag: CONTEXT_CLASS, CONSTRUCTED, 8
+		reverseOS.writeByte(0xA8)
+		codeLength += 1
+		return codeLength
+	}
+
+	if s.rejectPDU != nil {
+		codeLength += s.rejectPDU.encode(reverseOS, false)
+		// write tag: CONTEXT_CLASS, CONSTRUCTED, 4
+		reverseOS.writeByte(0xA4)
+		codeLength += 1
+		return codeLength
+	}
+
+	if s.unconfirmedPDU != nil {
+		codeLength += s.unconfirmedPDU.encode(reverseOS, false)
+		// write tag: CONTEXT_CLASS, CONSTRUCTED, 3
+		reverseOS.writeByte(0xA3)
+		codeLength += 1
+		return codeLength
+	}
+
+	if s.confirmedErrorPDU != nil {
+		codeLength += s.confirmedErrorPDU.encode(reverseOS, false)
+		// write tag: CONTEXT_CLASS, CONSTRUCTED, 2
+		reverseOS.writeByte(0xA2)
+		codeLength += 1
+		return codeLength
+	}
+
+	if s.confirmedResponsePDU != nil {
+		codeLength += s.confirmedResponsePDU.encode(reverseOS, false)
+		// write tag: CONTEXT_CLASS, CONSTRUCTED, 1
+		reverseOS.writeByte(0xA1)
+		codeLength += 1
+		return codeLength
+	}
+
+	if s.confirmedRequestPDU != nil {
+		codeLength += s.confirmedRequestPDU.encode(reverseOS, false)
+		// write tag: CONTEXT_CLASS, CONSTRUCTED, 0
+		reverseOS.writeByte(0xA0)
+		codeLength += 1
+		return codeLength
+	}
+
+	Throw("Error encoding CHOICE: No element of CHOICE was selected.")
+	return -1
 }
 
 func (s *MMSpdu) decode(is *bytes.Buffer) int {

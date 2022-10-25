@@ -367,7 +367,7 @@ func (a *AcseAssociation) extractInteger(buffer *bytes.Buffer, size byte) int64 
 		return int64(binary.LittleEndian.Uint64(t))
 
 	default:
-		Throw("invalid length for reading numeric value")
+		Throw("invalid length for reading numeric code")
 	}
 	return -1
 }

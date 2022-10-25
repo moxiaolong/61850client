@@ -5,7 +5,7 @@ import "bytes"
 type CPAPPDU struct {
 }
 
-func (c *CPAPPDU) decode(stream *bytes.Buffer) {
+func (c *CPAPPDU) decode(*bytes.Buffer) {
 
 }
 

@@ -93,6 +93,26 @@ func (t *BerTag) encode(reverseOS *ReverseByteArrayOutputStream) int {
 	return len(t.tagBytes)
 }
 
+func (t *BerTag) decodeAndCheck(reverseOS *bytes.Buffer) int {
+	var2 := t.tagBytes
+	var3 := len(var2)
+
+	for var4 := 0; var4 < var3; var4++ {
+		identifierByte := var2[var4]
+		nextByte, err := reverseOS.ReadByte()
+
+		if err != nil {
+			Throw("Unexpected end of input stream.")
+		}
+
+		if nextByte != (identifierByte & 255) {
+			Throw("Identifier does not match, expected: ", string(identifierByte), ", received: ", string(nextByte))
+		}
+	}
+
+	return len(t.tagBytes)
+}
+
 func NewBerTag(identifierClass int, primitive int, tagNumber int) *BerTag {
 	b := &BerTag{identifierClass: identifierClass, primitive: primitive, tagNumber: tagNumber}
 	b.code()
