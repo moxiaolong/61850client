@@ -12,7 +12,6 @@ type MMSpdu struct {
 	initiateResponsePDU  *InitiateResponsePDU
 	initiateErrorPDU     *InitiateErrorPDU
 	concludeRequestPDU   *ConcludeRequestPDU
-	InitiateRequestPDU   *InitiateRequestPDU
 }
 
 func NewMMSpdu() *MMSpdu {
@@ -163,9 +162,9 @@ func (s *MMSpdu) decode(is *bytes.Buffer) int {
 
 func constructInitRequestPdu(proposedMaxPduSize int, proposedMaxServOutstandingCalling int, proposedMaxServOutstandingCalled int, proposedDataStructureNestingLevel int, servicesSupportedCalling []byte) *MMSpdu {
 	initRequestDetail := NewInitRequestDetail()
-	initRequestDetail.ProposedVersionNumber = NewInteger16([]byte{0x01, 0x01})
-	initRequestDetail.ProposedParameterCBB = NewParameterSupportOptions([]byte{0x03, 0x05, 0xf1, 0x00})
-	initRequestDetail.ServicesSupportedCalling = NewServiceSupportOptions(servicesSupportedCalling, 85)
+	initRequestDetail.proposedVersionNumber = NewInteger16([]byte{0x01, 0x01})
+	initRequestDetail.proposedParameterCBB = NewParameterSupportOptions([]byte{0x03, 0x05, 0xf1, 0x00})
+	initRequestDetail.servicesSupportedCalling = NewServiceSupportOptions(servicesSupportedCalling, 85)
 
 	initiateRequestPdu := NewInitiateRequestPDU()
 	initiateRequestPdu.LocalDetailCalling = NewInteger32(proposedMaxPduSize)
@@ -176,7 +175,7 @@ func constructInitRequestPdu(proposedMaxPduSize int, proposedMaxServOutstandingC
 	initiateRequestPdu.InitRequestDetail = initRequestDetail
 
 	initiateRequestMMSpdu := NewMMSpdu()
-	initiateRequestMMSpdu.InitiateRequestPDU = initiateRequestPdu
+	initiateRequestMMSpdu.initiateRequestPDU = initiateRequestPdu
 
 	return initiateRequestMMSpdu
 }

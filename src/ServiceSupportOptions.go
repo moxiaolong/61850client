@@ -1,8 +1,9 @@
 package src
 
 type ServiceSupportOptions struct {
+	BerBitString
 }
 
-func NewServiceSupportOptions([]byte, int) *ServiceSupportOptions {
-	return &ServiceSupportOptions{}
+func NewServiceSupportOptions(value []byte, numBits int) *ServiceSupportOptions {
+	return &ServiceSupportOptions{BerBitString: *NewBerBitString(value, numBits)}
 }
