@@ -21,9 +21,10 @@ func (t *BerInteger) encode(reverseOS *ReverseByteArrayOutputStream, withTag boo
 		}
 
 	} else {
-		buf := make([]byte, 8)
-		binary.BigEndian.PutUint64(buf, uint64(t.value))
+		buffer := bytes.NewBuffer([]byte{})
+		_ = binary.Write(buffer, binary.BigEndian, int64(t.value))
 
+		buf := buffer.Bytes()
 		codeLength := len(buf)
 		reverseOS.write(buf)
 		codeLength += encodeLength(reverseOS, codeLength)
@@ -39,8 +40,8 @@ func (t *BerInteger) decode(is *bytes.Buffer, b bool) int {
 	return 0
 }
 
-func NewBerInteger(value []byte) *BerInteger {
-	return &BerInteger{code: value, Tag: NewBerTag(0, 0, 2)}
+func NewBerInteger(code []byte, value int) *BerInteger {
+	return &BerInteger{code: code, value: value, Tag: NewBerTag(0, 0, 2)}
 }
 
 func (f *AEQualifierForm2) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {

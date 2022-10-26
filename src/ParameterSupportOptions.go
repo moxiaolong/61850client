@@ -1,13 +1,10 @@
 package src
 
 type ParameterSupportOptions struct {
+	BerBitString
 }
 
-func (o *ParameterSupportOptions) encode(os *ReverseByteArrayOutputStream, b bool) int {
-	return 0
-
-}
-
-func NewParameterSupportOptions([]byte) *ParameterSupportOptions {
-	return &ParameterSupportOptions{}
+func NewParameterSupportOptions(code []byte) *ParameterSupportOptions {
+	bitString := NewBerBitString(code, nil, 0)
+	return &ParameterSupportOptions{BerBitString: *bitString}
 }

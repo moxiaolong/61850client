@@ -1,13 +1,9 @@
 package src
 
 type Integer32 struct {
+	BerInteger
 }
 
-func (i *Integer32) encode(os *ReverseByteArrayOutputStream, b bool) int {
-	return 0
-
-}
-
-func NewInteger32(int) *Integer32 {
-	return &Integer32{}
+func NewInteger32(value int) *Integer32 {
+	return &Integer32{BerInteger: *NewBerInteger(nil, value)}
 }

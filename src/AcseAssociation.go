@@ -48,7 +48,7 @@ func (a *AcseAssociation) startAssociation(payload *bytes.Buffer, address string
 
 	myExternal := NewMyexternal()
 	myExternal.DirectReference = NewBerObjectIdentifier([]byte{0x02, 0x51, 0x01}) //static
-	myExternal.IndirectReference = NewBerInteger([]byte{0x01, 0x03})              //static
+	myExternal.IndirectReference = NewBerInteger([]byte{0x01, 0x03}, 0)           //static
 	myExternal.Encoding = encoding
 
 	userInformation := NewAssociationInformation()

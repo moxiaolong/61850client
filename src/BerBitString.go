@@ -7,8 +7,8 @@ type BerBitString struct {
 	code    []byte
 }
 
-func NewBerBitString(value []byte, numBits int) *BerBitString {
-	return &BerBitString{tag: NewBerTag(0, 0, 3), numBits: numBits, value: value}
+func NewBerBitString(code []byte, value []byte, numBits int) *BerBitString {
+	return &BerBitString{tag: NewBerTag(0, 0, 3), numBits: numBits, value: value, code: code}
 }
 
 func (o *BerBitString) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {

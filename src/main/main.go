@@ -37,10 +37,28 @@ func main() {
 
 //func main() {
 //
-//	buffer := []byte{1, 2, 3, 4}
-//	index := 0
-//	subBuffer := buffer[index+1:]
-//	fmt.Printf("%s", subBuffer)
+//	buffer := []byte{0, 0, 0, 0, 0, 0, 0, 5}
+//	index := 6
+//	newBuffer := make([]byte, len(buffer)*2)
+//	for i, b := range buffer {
+//		newBuffer[len(buffer)+i] = b
+//	}
+//	index += len(buffer)
+//	buffer = newBuffer
+//
+//	fmt.Printf("%x\r\n", buffer)
+//	fmt.Printf("%d\r\n", index)
+//
+//	//byteArray := []byte{1, 2, 3, 4}
+//	//buffer := []byte{0, 0, 0, 0, 0, 0, 0, 5}
+//	//index := 6
+//	//
+//	//for i := len(byteArray) - 1; i >= 0; i-- {
+//	//	buffer[index] = byteArray[i]
+//	//	index -= 1
+//	//}
+//	//
+//	//fmt.Printf("%x", buffer)
 //	//subBufferLength := len(buffer) - index - 1;
 //
 //	//byte[] subBuffer = new byte[subBufferLength];

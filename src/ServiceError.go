@@ -43,7 +43,7 @@ func (p *InitiateErrorPDU) decode(is *bytes.Buffer, withTag bool) int {
 	}
 
 	if berTag.equals(128, 0, 1) {
-		p.additionalCode = NewBerInteger(nil)
+		p.additionalCode = NewBerInteger(nil, 0)
 		vByteCount += p.additionalCode.decode(is, false)
 		if lengthVal >= 0 && vByteCount == lengthVal {
 			return tlByteCount + vByteCount

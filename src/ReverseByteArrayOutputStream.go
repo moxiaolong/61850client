@@ -39,21 +39,39 @@ func NewReverseByteArrayOutputStream(bufferSize int) *ReverseByteArrayOutputStre
 
 func (s *ReverseByteArrayOutputStream) write(byteArray []byte) {
 	for {
-		copy(s.buffer, byteArray)
-		s.index -= len(byteArray)
+		if s.index+1-len(byteArray) < 0 {
+			s.resize()
+			continue
+		}
+
+		//System.arraycopy(byteArray, 0, this.buffer, this.index-byteArray.length+1, byteArray.length)
+		for i := len(byteArray) - 1; i >= 0; i-- {
+			s.buffer[s.index] = byteArray[i]
+			s.index -= 1
+		}
 		return
 	}
 }
 
 func (s *ReverseByteArrayOutputStream) writeByte(byte byte) {
-	for {
-		//TODO
-		s.buffer = append(s.buffer, byte)
-		s.index -= 1
-		return
-	}
+	defer func() {
+		err := recover()
+		if err != nil {
+			s.resize()
+			s.buffer[s.index] = byte
+		}
+	}()
+	s.buffer[s.index] = byte
+	s.index -= 1
+	return
+
 }
 
-func (s *ReverseByteArrayOutputStream) read() int {
-	return 0
+func (s *ReverseByteArrayOutputStream) resize() {
+	newBuffer := make([]byte, len(s.buffer)*2)
+	for i, b := range s.buffer {
+		newBuffer[len(s.buffer)+i] = b
+	}
+	s.index += len(s.buffer)
+	s.buffer = newBuffer
 }

@@ -5,5 +5,5 @@ type ServiceSupportOptions struct {
 }
 
 func NewServiceSupportOptions(value []byte, numBits int) *ServiceSupportOptions {
-	return &ServiceSupportOptions{BerBitString: *NewBerBitString(value, numBits)}
+	return &ServiceSupportOptions{BerBitString: *NewBerBitString(nil, value, numBits)}
 }
