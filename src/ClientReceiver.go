@@ -3,6 +3,7 @@ package src
 import (
 	"bytes"
 	"container/list"
+	"strings"
 	"sync"
 )
 
@@ -160,15 +161,15 @@ func (r *ClientReceiver) processReport(mmsPdu *MMSpdu) { //*Report
 	index++
 	optFlds.value = listRes[(index)].Success.bitString.value
 
-	sqNum := -1
+	var sqNum *int = nil
 	if optFlds.isSequenceNumber() {
 		index++
-		sqNum = listRes[index].Success.Unsigned.value
+		sqNum = &listRes[index].Success.Unsigned.value
 	}
 
-	timeOfEntry := -1
+	var timeOfEntry *BdaEntryTime = nil
 	if optFlds.isReportTimestamp() {
-		timeOfEntry := NewBdaEntryTime(NewObjectReference("none"), nil, "", false, false)
+		timeOfEntry = NewBdaEntryTime(NewObjectReference("none"), nil, "", false, false)
 		index++
 		timeOfEntry.setValueFromMmsDataObj(listRes[index].Success)
 	}
@@ -187,107 +188,126 @@ func (r *ClientReceiver) processReport(mmsPdu *MMSpdu) { //*Report
 			}
 		}
 
-		if dataSetRef == null {
-			for Brcb
-		brcb:
-			serverModel.getBrcbs()) {
-				if brcb.getRptId() != null && brcb.getRptId().getStringValue().equals(rptId)
-|| brcb.getReference().toString().equals(rptId)) {
-dataSetRef = brcb.getDatSet().getStringValue();
-break;
-}
-}
-}
-}
-if (dataSetRef == null) {
-throw new ServiceError(
-ServiceError.FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT,
-"unable to find RCB that matches the given RptID in the report.");
-}
-dataSetRef = dataSetRef.replace('$', '.')
+		if dataSetRef == "" {
 
-DataSet dataSet = serverModel.getDataSet(dataSetRef)
-if (dataSet == null) {
-throw new ServiceError(
-ServiceError.FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT,
-"unable to find data set that matches the given data set reference of the report.");
-}
+			for s := range r.association.ServerModel.brcbs {
+				brcb := r.association.ServerModel.brcbs[s]
+				if brcb.getRptId() != nil && brcb.getRptId().getStringValue() == (rptId) || brcb.objectReference.toString() == (rptId) {
+					dataSetRef = brcb.getDatSet().getStringValue()
+					break
+				}
 
-Boolean bufOvfl = null
-if (optFlds.isBufferOverflow()) {
-bufOvfl = listRes.get(index++).getSuccess().getBool().value;
-}
+			}
+			if dataSetRef == "" {
+				Throw(
+					"unable to find RCB that matches the given RptID in the report.")
+			}
+			dataSetRef = strings.ReplaceAll(dataSetRef, "$", ".")
 
-BdaOctetString entryId = null
-if (optFlds.isEntryId()) {
-entryId = new BdaOctetString(new ObjectReference("none"), null, "", 8, false, false);
-entryId.setValue(listRes.get(index++).getSuccess().getOctetString().value);
-}
+			dataSet := r.association.ServerModel.getDataSet(dataSetRef)
+			if dataSet == nil {
+				Throw(
+					"unable to find data set that matches the given data set reference of the report.")
+			}
 
-Long confRev = null
-if (optFlds.isConfigRevision()) {
-confRev = listRes.get(index++).getSuccess().getUnsigned().longValue();
-}
+			var bufOvfl *bool
+			if optFlds.isBufferOverflow() {
+				index++
+				bufOvfl = &listRes[index].Success.bool.value
+			}
 
-Integer subSqNum = null
-boolean moreSegmentsFollow = false
-if (optFlds.isSegmentation()) {
-subSqNum = listRes.get(index++).getSuccess().getUnsigned().intValue();
-moreSegmentsFollow = listRes.get(index++).getSuccess().getBool().value;
-}
+			var entryId *BdaOctetString = nil
+			if optFlds.isEntryId() {
+				entryId = NewBdaOctetString(NewObjectReference("none"), nil, "", 8, false, false)
+				index++
+				entryId.setValue(listRes[index].Success.OctetString.value)
+			}
 
-boolean[] inclusionBitString =
-listRes.get(index++).getSuccess().getBitString().getValueAsBooleans()
-int numMembersReported = 0
-for (boolean bit: inclusionBitString) {
-if (bit) {
-numMembersReported++;
-}
-}
+			var confRev *int = nil
+			if optFlds.isConfigRevision() {
 
-if (optFlds.isDataReference()) {
-// this is just to move the index to the right place
-// The next part will process the changes to the values
-// without the dataRefs
-index += numMembersReported;
-}
+				index++
+				confRev = &listRes[index].Success.Unsigned.value
+			}
 
-List<FcModelNode> reportedDataSetMembers = new ArrayList<>(numMembersReported)
-int dataSetIndex = 0
-for (FcModelNode dataSetMember: dataSet.getMembers()) {
-if (inclusionBitString[dataSetIndex]) {
-AccessResult accessRes = listRes.get(index++);
-FcModelNode dataSetMemberCopy = (FcModelNode) dataSetMember.copy();
-dataSetMemberCopy.setValueFromMmsDataObj(accessRes.getSuccess());
-reportedDataSetMembers.add(dataSetMemberCopy);
-}
-dataSetIndex++;
-}
+			var subSqNum *int = nil
+			moreSegmentsFollow := false
+			if optFlds.isSegmentation() {
+				index++
+				subSqNum = &listRes[index].Success.Unsigned.value
+				index++
+				moreSegmentsFollow = listRes[index].Success.bool.value
+			}
 
-List<BdaReasonForInclusion> reasonCodes = null
-if (optFlds.isReasonForInclusion()) {
-reasonCodes = new ArrayList<>(dataSet.getMembers().size());
-for (int i = 0; i < dataSet.getMembers().size(); i++) {
-if (inclusionBitString[i]) {
-BdaReasonForInclusion reasonForInclusion = new BdaReasonForInclusion(null);
-reasonCodes.add(reasonForInclusion);
-byte[] reason = listRes.get(index++).getSuccess().getBitString().value;
-reasonForInclusion.setValue(reason);
-}
-}
-}
-return nil
-return new Report(
-rptId,
-sqNum,
-subSqNum,
-moreSegmentsFollow,
-dataSetRef,
-bufOvfl,
-confRev,
-timeOfEntry,
-entryId,
-inclusionBitString,
-reportedDataSetMembers,
-reasonCodes)
-}
+			index++
+			inclusionBitString := listRes[index].Success.bitString.getValueAsBooleans()
+			numMembersReported := 0
+			for boolean
+		bit:
+			inclusionBitString) {
+				if bit {
+					numMembersReported++
+				}
+			}
+
+			if optFlds.isDataReference() {
+				// this is just to move the index to the right place
+				// The next part will process the changes to the values
+				// without the dataRefs
+				index += numMembersReported
+			}
+
+			List < FcModelNode > reportedDataSetMembers = new
+			ArrayList < > (numMembersReported)
+			int
+			dataSetIndex = 0
+			for FcModelNode
+		dataSetMember:
+			dataSet.getMembers()) {
+				if inclusionBitString[dataSetIndex] {
+					AccessResult
+					accessRes = listRes.get(index++)
+					FcModelNode
+					dataSetMemberCopy = (FcModelNode)
+					dataSetMember.copy()
+					dataSetMemberCopy.setValueFromMmsDataObj(accessRes.getSuccess())
+					reportedDataSetMembers.add(dataSetMemberCopy)
+				}
+				dataSetIndex++
+			}
+
+			List < BdaReasonForInclusion > reasonCodes = null
+			if optFlds.isReasonForInclusion() {
+				reasonCodes = new
+				ArrayList < > (dataSet.getMembers().size())
+				for int
+				i = 0
+				i < dataSet.getMembers().size()
+				i++) {
+					if inclusionBitString[i] {
+						BdaReasonForInclusion
+						reasonForInclusion = new
+						BdaReasonForInclusion(null)
+						reasonCodes.add(reasonForInclusion)
+						byte[]
+						reason = listRes.get(index++).getSuccess().getBitString().value
+						reasonForInclusion.setValue(reason)
+					}
+				}
+			}
+			return nil
+			return new
+			Report(
+				rptId,
+				sqNum,
+				subSqNum,
+				moreSegmentsFollow,
+				dataSetRef,
+				bufOvfl,
+				confRev,
+				timeOfEntry,
+				entryId,
+				inclusionBitString,
+				reportedDataSetMembers,
+				reasonCodes)
+		}

@@ -38,3 +38,7 @@ func (o *BerBitString) encode(reverseOS *ReverseByteArrayOutputStream, withTag b
 	}
 
 }
+
+func (o *BerBitString) getValueAsBooleans() interface{} {
+
+}
