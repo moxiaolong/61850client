@@ -13,6 +13,10 @@ func (s BerVisibleString) encode(os *ReverseByteArrayOutputStream, b bool) int {
 	return 0
 }
 
+func (s BerVisibleString) toString() string {
+
+}
+
 func NewBerVisibleString() *BerVisibleString {
 	return &BerVisibleString{}
 }

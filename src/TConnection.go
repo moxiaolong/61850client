@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"math"
 	"net"
-	"time"
 )
 
 type TConnection struct {
@@ -32,6 +31,13 @@ func NewTConnection(socket *net.Conn, maxTPduSizeParam int, messageTimeout int, 
 	}
 	reader := bufio.NewReader(*socket)
 	writer := bufio.NewWriter(*socket)
+	var maxTPduSize int
+	if maxTPduSizeParam == 16 {
+		maxTPduSize = 65531
+	} else {
+
+		maxTPduSize = int(math.Pow(2, float64(maxTPduSizeParam)))
+	}
 
 	return &TConnection{
 		Socket:                 socket,
@@ -42,6 +48,7 @@ func NewTConnection(socket *net.Conn, maxTPduSizeParam int, messageTimeout int, 
 		closed:                 false,
 		os:                     writer,
 		is:                     reader,
+		maxTPduSize:            maxTPduSize,
 	}
 }
 
@@ -58,26 +65,26 @@ func NewTConnection(socket *net.Conn, maxTPduSizeParam int, messageTimeout int, 
  *     received within the message timeout.
  */
 func (t *TConnection) receive(tSduBuffer *bytes.Buffer) {
-	socket := *t.Socket
+	//socket := *t.Socket
 	is := t.is
 	packetLength := 0
 	eot := 0
 	li := 0
 	tPduCode := 0
-	duration, err := time.ParseDuration(fmt.Sprintf("%dms", t.messageTimeout))
-	if err != nil {
-		panic(err)
-	}
-	err = socket.SetDeadline(time.Now().Add(duration))
-	if err != nil {
-		panic(err)
-	}
+	//duration, err := time.ParseDuration(fmt.Sprintf("%dms", t.messageTimeout))
+	//if err != nil {
+	//	panic(err)
+	//}
+	//err = socket.SetDeadline(time.Now().Add(duration))
+	//if err != nil {
+	//	panic(err)
+	//}
 	version := readByte(is)
-	if err != nil {
-		panic(err)
-	}
-	duration, err = time.ParseDuration(fmt.Sprintf("%dms", t.messageFragmentTimeout))
-	err = socket.SetDeadline(time.Now().Add(duration))
+	//if err != nil {
+	//	panic(err)
+	//}
+	//duration, err = time.ParseDuration(fmt.Sprintf("%dms", t.messageFragmentTimeout))
+	//err = socket.SetDeadline(time.Now().Add(duration))
 
 	for eot != 0x80 {
 		// read version
@@ -231,16 +238,16 @@ func (t *TConnection) startConnection() {
 		panic(err)
 	}
 
-	conn := *t.Socket
+	//conn := *t.Socket
 
-	duration, err := time.ParseDuration(fmt.Sprintf("%dms", t.messageTimeout))
-	if err != nil {
-		panic(err)
-	}
-	err = conn.SetDeadline(time.Now().Add(duration))
-	if err != nil {
-		panic(err)
-	}
+	//duration, err := time.ParseDuration(fmt.Sprintf("%dms", t.messageTimeout))
+	//if err != nil {
+	//	panic(err)
+	//}
+	//err = conn.SetDeadline(time.Now().Add(duration))
+	//if err != nil {
+	//	panic(err)
+	//}
 
 	var myByte byte
 	var lengthIndicator int
@@ -522,7 +529,7 @@ func (t *TConnection) send(tsdus [][]byte, offsets []int, lengths []int) {
 
 	os := t.os
 	bytesLeft := 0
-	for length := range lengths {
+	for _, length := range lengths {
 		bytesLeft += length
 	}
 

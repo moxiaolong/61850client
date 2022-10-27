@@ -1,8 +1,9 @@
 package src
 
 type CallingPresentationSelector struct {
+	PresentationSelector
 }
 
-func NewCallingPresentationSelector([]byte) *CallingPresentationSelector {
-	return &CallingPresentationSelector{}
+func NewCallingPresentationSelector(value []byte) *CallingPresentationSelector {
+	return &CallingPresentationSelector{PresentationSelector: *NewPresentationSelector(value)}
 }

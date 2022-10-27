@@ -10,7 +10,7 @@ type ReverseByteArrayOutputStream struct {
 }
 
 func (s *ReverseByteArrayOutputStream) getByteBuffer() *bytes.Buffer {
-	return bytes.NewBuffer(s.buffer)
+	return bytes.NewBuffer(s.buffer[s.index+1:])
 }
 
 func (s *ReverseByteArrayOutputStream) getArray() []byte {
@@ -32,7 +32,6 @@ func NewReverseByteArrayOutputStream(bufferSize int) *ReverseByteArrayOutputStre
 	}
 	r := &ReverseByteArrayOutputStream{}
 	r.buffer = make([]byte, bufferSize)
-	r.index = bufferSize - 1
 	r.index = bufferSize - 1
 	return r
 }

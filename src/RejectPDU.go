@@ -3,6 +3,7 @@ package src
 import "bytes"
 
 type RejectPDU struct {
+	OriginalInvokeID *Unsigned32
 }
 
 func (p *RejectPDU) decode(is *bytes.Buffer, b bool) int {

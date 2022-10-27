@@ -3,6 +3,7 @@ package src
 import "bytes"
 
 type ConfirmedErrorPDU struct {
+	invokeID *Unsigned32
 }
 
 func (p *ConfirmedErrorPDU) decode(is *bytes.Buffer, b bool) int {

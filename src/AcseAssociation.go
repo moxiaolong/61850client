@@ -44,6 +44,7 @@ func (a *AcseAssociation) startAssociation(payload *bytes.Buffer, address string
 	calling_ae_qualifier.AeQualifierForm2 = NewAEQualifierForm2(aeQualifierCalling)
 
 	encoding := NewMyexternalEncoding()
+
 	encoding.SingleASN1Type = NewBerAny(payload.Bytes())
 
 	myExternal := NewMyexternal()
@@ -77,15 +78,17 @@ func (a *AcseAssociation) startAssociation(payload *bytes.Buffer, address string
 	normalModeParameter.UserData = userData
 
 	cpType := NewCPType()
-	cpType.ModeSelector = NewModeSelector()
+	modeSelector := NewModeSelector()
+	modeSelector.modeValue = NewBerInteger(nil, 1)
+	cpType.ModeSelector = modeSelector
 	cpType.NormalModeParameters = normalModeParameter
 
 	reverseOStream.reset()
 	cpType.encode(reverseOStream, true)
 
-	ssduList := make([][]byte, 1)
-	ssduOffsets := make([]int, 1)
-	ssduLengths := make([]int, 1)
+	ssduList := make([][]byte, 0)
+	ssduOffsets := make([]int, 0)
+	ssduLengths := make([]int, 0)
 
 	ssduList = append(ssduList, reverseOStream.buffer)
 	ssduOffsets = append(ssduOffsets, reverseOStream.index+1)
@@ -372,6 +375,10 @@ func (a *AcseAssociation) extractInteger(buffer *bytes.Buffer, size byte) int64 
 	return -1
 }
 
+func (a *AcseAssociation) receive(buffer *bytes.Buffer) []byte {
+
+}
+
 func getSPDUTypeString(spduType byte) string {
 	switch spduType {
 	case 0:
@@ -447,12 +454,12 @@ func getPresentationUserDataField(userDataBytes []byte) *UserData {
 	presDataValues := NewPDVListPresentationDataValues()
 	presDataValues.SingleASN1Type = NewBerAny(userDataBytes)
 	pdvList := NewPDVList()
-	pdvList.PresentationContextIdentifier = NewPresentationContextIdentifier()
+	pdvList.PresentationContextIdentifier = NewPresentationContextIdentifier([]byte{0x01, 0x01})
 	pdvList.PresentationDataValues = presDataValues
 
 	fullyEncodedData := NewFullyEncodedData()
 	pdvListList := fullyEncodedData.getPDVList()
-	pdvListList = append(pdvListList, pdvList)
+	fullyEncodedData.seqOf = append(pdvListList, pdvList)
 
 	userData := NewUserData()
 	userData.FullyEncodedData = fullyEncodedData

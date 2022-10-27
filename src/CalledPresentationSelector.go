@@ -1,9 +1,9 @@
 package src
 
 type CalledPresentationSelector struct {
-	value []byte
+	PresentationSelector
 }
 
 func NewCalledPresentationSelector(value []byte) *CalledPresentationSelector {
-	return &CalledPresentationSelector{value: value}
+	return &CalledPresentationSelector{PresentationSelector: *NewPresentationSelector(value)}
 }
