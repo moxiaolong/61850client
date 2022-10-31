@@ -27,7 +27,7 @@ type TConnection struct {
 
 func NewTConnection(socket *net.Conn, maxTPduSizeParam int, messageTimeout int, messageFragmentTimeout int, serverThread *ServerThread) *TConnection {
 	if maxTPduSizeParam < 7 || maxTPduSizeParam > 16 {
-		Throw("maxTPduSizeParam is incorrect")
+		throw("maxTPduSizeParam is incorrect")
 	}
 	reader := bufio.NewReader(*socket)
 	writer := bufio.NewWriter(*socket)

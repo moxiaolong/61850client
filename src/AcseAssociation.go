@@ -30,7 +30,7 @@ func (a *AcseAssociation) disconnect() {
 
 func (a *AcseAssociation) startAssociation(payload *bytes.Buffer, address string, port int, sSelRemote []byte, sSelLocal []byte, pSelRemote []byte, tSAP *ClientTSap, apTitleCalled []int, apTitleCalling []int, aeQualifierCalled int, aeQualifierCalling int) {
 	if a.connected {
-		Throw("io")
+		throw("io")
 	}
 
 	called_ap_title := NewAPTitle()
@@ -119,7 +119,7 @@ func decodePConResponse(ppdu *bytes.Buffer) *bytes.Buffer {
 
 func (a *AcseAssociation) startSConnection(ssduList [][]byte, ssduOffsets []int, ssduLengths []int, address string, port int, tSAP *ClientTSap, sSelRemote []byte, sSelLocal []byte) *bytes.Buffer {
 	if a.connected {
-		Throw("io error")
+		throw("io error")
 	}
 
 	spduHeader := make([]byte, 24)
@@ -230,7 +230,7 @@ func (a *AcseAssociation) startSConnection(ssduList [][]byte, ssduOffsets []int,
 	defer func() {
 		r := recover()
 		if r != nil {
-			Throw("ResponseTimeout waiting for connection response.")
+			throw("ResponseTimeout waiting for connection response.")
 		}
 	}()
 	a.tConnection.receive(pduBuffer)
@@ -242,7 +242,7 @@ func (a *AcseAssociation) startSConnection(ssduList [][]byte, ssduOffsets []int,
 		panic(err)
 	}
 	if spduType != 0x0e {
-		Throw("ISO 8327-1 header wrong SPDU type, expected ACCEPT (14), got ", getSPDUTypeString(spduType), " (", string(spduType), ")")
+		throw("ISO 8327-1 header wrong SPDU type, expected ACCEPT (14), got ", getSPDUTypeString(spduType), " (", string(spduType), ")")
 	}
 	_, _ = pduBuffer.ReadByte() // skip length byte
 
@@ -291,7 +291,7 @@ parameterLoop:
 						panic(err)
 					}
 					if protocolOptions != 0x00 {
-						Throw("SPDU Connect Accept Item/Protocol Options is ", string(protocolOptions), ", expected 0")
+						throw("SPDU Connect Accept Item/Protocol Options is ", string(protocolOptions), ", expected 0")
 					}
 					bytesToRead--
 					break
@@ -303,12 +303,12 @@ parameterLoop:
 						panic(err)
 					}
 					if versionNumber != 0x02 {
-						Throw("SPDU Connect Accept Item/Version Number is ", string(versionNumber), ", expected 2")
+						throw("SPDU Connect Accept Item/Version Number is ", string(versionNumber), ", expected 2")
 					}
 					bytesToRead--
 					break
 				default:
-					Throw("SPDU Connect Accept Item: parameter not implemented: ", string(caParameterType))
+					throw("SPDU Connect Accept Item: parameter not implemented: ", string(caParameterType))
 				}
 			}
 			break
@@ -318,7 +318,7 @@ parameterLoop:
 
 			sessionRequirement := a.extractInteger(pduBuffer, parameterLength)
 			if sessionRequirement != 0x02 {
-				Throw(
+				throw(
 					"SPDU header parameter 'Session Requirement (20)' is ", strconv.FormatInt(sessionRequirement, 10), ", expected 2")
 			}
 			break
@@ -326,7 +326,7 @@ parameterLoop:
 		case 0x33:
 			css := a.extractInteger(pduBuffer, parameterLength)
 			if css != 0x01 {
-				Throw("SPDU header parameter 'Calling Session Selector (51)' is ", strconv.FormatInt(css, 10), ", expected 1")
+				throw("SPDU header parameter 'Calling Session Selector (51)' is ", strconv.FormatInt(css, 10), ", expected 1")
 			}
 			break
 		// Called Session Selector (52)
@@ -334,14 +334,14 @@ parameterLoop:
 
 			calledSessionSelector := a.extractInteger(pduBuffer, parameterLength)
 			if calledSessionSelector != 0x01 {
-				Throw("SPDU header parameter 'Called Session Selector (52)' is ", strconv.FormatInt(calledSessionSelector, 10), ", expected 1")
+				throw("SPDU header parameter 'Called Session Selector (52)' is ", strconv.FormatInt(calledSessionSelector, 10), ", expected 1")
 			}
 			break
 		// Session user data (193)
 		case 0xc1:
 			break parameterLoop
 		default:
-			Throw("SPDU header parameter type ", string(parameterType), " not implemented")
+			throw("SPDU header parameter type ", string(parameterType), " not implemented")
 		}
 	}
 
@@ -370,13 +370,70 @@ func (a *AcseAssociation) extractInteger(buffer *bytes.Buffer, size byte) int64 
 		return int64(binary.LittleEndian.Uint64(t))
 
 	default:
-		Throw("invalid length for reading numeric code")
+		throw("invalid length for reading numeric code")
 	}
 	return -1
 }
 
-func (a *AcseAssociation) receive(buffer *bytes.Buffer) []byte {
+func (a *AcseAssociation) receive(pduBuffer *bytes.Buffer) []byte {
+	if !a.connected {
+		throw("ACSE Association not connected")
+	}
+	a.tConnection.receive(pduBuffer)
 
+	a.decodeSessionLayer(pduBuffer)
+
+	return a.decodePresentationLayer(pduBuffer)
+}
+
+func (a *AcseAssociation) decodeSessionLayer(pduBuffer *bytes.Buffer) {
+
+	firstByte, err := pduBuffer.ReadByte()
+	if err != nil {
+		panic(err)
+	}
+
+	if firstByte == 25 {
+		// got an ABORT SPDU
+		throw("Received an ABORT SPDU")
+	}
+
+	// -- read ISO 8327-1 header
+	// SPDU type: Give tokens PDU (1)
+	if firstByte != 0x01 {
+		throw("SPDU header syntax errror: first SPDU type not 1")
+	}
+	// length
+	length, err := pduBuffer.ReadByte()
+	if err != nil {
+		panic(err)
+	}
+	if length != 0 {
+		throw("SPDU header syntax errror: first SPDU type length not 0")
+	}
+	// SPDU Type: DATA TRANSFER (DT) SPDU (1)
+	spduType, err := pduBuffer.ReadByte()
+	if err != nil {
+		panic(err)
+	}
+	if spduType != 0x01 {
+		throw("SPDU header syntax errror: second SPDU type not 1")
+	}
+	// length
+	length, err = pduBuffer.ReadByte()
+	if err != nil {
+		panic(err)
+	}
+	if length != 0 {
+		throw("SPDU header syntax errror: second SPDU type length not 0")
+	}
+}
+
+func (a *AcseAssociation) decodePresentationLayer(pduBuffer *bytes.Buffer) []byte {
+	// decode PPDU header
+	userData := NewUserData()
+	userData.decode(pduBuffer, nil)
+	return userData.FullyEncodedData.seqOf[0].PresentationDataValues.SingleASN1Type.value
 }
 
 func getSPDUTypeString(spduType byte) string {

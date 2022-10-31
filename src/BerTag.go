@@ -18,7 +18,7 @@ func (t *BerTag) decode(is *bytes.Buffer) int {
 	nextByte, err := is.ReadByte()
 
 	if err != nil {
-		Throw("Unexpected end of input stream.")
+		throw("Unexpected end of input stream.")
 	} else {
 		t.tagClass = int(nextByte & 192)
 		t.primitive = int(nextByte & 32)
@@ -35,11 +35,11 @@ func (t *BerTag) decode(is *bytes.Buffer) int {
 
 				nextByte, err := is.ReadByte()
 				if err != nil {
-					Throw("Unexpected end of input stream.")
+					throw("Unexpected end of input stream.")
 				}
 				codeLength++
 				if numTagBytes >= 6 {
-					Throw("Tag is too large.")
+					throw("Tag is too large.")
 				}
 				t.tagNumber <<= 7
 				t.tagNumber |= int(nextByte & 127)
@@ -102,11 +102,11 @@ func (t *BerTag) decodeAndCheck(reverseOS *bytes.Buffer) int {
 		nextByte, err := reverseOS.ReadByte()
 
 		if err != nil {
-			Throw("Unexpected end of input stream.")
+			throw("Unexpected end of input stream.")
 		}
 
 		if nextByte != (identifierByte & 255) {
-			Throw("Identifier does not match, expected: ", string(identifierByte), ", received: ", string(nextByte))
+			throw("Identifier does not match, expected: ", string(identifierByte), ", received: ", string(nextByte))
 		}
 	}
 

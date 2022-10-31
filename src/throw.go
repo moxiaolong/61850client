@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func Throw(msg ...string) {
+func throw(msg ...string) {
 	var build strings.Builder
 	build.WriteString("")
 

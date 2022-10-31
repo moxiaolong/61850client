@@ -39,7 +39,7 @@ func (p *InitiateErrorPDU) decode(is *bytes.Buffer, withTag bool) int {
 		}
 		vByteCount += berTag.decode(is)
 	} else {
-		Throw("Tag does not match mandatory sequence component.")
+		throw("Tag does not match mandatory sequence component.")
 	}
 
 	if berTag.equals(128, 0, 1) {
@@ -62,13 +62,13 @@ func (p *InitiateErrorPDU) decode(is *bytes.Buffer, withTag bool) int {
 
 	if lengthVal < 0 {
 		if !berTag.equals(0, 0, 0) {
-			Throw("Decoded sequence has wrong end of contents octets")
+			throw("Decoded sequence has wrong end of contents octets")
 		}
 		vByteCount += readEocByte(is)
 		return tlByteCount + vByteCount
 	}
 
-	Throw(
+	throw(
 		"Unexpected end of sequence, length tag: ", strconv.Itoa(lengthVal),
 		", bytes decoded: ", strconv.Itoa(vByteCount))
 	return -1

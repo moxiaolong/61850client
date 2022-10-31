@@ -59,12 +59,12 @@ func NewClientAssociation(address string, port int, acseSap *ClientAcseSap, prop
 
 func (c *ClientAssociation) handleInitiateResponse(responsePdu *MMSpdu, proposedMaxPduSize int, proposedMaxServOutstandingCalling int, proposedMaxServOutstandingCalled int, proposedDataStructureNestingLevel int) {
 	if responsePdu.initiateErrorPDU != nil {
-		Throw("Got response error of class: ") //responsePdu.initiateErrorPDU.ErrorClass) TODO
+		throw("Got response error of class: ") //responsePdu.initiateErrorPDU.ErrorClass) TODO
 	}
 
 	if responsePdu.initiateResponsePDU == nil {
 		c.acseAssociation.disconnect()
-		Throw("Error decoding InitiateResponse Pdu")
+		throw("Error decoding InitiateResponse Pdu")
 	}
 
 	initiateResponsePDU := responsePdu.initiateResponsePDU
@@ -90,18 +90,18 @@ func (c *ClientAssociation) handleInitiateResponse(responsePdu *MMSpdu, proposed
 	if c.negotiatedMaxPduSize < 64 || c.negotiatedMaxPduSize > proposedMaxPduSize || negotiatedMaxServOutstandingCalling > proposedMaxServOutstandingCalling || negotiatedMaxServOutstandingCalling < 0 || negotiatedMaxServOutstandingCalled > proposedMaxServOutstandingCalled || negotiatedMaxServOutstandingCalled < 0 || negotiatedDataStructureNestingLevel > proposedDataStructureNestingLevel || negotiatedDataStructureNestingLevel < 0 {
 
 		c.acseAssociation.disconnect()
-		Throw("Error negotiating parameters")
+		throw("Error negotiating parameters")
 	}
 
 	version :=
 		initiateResponsePDU.InitResponseDetail.NegotiatedVersionNumber.intValue()
 	if version != 1 {
-		Throw("Unsupported version number was negotiated.")
+		throw("Unsupported version number was negotiated.")
 	}
 
 	c.servicesSupported = initiateResponsePDU.InitResponseDetail.ServicesSupportedCalled.value
 	if (c.servicesSupported[0] & 0x40) != 0x40 {
-		Throw("Obligatory services are not supported by the server.")
+		throw("Obligatory services are not supported by the server.")
 	}
 }
 

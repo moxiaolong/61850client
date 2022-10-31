@@ -1,5 +1,7 @@
 package src
 
+import "bytes"
+
 type UserData struct {
 	FullyEncodedData *FullyEncodedData
 }
@@ -15,8 +17,12 @@ func (t *UserData) encode(reverseOS *ReverseByteArrayOutputStream) int {
 		return codeLength
 	}
 
-	Throw("Error encoding CHOICE: No element of CHOICE was selected.")
+	throw("Error encoding CHOICE: No element of CHOICE was selected.")
 	return -1
+}
+
+func (t *UserData) decode(buffer *bytes.Buffer, t2 *BerTag) {
+
 }
 
 func NewUserData() *UserData {

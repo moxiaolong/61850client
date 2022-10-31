@@ -128,19 +128,19 @@ func (r *ClientReceiver) close(err any) {
 
 func (r *ClientReceiver) processReport(mmsPdu *MMSpdu) *Report {
 	if mmsPdu.unconfirmedPDU == nil {
-		Throw("getReport: Error decoding server response")
+		throw("getReport: Error decoding server response")
 	}
 
 	unconfirmedRes := mmsPdu.unconfirmedPDU
 
 	if unconfirmedRes.Service == nil {
-		Throw("getReport: Error decoding server response")
+		throw("getReport: Error decoding server response")
 	}
 
 	unconfirmedServ := unconfirmedRes.Service
 
 	if unconfirmedServ.InformationReport == nil {
-		Throw("getReport: Error decoding server response")
+		throw("getReport: Error decoding server response")
 	}
 
 	listRes :=
@@ -149,13 +149,13 @@ func (r *ClientReceiver) processReport(mmsPdu *MMSpdu) *Report {
 	index := 0
 
 	if listRes[index].Success.visibleString == nil {
-		Throw("processReport: report does not contain RptID")
+		throw("processReport: report does not contain RptID")
 	}
 	index++
 	rptId := listRes[index].Success.visibleString.toString()
 
 	if listRes[index].Success.bitString == nil {
-		Throw("processReport: report does not contain OptFlds")
+		throw("processReport: report does not contain OptFlds")
 	}
 
 	optFlds := NewBdaOptFlds(NewObjectReference("none"), nil)
@@ -191,7 +191,7 @@ func (r *ClientReceiver) processReport(mmsPdu *MMSpdu) *Report {
 	}
 
 	if dataSetRef == "" {
-		Throw(
+		throw(
 			"unable to find RCB that matches the given RptID in the report.")
 	}
 
@@ -199,7 +199,7 @@ func (r *ClientReceiver) processReport(mmsPdu *MMSpdu) *Report {
 
 	dataSet := r.association.ServerModel.getDataSet(dataSetRef)
 	if dataSet == nil {
-		Throw(
+		throw(
 			"unable to find data set that matches the given data set reference of the report.")
 	}
 

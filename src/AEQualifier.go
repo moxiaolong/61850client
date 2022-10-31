@@ -12,7 +12,7 @@ func (q *AEQualifier) encode(reverseOS *ReverseByteArrayOutputStream) int {
 		return codeLength
 	}
 
-	Throw("Error encoding CHOICE: No element of CHOICE was selected.")
+	throw("Error encoding CHOICE: No element of CHOICE was selected.")
 	return -1
 }
 

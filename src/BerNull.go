@@ -29,7 +29,7 @@ func (b *BerNull) decode(reverseOS *bytes.Buffer, withTag bool) int {
 	length := NewBerLength()
 	codeLength += length.decode(reverseOS)
 	if length.val != 0 {
-		Throw("Decoded length of BerNull is not correct")
+		throw("Decoded length of BerNull is not correct")
 		return -1
 	} else {
 		return codeLength

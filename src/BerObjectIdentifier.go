@@ -62,12 +62,12 @@ func NewBerObjectIdentifierOfValue(value []int) *BerObjectIdentifier {
 		for var4 := 0; var4 < var3; var4++ {
 			objectIdentifierComponent := var2[var4]
 			if objectIdentifierComponent < 0 {
-				Throw("invalid object identifier components")
+				throw("invalid object identifier components")
 			}
 		}
 
 	} else {
-		Throw("invalid object identifier components")
+		throw("invalid object identifier components")
 	}
 
 	return &BerObjectIdentifier{value: value, Tag: NewBerTag(0, 0, 6)}

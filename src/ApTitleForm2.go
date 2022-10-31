@@ -14,9 +14,9 @@ func (a *ApTitleForm2) encode(reverseOS *ReverseByteArrayOutputStream, withTag b
 	for i := len(a.value) - 1; i > 0; i-- {
 		subidentifier := 0
 		if i == 1 {
-			subidentifier = int(firstSubidentifier)
+			subidentifier = firstSubidentifier
 		} else {
-			subidentifier = int(a.value[i])
+			subidentifier = a.value[i]
 		}
 
 		subIDLength := 1

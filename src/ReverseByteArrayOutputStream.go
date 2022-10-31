@@ -28,7 +28,7 @@ func (s *ReverseByteArrayOutputStream) reset() {
 
 func NewReverseByteArrayOutputStream(bufferSize int) *ReverseByteArrayOutputStream {
 	if bufferSize <= 0 {
-		Throw("buffer size may not be <= 0")
+		throw("buffer size may not be <= 0")
 	}
 	r := &ReverseByteArrayOutputStream{}
 	r.buffer = make([]byte, bufferSize)
