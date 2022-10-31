@@ -8,3 +8,7 @@ type ModelNode struct {
 func NewModelNode() *ModelNode {
 	return &ModelNode{}
 }
+
+func (n *ModelNode) copy() *ModelNode {
+
+}

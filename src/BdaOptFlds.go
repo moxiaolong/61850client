@@ -32,6 +32,14 @@ func (f *BdaOptFlds) isSegmentation() bool {
 
 }
 
+func (f *BdaOptFlds) isDataReference() bool {
+
+}
+
+func (f *BdaOptFlds) isReasonForInclusion() bool {
+
+}
+
 func NewBdaOptFlds(*ObjectReference, interface{}) *BdaOptFlds {
 	return &BdaOptFlds{}
 }
