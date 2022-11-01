@@ -4,6 +4,6 @@ type Brcb struct {
 	Rcb
 }
 
-func NewBrcb() *Brcb {
+func NewBrcb(*ObjectReference, []*FcModelNode) *Brcb {
 	return &Brcb{}
 }

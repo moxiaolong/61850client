@@ -4,7 +4,7 @@ type DataSet struct {
 }
 
 func (s *DataSet) getMembers() []*FcModelNode {
-
+	return nil
 }
 
 func NewDataSet() *DataSet {

@@ -5,6 +5,8 @@ type SEQUENCE struct {
 	abstractSyntaxName            *AbstractSyntaxName
 	presentationContextIdentifier *PresentationContextIdentifier
 	tag                           *BerTag
+	ComponentName                 *Identifier
+	ComponentType                 *TypeSpecification
 }
 
 func (s *SEQUENCE) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {

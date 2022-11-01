@@ -4,6 +4,6 @@ type FcDataObject struct {
 	FcModelNode
 }
 
-func NewFcDataObject() *FcDataObject {
+func NewFcDataObject(*ObjectReference, string, []*FcModelNode) *FcDataObject {
 	return &FcDataObject{}
 }

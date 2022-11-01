@@ -6,8 +6,14 @@ type ServerModel struct {
 	brcbs map[string]*Brcb
 }
 
-func (m ServerModel) getDataSet(ref string) *DataSet {
+func NewServerModel([]*LogicalDevice, []*DataSet) *ServerModel {
 
+	return &ServerModel{}
+
+}
+
+func (m ServerModel) getDataSet(ref string) *DataSet {
+	return nil
 }
 
 func SclParserParse(path string) []ServerModel {

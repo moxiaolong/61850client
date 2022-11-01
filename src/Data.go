@@ -6,6 +6,7 @@ type Data struct {
 	Unsigned      *BerInteger
 	bool          *BerBoolean
 	OctetString   *BerOctetString
+	binaryTime    *TimeOfDay
 }
 
 func NewData() *Data {

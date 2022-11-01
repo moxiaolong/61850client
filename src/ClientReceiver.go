@@ -158,7 +158,7 @@ func (r *ClientReceiver) processReport(mmsPdu *MMSpdu) *Report {
 		throw("processReport: report does not contain OptFlds")
 	}
 
-	optFlds := NewBdaOptFlds(NewObjectReference("none"), nil)
+	optFlds := NewBdaOptFlds(NewObjectReference("none"), "")
 	index++
 	optFlds.value = listRes[(index)].Success.bitString.value
 
@@ -170,7 +170,7 @@ func (r *ClientReceiver) processReport(mmsPdu *MMSpdu) *Report {
 
 	var timeOfEntry *BdaEntryTime = nil
 	if optFlds.isReportTimestamp() {
-		timeOfEntry = NewBdaEntryTime(NewObjectReference("none"), nil, "", false, false)
+		timeOfEntry = NewBdaEntryTime(NewObjectReference("none"), "", "", false, false)
 		index++
 		timeOfEntry.setValueFromMmsDataObj(listRes[index].Success)
 	}
@@ -211,7 +211,7 @@ func (r *ClientReceiver) processReport(mmsPdu *MMSpdu) *Report {
 
 	var entryId *BdaOctetString = nil
 	if optFlds.isEntryId() {
-		entryId = NewBdaOctetString(NewObjectReference("none"), nil, "", 8, false, false)
+		entryId = NewBdaOctetString(NewObjectReference("none"), "", "", 8, false, false)
 		index++
 		entryId.setValue(listRes[index].Success.OctetString.value)
 	}

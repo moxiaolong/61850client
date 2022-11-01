@@ -36,8 +36,26 @@ func (t *BerInteger) encode(reverseOS *ReverseByteArrayOutputStream, withTag boo
 	}
 }
 
-func (t *BerInteger) decode(is *bytes.Buffer, b bool) int {
-	return 0
+func (t *BerInteger) decode(is *bytes.Buffer, withTag bool) int {
+	codeLength := 0
+	if withTag {
+		codeLength += t.Tag.decodeAndCheck(is)
+	}
+
+	length := NewBerLength()
+	codeLength += length.decode(is)
+	if length.val < 1 {
+		throw("Decoded length of BerInteger is not correct")
+	} else {
+
+		byteCode := make([]byte, length.val)
+		readFully(is, byteCode)
+		codeLength += length.val
+		//TODO
+		t.value = int(binary.LittleEndian.Uint64(byteCode))
+		return codeLength
+	}
+	return -1
 }
 
 func NewBerInteger(code []byte, value int) *BerInteger {

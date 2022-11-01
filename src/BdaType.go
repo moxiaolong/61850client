@@ -1,0 +1,27 @@
+package src
+
+const (
+	BOOLEAN              = "BOOLEAN"
+	INT8                 = "INT8"
+	INT16                = "INT16"
+	INT32                = "INT32"
+	INT64                = "INT64"
+	INT128               = "INT128"
+	INT8U                = "INT8U"
+	INT16U               = "INT16U"
+	INT32U               = "INT32U"
+	FLOAT32              = "FLOAT32"
+	FLOAT64              = "FLOAT64"
+	OCTET_STRING         = "OCTET_STRING"
+	VISIBLE_STRING       = "VISIBLE_STRING"
+	UNICODE_STRING       = "UNICODE_STRING"
+	TIMESTAMP            = "TIMESTAMP"
+	ENTRY_TIME           = "ENTRY_TIME"
+	CHECK                = "CHECK"
+	QUALITY              = "QUALITY"
+	DOUBLE_BIT_POS       = "DOUBLE_BIT_POS"
+	TAP_COMMAND          = "TAP_COMMAND"
+	TRIGGER_CONDITIONS   = "TRIGGER_CONDITIONS"
+	OPTFLDS              = "OPTFLDS"
+	REASON_FOR_INCLUSION = "REASON_FOR_INCLUSION"
+)

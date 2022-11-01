@@ -40,5 +40,15 @@ func (o *BerBitString) encode(reverseOS *ReverseByteArrayOutputStream, withTag b
 }
 
 func (o *BerBitString) getValueAsBooleans() []bool {
+	if o.value == nil {
+		return nil
+	} else {
+		booleans := make([]bool, o.numBits)
 
+		for i := 0; i < o.numBits; i++ {
+			booleans[i] = int(o.value[i/8])&1<<7-i%8 > 0
+		}
+
+		return booleans
+	}
 }

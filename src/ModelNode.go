@@ -10,5 +10,5 @@ func NewModelNode() *ModelNode {
 }
 
 func (n *ModelNode) copy() *ModelNode {
-
+	return nil
 }
