@@ -23,8 +23,28 @@ func (t *BerInteger) encode(reverseOS *ReverseByteArrayOutputStream, withTag boo
 	} else {
 		buffer := bytes.NewBuffer([]byte{})
 		_ = binary.Write(buffer, binary.BigEndian, int64(t.value))
+		//仿照Java bigint 转 byteArray 大端 保留有效位
+		var buf []byte
+		for buffer.Len() > 0 {
+			b, _ := buffer.ReadByte()
+			if b != 0 {
+				buf = append([]byte{b}, buffer.Bytes()...)
+				break
+			}
+		}
+		if buf == nil {
+			buf = []byte{0}
+		}
+		//补正负位
+		heightBit := buf[0] >> 7
+		if heightBit == 1 {
+			if t.value < 0 {
+				buf = append([]byte{1}, buf...)
+			} else {
+				buf = append([]byte{0}, buf...)
+			}
+		}
 
-		buf := buffer.Bytes()
 		codeLength := len(buf)
 		reverseOS.write(buf)
 		codeLength += encodeLength(reverseOS, codeLength)

@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	serverModel = src.ServerModel{}
+	serverModel = &src.ServerModel{}
 )
 
 func main() {
@@ -26,7 +26,7 @@ func main() {
 	}()
 
 	serverModel = src.SclParserParse(modelFilePath)[0]
-	association.ServerModel = &serverModel
+	association.ServerModel = serverModel
 
 	serverModel = association.RetrieveModel()
 

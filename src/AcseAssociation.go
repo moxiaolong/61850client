@@ -45,6 +45,7 @@ func (a *AcseAssociation) startAssociation(payload *bytes.Buffer, address string
 
 	encoding := NewMyexternalEncoding()
 
+	//TODO
 	encoding.SingleASN1Type = NewBerAny(payload.Bytes())
 
 	myExternal := NewMyexternal()
