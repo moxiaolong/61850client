@@ -81,17 +81,3 @@ func (t *BerInteger) decode(is *bytes.Buffer, withTag bool) int {
 func NewBerInteger(code []byte, value int) *BerInteger {
 	return &BerInteger{code: code, value: value, Tag: NewBerTag(0, 0, 2)}
 }
-
-func (f *AEQualifierForm2) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
-
-	encoded := f.code
-	codeLength := len(encoded)
-	reverseOS.write(encoded)
-	codeLength += encodeLength(reverseOS, codeLength)
-	if withTag {
-		codeLength += f.Tag.encode(reverseOS)
-	}
-
-	return codeLength
-
-}

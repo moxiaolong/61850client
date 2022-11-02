@@ -7,11 +7,10 @@ import (
 )
 
 type BerTag struct {
-	tagClass        int
-	primitive       int
-	tagNumber       int
-	identifierClass int
-	tagBytes        []byte
+	tagClass  int
+	primitive int
+	tagNumber int
+	tagBytes  []byte
 }
 
 func (t *BerTag) decode(is *bytes.Buffer) int {
@@ -114,7 +113,7 @@ func (t *BerTag) decodeAndCheck(reverseOS *bytes.Buffer) int {
 }
 
 func NewBerTag(identifierClass int, primitive int, tagNumber int) *BerTag {
-	b := &BerTag{identifierClass: identifierClass, primitive: primitive, tagNumber: tagNumber}
+	b := &BerTag{tagClass: identifierClass, primitive: primitive, tagNumber: tagNumber}
 	b.code()
 	return b
 }

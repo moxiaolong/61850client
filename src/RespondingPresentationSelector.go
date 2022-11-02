@@ -1,9 +1,9 @@
 package src
 
 type RespondingPresentationSelector struct {
-	value []byte
+	PresentationSelector
 }
 
-func NewRespondingPresentationSelector([]byte) *RespondingPresentationSelector {
-	return &RespondingPresentationSelector{}
+func NewRespondingPresentationSelector(value []byte) *RespondingPresentationSelector {
+	return &RespondingPresentationSelector{*NewPresentationSelector(value)}
 }

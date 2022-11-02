@@ -29,6 +29,7 @@ func NewTConnection(socket *net.Conn, maxTPduSizeParam int, messageTimeout int, 
 	if maxTPduSizeParam < 7 || maxTPduSizeParam > 16 {
 		throw("maxTPduSizeParam is incorrect")
 	}
+
 	reader := bufio.NewReader(*socket)
 	writer := bufio.NewWriter(*socket)
 	var maxTPduSize int
@@ -67,6 +68,7 @@ func NewTConnection(socket *net.Conn, maxTPduSizeParam int, messageTimeout int, 
 func (t *TConnection) receive(tSduBuffer *bytes.Buffer) {
 	//socket := *t.Socket
 	is := t.is
+
 	packetLength := 0
 	eot := 0
 	li := 0
@@ -527,6 +529,7 @@ func getMaxTPDUSize(maxTPDUSizeParam int) int {
 
 func (t *TConnection) send(tsdus [][]byte, offsets []int, lengths []int) {
 
+	//TODO
 	os := t.os
 	bytesLeft := 0
 	for _, length := range lengths {
@@ -583,7 +586,7 @@ func (t *TConnection) send(tsdus [][]byte, offsets []int, lengths []int) {
 				tsduOffset = 0
 				byteArrayListIndex++
 			} else {
-				_, err := os.Write(tsdu[offset+tsduOffset : numBytesToWrite])
+				_, err := os.Write(tsdu[offset+tsduOffset : offset+tsduOffset+numBytesToWrite])
 				if err != nil {
 					panic(err)
 				}
