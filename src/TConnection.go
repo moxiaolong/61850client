@@ -169,7 +169,6 @@ func (t *TConnection) receive(tSduBuffer *bytes.Buffer) {
 		}
 
 	}
-	tSduBuffer.Reset()
 }
 
 /**

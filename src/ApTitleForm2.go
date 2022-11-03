@@ -35,7 +35,7 @@ func (a *ApTitleForm2) encode(reverseOS *ReverseByteArrayOutputStream, withTag b
 
 	codeLength += encodeLength(reverseOS, codeLength)
 	if withTag {
-		codeLength += a.Tag.encode(reverseOS)
+		codeLength += a.tag.encode(reverseOS)
 	}
 
 	return codeLength

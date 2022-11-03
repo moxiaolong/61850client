@@ -1,5 +1,7 @@
 package src
 
+import "bytes"
+
 type BerBitString struct {
 	value   []byte
 	numBits int
@@ -51,4 +53,33 @@ func (o *BerBitString) getValueAsBooleans() []bool {
 
 		return booleans
 	}
+}
+
+func (o *BerBitString) decode(is *bytes.Buffer, withTag bool) int {
+	codeLength := 0
+	if withTag {
+		codeLength += o.tag.decodeAndCheck(is)
+	}
+
+	length := NewBerLength()
+	codeLength += length.decode(is)
+	o.value = make([]byte, length.val-1)
+	unusedBits, err := is.ReadByte()
+	if err != nil {
+		throw("Unexpected end of input stream.")
+	} else if unusedBits > 7 {
+		throw("Number of unused bits in bit string expected to be less than 8 but is: ", string(unusedBits))
+	} else {
+		o.numBits = len(o.value)*8 - int(unusedBits)
+		if len(o.value) > 0 {
+			_, err := is.Read(o.value)
+			if err != nil {
+				panic(err)
+			}
+		}
+
+		codeLength += len(o.value) + 1
+		return codeLength
+	}
+	return -1
 }

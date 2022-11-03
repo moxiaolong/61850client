@@ -1,5 +1,9 @@
 package src
 
+import (
+	"bytes"
+)
+
 type AEQualifier struct {
 	AeQualifierForm2 *AEQualifierForm2
 }
@@ -14,6 +18,10 @@ func (q *AEQualifier) encode(reverseOS *ReverseByteArrayOutputStream) int {
 
 	throw("Error encoding CHOICE: No element of CHOICE was selected.")
 	return -1
+}
+
+func (q *AEQualifier) decode(is *bytes.Buffer, t interface{}) int {
+
 }
 
 func NewAEQualifier() *AEQualifier {

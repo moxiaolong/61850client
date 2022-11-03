@@ -72,7 +72,9 @@ func (t *BerInteger) decode(is *bytes.Buffer, withTag bool) int {
 		readFully(is, byteCode)
 		codeLength += length.val
 		//TODO
-		t.value = int(binary.LittleEndian.Uint64(byteCode))
+		byteCode = append(make([]byte, 8-len(byteCode)), byteCode...)
+
+		t.value = int(binary.BigEndian.Uint64(byteCode))
 		return codeLength
 	}
 	return -1

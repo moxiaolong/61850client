@@ -1,5 +1,9 @@
 package src
 
+import (
+	"bytes"
+)
+
 type AssociationInformation struct {
 	seqOf []*Myexternal
 	Tag   *BerTag
@@ -19,6 +23,10 @@ func (a *AssociationInformation) encode(reverseOS *ReverseByteArrayOutputStream,
 	}
 
 	return codeLength
+}
+
+func (a *AssociationInformation) decode(is *bytes.Buffer, b bool) int {
+
 }
 
 func NewAssociationInformation() *AssociationInformation {

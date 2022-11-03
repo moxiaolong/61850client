@@ -38,7 +38,7 @@ func (t *BerTag) decode(is *bytes.Buffer) int {
 				}
 				codeLength++
 				if numTagBytes >= 6 {
-					throw("Tag is too large.")
+					throw("tag is too large.")
 				}
 				t.tagNumber <<= 7
 				t.tagNumber |= int(nextByte & 127)

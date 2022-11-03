@@ -35,6 +35,15 @@ func NewReverseByteArrayOutputStream(bufferSize int) *ReverseByteArrayOutputStre
 	r.index = bufferSize - 1
 	return r
 }
+func NewReverseByteArrayOutputStreamWithBufferAndIndex(buffer []byte, startingIndex int) *ReverseByteArrayOutputStream {
+	if len(buffer) <= 0 {
+		throw("buffer size may not be <= 0")
+	}
+	r := &ReverseByteArrayOutputStream{}
+	r.buffer = buffer
+	r.index = startingIndex
+	return r
+}
 
 func (s *ReverseByteArrayOutputStream) write(byteArray []byte) {
 	for {

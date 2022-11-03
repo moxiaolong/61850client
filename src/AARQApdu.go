@@ -1,6 +1,9 @@
 package src
 
-import "math"
+import (
+	"bytes"
+	"math"
+)
 
 type AARQApdu struct {
 	ApplicationContextName *BerObjectIdentifier
@@ -73,6 +76,10 @@ func (a *AARQApdu) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool)
 	}
 
 	return codeLength
+}
+
+func (a *AARQApdu) decode(is *bytes.Buffer, b bool) int {
+
 }
 
 func NewAARQApdu() *AARQApdu {

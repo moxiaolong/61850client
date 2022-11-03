@@ -65,7 +65,7 @@ func (a *AcseAssociation) startAssociation(payload *bytes.Buffer, address string
 	aarq.UserInformation = userInformation
 
 	acse := NewACSEApdu()
-	acse.Aarq = aarq
+	acse.aarq = aarq
 
 	reverseOStream := NewReverseByteArrayOutputStream(200)
 	acse.encode(reverseOStream)
@@ -113,9 +113,12 @@ func decodePConResponse(ppdu *bytes.Buffer) *bytes.Buffer {
 	cpa_ppdu := NewCPAPPDU()
 	cpa_ppdu.decode(ppdu)
 
+	value := cpa_ppdu.normalModeParameters.userData.fullyEncodedData.getPDVList()[0].presentationDataValues.singleASN1Type.value
+
 	acseApdu := NewACSEApdu()
-	acseApdu.decode(ppdu)
-	return bytes.NewBuffer(acseApdu.Aare.UserInformation.Myexternal[0].Encoding.SingleASN1Type.value)
+	buffer := bytes.NewBuffer(value)
+	acseApdu.decode(buffer)
+	return bytes.NewBuffer(acseApdu.aare.UserInformation.Myexternal[0].Encoding.SingleASN1Type.value)
 }
 
 func (a *AcseAssociation) startSConnection(ssduList [][]byte, ssduOffsets []int, ssduLengths []int, address string, port int, tSAP *ClientTSap, sSelRemote []byte, sSelLocal []byte) *bytes.Buffer {
@@ -227,7 +230,7 @@ func (a *AcseAssociation) startSConnection(ssduList [][]byte, ssduOffsets []int,
 	a.tConnection.send(ssduList, ssduOffsets, ssduLengths)
 
 	// TODO how much should be allocated here?
-	pduBuffer := bytes.NewBuffer(make([]byte, 500))
+	pduBuffer := bytes.NewBuffer(make([]byte, 0))
 	defer func() {
 		r := recover()
 		if r != nil {
@@ -363,12 +366,12 @@ func (a *AcseAssociation) extractInteger(buffer *bytes.Buffer, size byte) int64 
 	case 1:
 		return int64(t[0])
 	case 2:
-		return int64(binary.LittleEndian.Uint16(t))
+		return int64(binary.BigEndian.Uint16(t))
 	case 4:
-		return int64(binary.LittleEndian.Uint32(t))
+		return int64(binary.BigEndian.Uint32(t))
 
 	case 8:
-		return int64(binary.LittleEndian.Uint64(t))
+		return int64(binary.BigEndian.Uint64(t))
 
 	default:
 		throw("invalid length for reading numeric code")
@@ -434,7 +437,7 @@ func (a *AcseAssociation) decodePresentationLayer(pduBuffer *bytes.Buffer) []byt
 	// decode PPDU header
 	userData := NewUserData()
 	userData.decode(pduBuffer, nil)
-	return userData.FullyEncodedData.seqOf[0].PresentationDataValues.SingleASN1Type.value
+	return userData.fullyEncodedData.seqOf[0].presentationDataValues.singleASN1Type.value
 }
 
 func getSPDUTypeString(spduType byte) string {
@@ -509,18 +512,18 @@ func getSPDUTypeString(spduType byte) string {
 }
 
 func getPresentationUserDataField(userDataBytes []byte) *UserData {
-	presDataValues := NewPDVListPresentationDataValues()
-	presDataValues.SingleASN1Type = NewBerAny(userDataBytes)
+	presDataValues := NewPresentationDataValues()
+	presDataValues.singleASN1Type = NewBerAny(userDataBytes)
 	pdvList := NewPDVList()
-	pdvList.PresentationContextIdentifier = NewPresentationContextIdentifier([]byte{0x01, 0x01})
-	pdvList.PresentationDataValues = presDataValues
+	pdvList.presentationContextIdentifier = NewPresentationContextIdentifier([]byte{0x01, 0x01})
+	pdvList.presentationDataValues = presDataValues
 
 	fullyEncodedData := NewFullyEncodedData()
 	pdvListList := fullyEncodedData.getPDVList()
 	fullyEncodedData.seqOf = append(pdvListList, pdvList)
 
 	userData := NewUserData()
-	userData.FullyEncodedData = fullyEncodedData
+	userData.fullyEncodedData = fullyEncodedData
 	return userData
 }
 
