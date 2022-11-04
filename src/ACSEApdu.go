@@ -60,7 +60,7 @@ func (a *ACSEApdu) decode(is *bytes.Buffer, berTag *BerTag) int {
 		return 0
 	}
 
-	throw("Error decoding CHOICE: Tag ", berTag.toString(), " matched to no item.")
+	throw("Error decoding CHOICE: tag ", berTag.toString(), " matched to no item.")
 
 	return 0
 }

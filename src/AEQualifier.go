@@ -20,8 +20,28 @@ func (q *AEQualifier) encode(reverseOS *ReverseByteArrayOutputStream) int {
 	return -1
 }
 
-func (q *AEQualifier) decode(is *bytes.Buffer, t interface{}) int {
+func (q *AEQualifier) decode(is *bytes.Buffer, berTag *BerTag) int {
 
+	tlvByteCount := 0
+	tagWasPassed := berTag != nil
+
+	if berTag == nil {
+		berTag = NewBerTag(0, 0, 0)
+		tlvByteCount += berTag.decode(is)
+	}
+
+	if berTag.equals(0, 0, 2) {
+		aeQualifierForm2 := NewAEQualifierForm2(0)
+		tlvByteCount += aeQualifierForm2.decode(is, false)
+		return tlvByteCount
+	}
+
+	if tagWasPassed {
+		return 0
+	}
+
+	throw("Error decoding CHOICE: tag ", berTag.toString(), " matched to no item.")
+	return 0
 }
 
 func NewAEQualifier() *AEQualifier {

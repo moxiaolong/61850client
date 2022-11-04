@@ -54,7 +54,7 @@ func NewTConnection(socket *net.Conn, maxTPduSizeParam int, messageTimeout int, 
 }
 
 /**
- * Listens for a new TPDU and writes the extracted TSDU into the passed buffer.
+ * Listens for a NewTPDU and writes the extracted TSDU into the passed buffer.
  *
  * @param tSduBuffer the buffer that is filled with the received TSDU data.
  * @throws EOFException if a Disconnect Request (DR) was received or the socket was simply closed
@@ -62,7 +62,7 @@ func NewTConnection(socket *net.Conn, maxTPduSizeParam int, messageTimeout int, 
  *     receiving the remainder of a message
  * @throws IOException if an ErrorPDU (ER) was received, any syntax error in the received message
  *     header was detected or the tSduBuffer is too small to hold the complete PDU.
- * @throws TimeoutException this exception is thrown if the first byte of new message is not
+ * @throws TimeoutException this exception is thrown if the first byte of Newmessage is not
  *     received within the message timeout.
  */
 func (t *TConnection) receive(tSduBuffer *bytes.Buffer) {

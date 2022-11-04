@@ -35,7 +35,7 @@ func (r *ResultList) decode(is *bytes.Buffer, withTag bool) int {
 		}
 
 		if !berTag.equals(0, 32, 16) {
-			throw("Tag does not match mandatory sequence of/set of component.")
+			throw("tag does not match mandatory sequence of/set of component.")
 		}
 
 		element := NewSEQUENCE()

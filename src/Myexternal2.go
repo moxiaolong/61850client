@@ -5,18 +5,15 @@ import (
 	"strconv"
 )
 
-type Myexternal struct {
-	DirectReference   *BerObjectIdentifier
-	IndirectReference *BerInteger
-	Encoding          *MyexternalEncoding
-	tag               *BerTag
+type Myexternal2 struct {
 	code              []byte
+	tag               *BerTag
 	directReference   *BerObjectIdentifier
 	indirectReference *BerInteger
 	encoding          *Encoding
 }
 
-func (m *Myexternal) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
+func (m *Myexternal2) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
 	if m.code != nil {
 		reverseOS.write(m.code)
 		if withTag {
@@ -24,15 +21,16 @@ func (m *Myexternal) encode(reverseOS *ReverseByteArrayOutputStream, withTag boo
 		}
 		return len(m.code)
 	}
-	codeLength := 0
-	codeLength += m.Encoding.encode(reverseOS)
 
-	if m.IndirectReference != nil {
-		codeLength += m.IndirectReference.encode(reverseOS, true)
+	codeLength := 0
+	codeLength += m.encoding.encode(reverseOS, nil)
+
+	if m.indirectReference != nil {
+		codeLength += m.indirectReference.encode(reverseOS, true)
 	}
 
-	if m.DirectReference != nil {
-		codeLength += m.DirectReference.encode(reverseOS, true)
+	if m.directReference != nil {
+		codeLength += m.directReference.encode(reverseOS, true)
 	}
 
 	codeLength += encodeLength(reverseOS, codeLength)
@@ -44,9 +42,11 @@ func (m *Myexternal) encode(reverseOS *ReverseByteArrayOutputStream, withTag boo
 	return codeLength
 }
 
-func (m *Myexternal) decode(is *bytes.Buffer, withTag bool) int {
+func (m *Myexternal2) decode(is *bytes.Buffer, withTag bool) int {
 	tlByteCount := 0
+
 	vByteCount := 0
+
 	numDecodedBytes := 0
 	berTag := NewBerTag(0, 0, 0)
 
@@ -94,6 +94,6 @@ func (m *Myexternal) decode(is *bytes.Buffer, withTag bool) int {
 	return 0
 }
 
-func NewMyexternal() *Myexternal {
-	return &Myexternal{tag: NewBerTag(0, 32, 8)}
+func NewMyexternal2() *Myexternal2 {
+	return &Myexternal2{tag: NewBerTag(0, 32, 8)}
 }

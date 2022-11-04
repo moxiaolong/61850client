@@ -52,7 +52,7 @@ func (a *AAREApdu) decode(is *bytes.Buffer, withTag bool) int {
 		vByteCount += length.readEocIfIndefinite(is)
 		vByteCount += berTag.decode(is)
 	} else {
-		throw("Tag does not match mandatory sequence component.")
+		throw("tag does not match mandatory sequence component.")
 	}
 
 	if berTag.equals(128, 32, 2) {
@@ -62,7 +62,7 @@ func (a *AAREApdu) decode(is *bytes.Buffer, withTag bool) int {
 		vByteCount += length.readEocIfIndefinite(is)
 		vByteCount += berTag.decode(is)
 	} else {
-		throw("Tag does not match mandatory sequence component.")
+		throw("tag does not match mandatory sequence component.")
 	}
 
 	if berTag.equals(128, 32, 3) {
@@ -75,7 +75,7 @@ func (a *AAREApdu) decode(is *bytes.Buffer, withTag bool) int {
 		}
 		vByteCount += berTag.decode(is)
 	} else {
-		throw("Tag does not match mandatory sequence component.")
+		throw("tag does not match mandatory sequence component.")
 	}
 
 	if berTag.equals(128, 32, 4) {

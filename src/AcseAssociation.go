@@ -34,9 +34,9 @@ func (a *AcseAssociation) startAssociation(payload *bytes.Buffer, address string
 	}
 
 	called_ap_title := NewAPTitle()
-	called_ap_title.ApTitleForm2 = NewApTitleForm2(apTitleCalled)
+	called_ap_title.apTitleForm2 = NewApTitleForm2(apTitleCalled)
 	calling_ap_title := NewAPTitle()
-	calling_ap_title.ApTitleForm2 = NewApTitleForm2(apTitleCalling)
+	calling_ap_title.apTitleForm2 = NewApTitleForm2(apTitleCalling)
 
 	called_ae_qualifier := NewAEQualifier()
 	called_ae_qualifier.AeQualifierForm2 = NewAEQualifierForm2(aeQualifierCalled)
@@ -57,12 +57,12 @@ func (a *AcseAssociation) startAssociation(payload *bytes.Buffer, address string
 	userInformation.seqOf = append(userInformation.seqOf, myExternal)
 
 	aarq := NewAARQApdu()
-	aarq.ApplicationContextName = NewBerObjectIdentifier([]byte{0x05, 0x28, 0xca, 0x22, 0x02, 0x03}) //static
-	aarq.CalledAPTitle = called_ap_title
-	aarq.CalledAEQualifier = called_ae_qualifier
-	aarq.CallingAPTitle = calling_ap_title
-	aarq.CallingAEQualifier = calling_ae_qualifier
-	aarq.UserInformation = userInformation
+	aarq.applicationContextName = NewBerObjectIdentifier([]byte{0x05, 0x28, 0xca, 0x22, 0x02, 0x03}) //static
+	aarq.calledAPTitle = called_ap_title
+	aarq.calledAEQualifier = called_ae_qualifier
+	aarq.callingAPTitle = calling_ap_title
+	aarq.callingAEQualifier = calling_ae_qualifier
+	aarq.userInformation = userInformation
 
 	acse := NewACSEApdu()
 	acse.aarq = aarq
@@ -117,7 +117,7 @@ func decodePConResponse(ppdu *bytes.Buffer) *bytes.Buffer {
 
 	acseApdu := NewACSEApdu()
 	buffer := bytes.NewBuffer(value)
-	acseApdu.decode(buffer)
+	acseApdu.decode(buffer, nil)
 	return bytes.NewBuffer(acseApdu.aare.UserInformation.Myexternal[0].Encoding.SingleASN1Type.value)
 }
 
@@ -128,7 +128,7 @@ func (a *AcseAssociation) startSConnection(ssduList [][]byte, ssduOffsets []int,
 
 	spduHeader := make([]byte, 24)
 	idx := 0
-	// byte[] res = null;
+	// byte[] res = nil;
 	ssduLength := 0
 	for _, item := range ssduLengths {
 		ssduLength += item

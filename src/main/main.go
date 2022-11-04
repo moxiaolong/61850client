@@ -61,7 +61,7 @@ func main() {
 //	//fmt.Printf("%x", buffer)
 //	//subBufferLength := len(buffer) - index - 1;
 //
-//	//byte[] subBuffer = new byte[subBufferLength];
+//	//byte[] subBuffer = Newbyte[subBufferLength];
 //	//System.arraycopy(buffer, index + 1, subBuffer, 0, subBufferLength);
 //	//System.out.println(Arrays.toString(subBuffer));
 //
