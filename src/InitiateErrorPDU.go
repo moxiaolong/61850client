@@ -2,8 +2,6 @@ package src
 
 type InitiateErrorPDU struct {
 	ServiceError
-	additionalDescription *BerVisibleString
-	additionalCode        *BerInteger
 }
 
 func NewInitiateErrorPDU() *InitiateErrorPDU {

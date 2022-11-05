@@ -11,6 +11,38 @@ type CPAPPDU struct {
 	normalModeParameters *NormalModeParameters
 }
 
+func (c *CPAPPDU) encode()  {
+
+	if (code != nil) {
+		reverseOS.write(code);
+		if (withTag) {
+			return tag.encode(reverseOS) + code.length;
+		}
+		return code.length;
+	}
+
+	int codeLength = 0;
+	if (normalModeParameters != nil) {
+		codeLength += normalModeParameters.encode(reverseOS, false);
+		// write tag: CONTEXT_CLASS, CONSTRUCTED, 2
+		reverseOS.write(0xA2);
+		codeLength += 1;
+	}
+
+	codeLength += modeSelector.encode(reverseOS, false);
+	// write tag: CONTEXT_CLASS, CONSTRUCTED, 0
+	reverseOS.write(0xA0);
+	codeLength += 1;
+
+	codeLength += BerLength.encodeLength(reverseOS, codeLength);
+
+	if (withTag) {
+		codeLength += tag.encode(reverseOS);
+	}
+
+	return codeLength;
+}
+
 func (c *CPAPPDU) decode(is *bytes.Buffer) int {
 	tlByteCount := 0
 	vByteCount := 0

@@ -6,8 +6,10 @@ import (
 )
 
 type ServiceError struct {
-	ErrorClass *ErrorClass
-	Tag        *BerTag
+	ErrorClass            *ErrorClass
+	Tag                   *BerTag
+	additionalDescription *BerVisibleString
+	additionalCode        *BerInteger
 }
 
 func NewServiceError() *ServiceError {
@@ -15,7 +17,7 @@ func NewServiceError() *ServiceError {
 	return &ServiceError{Tag: NewBerTag(0, 32, 16)}
 }
 
-func (p *InitiateErrorPDU) decode(is *bytes.Buffer, withTag bool) int {
+func (p *ServiceError) decode(is *bytes.Buffer, withTag bool) int {
 	tlByteCount := 0
 	vByteCount := 0
 	berTag := &BerTag{}
@@ -74,7 +76,7 @@ func (p *InitiateErrorPDU) decode(is *bytes.Buffer, withTag bool) int {
 	return -1
 }
 
-func (p *InitiateErrorPDU) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
+func (p *ServiceError) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
 
 	codeLength := 0
 	sublength := 0

@@ -13,6 +13,28 @@ type ResultList struct {
 func NewResultList() *ResultList {
 	return &ResultList{tag: NewBerTag(0, 32, 16), seqOf: make([]*SEQUENCE, 0)}
 }
+func (r *ResultList) encode() {
+	if (code != nil) {
+		reverseOS.write(code);
+		if (withTag) {
+			return tag.encode(reverseOS) + code.length;
+		}
+		return code.length;
+	}
+
+	int codeLength = 0;
+	for (int i = (seqOf.size() - 1); i >= 0; i--) {
+		codeLength += seqOf.get(i).encode(reverseOS, true);
+	}
+
+	codeLength += BerLength.encodeLength(reverseOS, codeLength);
+
+	if (withTag) {
+		codeLength += tag.encode(reverseOS);
+	}
+
+	return codeLength;
+}
 
 func (r *ResultList) decode(is *bytes.Buffer, withTag bool) int {
 	tlByteCount := 0

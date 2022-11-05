@@ -8,7 +8,10 @@ type UserData struct {
 }
 
 func (t *UserData) encode(reverseOS *ReverseByteArrayOutputStream) int {
-
+	if code != nil {
+		reverseOS.write(code)
+		return code.length
+	}
 	codeLength := 0
 	if t.fullyEncodedData != nil {
 		codeLength += t.fullyEncodedData.encode(reverseOS, false)

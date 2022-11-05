@@ -9,6 +9,10 @@ type PresentationDataValues struct {
 }
 
 func (v *PresentationDataValues) encode(reverseOS *ReverseByteArrayOutputStream) int {
+	if code != nil {
+		reverseOS.write(code)
+		return code.length
+	}
 	codeLength := 0
 	sublength := 0
 	if v.singleASN1Type != nil {

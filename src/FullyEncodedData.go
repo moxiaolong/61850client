@@ -19,6 +19,13 @@ func (d *FullyEncodedData) getPDVList() []*PDVList {
 }
 
 func (d *FullyEncodedData) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
+	if code != nil {
+		reverseOS.write(code)
+		if withTag {
+			return tag.encode(reverseOS) + code.length
+		}
+		return code.length
+	}
 
 	codeLength := 0
 	for i := len(d.seqOf) - 1; i >= 0; i-- {
