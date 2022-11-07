@@ -1,191 +1,204 @@
 package src
 
+import (
+	"bytes"
+	"strconv"
+)
+
 type CPTypeNormalModeParameters struct {
 	CallingPresentationSelector       *CallingPresentationSelector
 	CalledPresentationSelector        *CalledPresentationSelector
 	PresentationContextDefinitionList *PresentationContextDefinitionList
 	UserData                          *UserData
 	tag                               *BerTag
+	code                              []byte
+	protocolVersion                   *ProtocolVersion
+	callingPresentationSelector       *CallingPresentationSelector
+	calledPresentationSelector        *CalledPresentationSelector
+	presentationContextDefinitionList *PresentationContextDefinitionList
+	defaultContextName                *DefaultContextName
+	presentationRequirements          *PresentationRequirements
+	userSessionRequirements           *UserSessionRequirements
+	userData                          *UserData
 }
 
 func (t *CPTypeNormalModeParameters) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
 
-	if (code != nil) {
-		reverseOS.write(code);
-		if (withTag) {
-			return tag.encode(reverseOS) + code.length;
+	if t.code != nil {
+		reverseOS.write(t.code)
+		if withTag {
+			return t.tag.encode(reverseOS) + len(t.code)
 		}
-		return code.length;
+		return len(t.code)
 	}
 
-	int codeLength = 0;
-	if (userData != nil) {
-		codeLength += userData.encode(reverseOS);
+	codeLength := 0
+	if t.userData != nil {
+		codeLength += t.userData.encode(reverseOS)
 	}
 
-	if (userSessionRequirements != nil) {
-		codeLength += userSessionRequirements.encode(reverseOS, false);
-		// write tag: CONTEXT_CLASS, PRIMITIVE, 9
-		reverseOS.write(0x89);
-		codeLength += 1;
+	if t.userSessionRequirements != nil {
+		codeLength += t.userSessionRequirements.encode(reverseOS, false)
+		// writeByte tag: CONTEXT_CLASS, PRIMITIVE, 9
+		reverseOS.writeByte(0x89)
+		codeLength += 1
 	}
 
-	if (presentationRequirements != nil) {
-		codeLength += presentationRequirements.encode(reverseOS, false);
-		// write tag: CONTEXT_CLASS, PRIMITIVE, 8
-		reverseOS.write(0x88);
-		codeLength += 1;
+	if t.presentationRequirements != nil {
+		codeLength += t.presentationRequirements.encode(reverseOS, false)
+		// writeByte tag: CONTEXT_CLASS, PRIMITIVE, 8
+		reverseOS.writeByte(0x88)
+		codeLength += 1
 	}
 
-	if (defaultContextName != nil) {
-		codeLength += defaultContextName.encode(reverseOS, false);
-		// write tag: CONTEXT_CLASS, CONSTRUCTED, 6
-		reverseOS.write(0xA6);
-		codeLength += 1;
+	if t.defaultContextName != nil {
+		codeLength += t.defaultContextName.encode(reverseOS, false)
+		// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 6
+		reverseOS.writeByte(0xA6)
+		codeLength += 1
 	}
 
-	if (presentationContextDefinitionList != nil) {
-		codeLength += presentationContextDefinitionList.encode(reverseOS, false);
-		// write tag: CONTEXT_CLASS, CONSTRUCTED, 4
-		reverseOS.write(0xA4);
-		codeLength += 1;
+	if t.presentationContextDefinitionList != nil {
+		codeLength += t.presentationContextDefinitionList.encode(reverseOS, false)
+		// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 4
+		reverseOS.writeByte(0xA4)
+		codeLength += 1
 	}
 
-	if (calledPresentationSelector != nil) {
-		codeLength += calledPresentationSelector.encode(reverseOS, false);
-		// write tag: CONTEXT_CLASS, PRIMITIVE, 2
-		reverseOS.write(0x82);
-		codeLength += 1;
+	if t.calledPresentationSelector != nil {
+		codeLength += t.calledPresentationSelector.encode(reverseOS, false)
+		// writeByte tag: CONTEXT_CLASS, PRIMITIVE, 2
+		reverseOS.writeByte(0x82)
+		codeLength += 1
 	}
 
-	if (callingPresentationSelector != nil) {
-		codeLength += callingPresentationSelector.encode(reverseOS, false);
-		// write tag: CONTEXT_CLASS, PRIMITIVE, 1
-		reverseOS.write(0x81);
-		codeLength += 1;
+	if t.callingPresentationSelector != nil {
+		codeLength += t.callingPresentationSelector.encode(reverseOS, false)
+		// writeByte tag: CONTEXT_CLASS, PRIMITIVE, 1
+		reverseOS.writeByte(0x81)
+		codeLength += 1
 	}
 
-	if (protocolVersion != nil) {
-		codeLength += protocolVersion.encode(reverseOS, false);
-		// write tag: CONTEXT_CLASS, PRIMITIVE, 0
-		reverseOS.write(0x80);
-		codeLength += 1;
+	if t.protocolVersion != nil {
+		codeLength += t.protocolVersion.encode(reverseOS, false)
+		// writeByte tag: CONTEXT_CLASS, PRIMITIVE, 0
+		reverseOS.writeByte(0x80)
+		codeLength += 1
 	}
 
-	codeLength += BerLength.encodeLength(reverseOS, codeLength);
+	codeLength += encodeLength(reverseOS, codeLength)
 
-	if (withTag) {
-		codeLength += tag.encode(reverseOS);
+	if withTag {
+		codeLength += t.tag.encode(reverseOS)
 	}
 
-	return codeLength;
+	return codeLength
 }
 
-func (t *CPTypeNormalModeParameters) decode()  {
-	int tlByteCount = 0;
-	int vByteCount = 0;
-	int numDecodedBytes;
-	BerTag berTag = NewBerTag(0,0,0);
+func (t *CPTypeNormalModeParameters) decode(is *bytes.Buffer, withTag bool) int {
 
-	if (withTag) {
-		tlByteCount += tag.decodeAndCheck(is);
+	tlByteCount := 0
+	vByteCount := 0
+	numDecodedBytes := 0
+
+	berTag := NewBerTag(0, 0, 0)
+
+	if withTag {
+		tlByteCount += t.tag.decodeAndCheck(is)
 	}
 
-	BerLength length = NewBerLength();
-	tlByteCount += length.decode(is);
-	int lengthVal = length.val;
-	if (lengthVal == 0) {
-		return tlByteCount;
+	length := NewBerLength()
+	tlByteCount += length.decode(is)
+	lengthVal := length.val
+	if lengthVal == 0 {
+		return tlByteCount
 	}
-	vByteCount += berTag.decode(is);
+	vByteCount += berTag.decode(is)
 
-	if (berTag.equals(128, 0, 0)) {
-		protocolVersion = NewProtocolVersion();
-		vByteCount += protocolVersion.decode(is, false);
-		if (lengthVal >= 0 && vByteCount == lengthVal) {
-			return tlByteCount + vByteCount;
+	if berTag.equals(128, 0, 0) {
+		t.protocolVersion = NewProtocolVersion()
+		vByteCount += t.protocolVersion.decode(is, false)
+		if lengthVal >= 0 && vByteCount == lengthVal {
+			return tlByteCount + vByteCount
 		}
-		vByteCount += berTag.decode(is);
+		vByteCount += berTag.decode(is)
 	}
 
-	if (berTag.equals(128, 0, 1)) {
-		callingPresentationSelector = NewCallingPresentationSelector();
-		vByteCount += callingPresentationSelector.decode(is, false);
-		if (lengthVal >= 0 && vByteCount == lengthVal) {
-			return tlByteCount + vByteCount;
+	if berTag.equals(128, 0, 1) {
+		t.callingPresentationSelector = NewCallingPresentationSelector(nil)
+		vByteCount += t.callingPresentationSelector.decode(is, false)
+		if lengthVal >= 0 && vByteCount == lengthVal {
+			return tlByteCount + vByteCount
 		}
-		vByteCount += berTag.decode(is);
+		vByteCount += berTag.decode(is)
 	}
 
-	if (berTag.equals(128, 0, 2)) {
-		calledPresentationSelector = NewCalledPresentationSelector();
-		vByteCount += calledPresentationSelector.decode(is, false);
-		if (lengthVal >= 0 && vByteCount == lengthVal) {
-			return tlByteCount + vByteCount;
+	if berTag.equals(128, 0, 2) {
+		t.calledPresentationSelector = NewCalledPresentationSelector(nil)
+		vByteCount += t.calledPresentationSelector.decode(is, false)
+		if lengthVal >= 0 && vByteCount == lengthVal {
+			return tlByteCount + vByteCount
 		}
-		vByteCount += berTag.decode(is);
+		vByteCount += berTag.decode(is)
 	}
 
-	if (berTag.equals(128, 32, 4)) {
-		presentationContextDefinitionList = NewPresentationContextDefinitionList();
-		vByteCount += presentationContextDefinitionList.decode(is, false);
-		if (lengthVal >= 0 && vByteCount == lengthVal) {
-			return tlByteCount + vByteCount;
+	if berTag.equals(128, 32, 4) {
+		t.presentationContextDefinitionList = NewPresentationContextDefinitionList(nil)
+		vByteCount += t.presentationContextDefinitionList.decode(is, false)
+		if lengthVal >= 0 && vByteCount == lengthVal {
+			return tlByteCount + vByteCount
 		}
-		vByteCount += berTag.decode(is);
+		vByteCount += berTag.decode(is)
 	}
 
-	if (berTag.equals(128, 32, 6)) {
-		defaultContextName = NewDefaultContextName();
-		vByteCount += defaultContextName.decode(is, false);
-		if (lengthVal >= 0 && vByteCount == lengthVal) {
-			return tlByteCount + vByteCount;
+	if berTag.equals(128, 32, 6) {
+		t.defaultContextName = NewDefaultContextName()
+		vByteCount += t.defaultContextName.decode(is, false)
+		if lengthVal >= 0 && vByteCount == lengthVal {
+			return tlByteCount + vByteCount
 		}
-		vByteCount += berTag.decode(is);
+		vByteCount += berTag.decode(is)
 	}
 
-	if (berTag.equals(128, 0, 8)) {
-		presentationRequirements = NewPresentationRequirements();
-		vByteCount += presentationRequirements.decode(is, false);
-		if (lengthVal >= 0 && vByteCount == lengthVal) {
-			return tlByteCount + vByteCount;
+	if berTag.equals(128, 0, 8) {
+		t.presentationRequirements = NewPresentationRequirements()
+		vByteCount += t.presentationRequirements.decode(is, false)
+		if lengthVal >= 0 && vByteCount == lengthVal {
+			return tlByteCount + vByteCount
 		}
-		vByteCount += berTag.decode(is);
+		vByteCount += berTag.decode(is)
 	}
 
-	if (berTag.equals(128, 0, 9)) {
-		userSessionRequirements = NewUserSessionRequirements();
-		vByteCount += userSessionRequirements.decode(is, false);
-		if (lengthVal >= 0 && vByteCount == lengthVal) {
-			return tlByteCount + vByteCount;
+	if berTag.equals(128, 0, 9) {
+		t.userSessionRequirements = NewUserSessionRequirements()
+		vByteCount += t.userSessionRequirements.decode(is, false)
+		if lengthVal >= 0 && vByteCount == lengthVal {
+			return tlByteCount + vByteCount
 		}
-		vByteCount += berTag.decode(is);
+		vByteCount += berTag.decode(is)
 	}
 
-	userData = NewUserData();
-	numDecodedBytes = userData.decode(is, berTag);
-	if (numDecodedBytes != 0) {
-		vByteCount += numDecodedBytes;
-		if (lengthVal >= 0 && vByteCount == lengthVal) {
-			return tlByteCount + vByteCount;
+	t.userData = NewUserData()
+	numDecodedBytes = t.userData.decode(is, berTag)
+	if numDecodedBytes != 0 {
+		vByteCount += numDecodedBytes
+		if lengthVal >= 0 && vByteCount == lengthVal {
+			return tlByteCount + vByteCount
 		}
-		vByteCount += berTag.decode(is);
+		vByteCount += berTag.decode(is)
 	} else {
-		userData = nil;
+		t.userData = nil
 	}
-	if (lengthVal < 0) {
-		if (!berTag.equals(0, 0, 0)) {
-			throw("Decoded sequence has wrong end of contents octets");
+	if lengthVal < 0 {
+		if !berTag.equals(0, 0, 0) {
+			throw("Decoded sequence has wrong end of contents octets")
 		}
-		vByteCount += BerLength.readEocByte(is);
-		return tlByteCount + vByteCount;
+		vByteCount += readEocByte(is)
+		return tlByteCount + vByteCount
 	}
 
-	throw(
-		"Unexpected end of sequence, length tag: "
-	+ lengthVal
-	+ ", bytes decoded: "
-	+ vByteCount);
+	throw("Unexpected end of sequence, length tag: ", strconv.Itoa(lengthVal), ", bytes decoded: ", strconv.Itoa(vByteCount))
+	return 0
 }
 
 func NewCPTypeNormalModeParameters() *CPTypeNormalModeParameters {

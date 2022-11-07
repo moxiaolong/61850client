@@ -14,7 +14,7 @@ func (s *ModeSelector) encode(reverseOS *ReverseByteArrayOutputStream, withTag b
 
 	codeLength := 0
 	codeLength += s.modeValue.encode(reverseOS, false)
-	// write tag: CONTEXT_CLASS, PRIMITIVE, 0
+	// writeByte tag: CONTEXT_CLASS, PRIMITIVE, 0
 	reverseOS.writeByte(0x80)
 	codeLength += 1
 

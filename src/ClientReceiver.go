@@ -44,7 +44,7 @@ func (r *ClientReceiver) run() {
 		decodedResponsePdu.decode(bytes.NewBuffer(buffer))
 
 		if decodedResponsePdu.unconfirmedPDU != nil {
-			if decodedResponsePdu.unconfirmedPDU.Service.InformationReport.VariableAccessSpecification.ListOfVariable != nil {
+			if decodedResponsePdu.unconfirmedPDU.Service.informationReport.VariableAccessSpecification.ListOfVariable != nil {
 				// Discarding LastApplError Report
 			} else {
 				if r.reportListener != nil {
@@ -139,12 +139,12 @@ func (r *ClientReceiver) processReport(mmsPdu *MMSpdu) *Report {
 
 	unconfirmedServ := unconfirmedRes.Service
 
-	if unconfirmedServ.InformationReport == nil {
+	if unconfirmedServ.informationReport == nil {
 		throw("getReport: Error decoding server response")
 	}
 
 	listRes :=
-		unconfirmedServ.InformationReport.listOfAccessResult.seqOf
+		unconfirmedServ.informationReport.listOfAccessResult.seqOf
 
 	index := 0
 

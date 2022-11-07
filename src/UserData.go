@@ -9,13 +9,13 @@ type UserData struct {
 
 func (t *UserData) encode(reverseOS *ReverseByteArrayOutputStream) int {
 	if code != nil {
-		reverseOS.write(code)
+		reverseOS.writeByte(code)
 		return code.length
 	}
 	codeLength := 0
 	if t.fullyEncodedData != nil {
 		codeLength += t.fullyEncodedData.encode(reverseOS, false)
-		// write tag: APPLICATION_CLASS, CONSTRUCTED, 1
+		// writeByte tag: APPLICATION_CLASS, CONSTRUCTED, 1
 		reverseOS.writeByte(0x61)
 		codeLength += 1
 		return codeLength

@@ -9,38 +9,39 @@ type CPAPPDU struct {
 	tag                  *BerTag
 	modeSelector         *ModeSelector
 	normalModeParameters *NormalModeParameters
+	code                 []byte
 }
 
-func (c *CPAPPDU) encode()  {
+func (c *CPAPPDU) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
 
-	if (code != nil) {
-		reverseOS.write(code);
-		if (withTag) {
-			return tag.encode(reverseOS) + code.length;
+	if c.code != nil {
+		reverseOS.write(c.code)
+		if withTag {
+			return c.tag.encode(reverseOS) + len(c.code)
 		}
-		return code.length;
+		return len(c.code)
 	}
 
-	int codeLength = 0;
-	if (normalModeParameters != nil) {
-		codeLength += normalModeParameters.encode(reverseOS, false);
-		// write tag: CONTEXT_CLASS, CONSTRUCTED, 2
-		reverseOS.write(0xA2);
-		codeLength += 1;
+	codeLength := 0
+	if c.normalModeParameters != nil {
+		codeLength += c.normalModeParameters.encode(reverseOS, false)
+		// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 2
+		reverseOS.writeByte(0xA2)
+		codeLength += 1
 	}
 
-	codeLength += modeSelector.encode(reverseOS, false);
-	// write tag: CONTEXT_CLASS, CONSTRUCTED, 0
-	reverseOS.write(0xA0);
-	codeLength += 1;
+	codeLength += c.modeSelector.encode(reverseOS, false)
+	// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 0
+	reverseOS.writeByte(0xA0)
+	codeLength += 1
 
-	codeLength += BerLength.encodeLength(reverseOS, codeLength);
+	codeLength += encodeLength(reverseOS, codeLength)
 
-	if (withTag) {
-		codeLength += tag.encode(reverseOS);
+	if withTag {
+		codeLength += c.tag.encode(reverseOS)
 	}
 
-	return codeLength;
+	return codeLength
 }
 
 func (c *CPAPPDU) decode(is *bytes.Buffer) int {

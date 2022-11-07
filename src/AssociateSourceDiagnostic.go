@@ -59,7 +59,7 @@ func (d *AssociateSourceDiagnostic) encode(reverseOS *ReverseByteArrayOutputStre
 		sublength = d.acseServiceProvider.encode(reverseOS, true)
 		codeLength += sublength
 		codeLength += encodeLength(reverseOS, sublength)
-		// write tag: CONTEXT_CLASS, CONSTRUCTED, 2
+		// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 2
 		reverseOS.writeByte(0xA2)
 		codeLength += 1
 		return codeLength
@@ -69,7 +69,7 @@ func (d *AssociateSourceDiagnostic) encode(reverseOS *ReverseByteArrayOutputStre
 		sublength = d.acseServiceUser.encode(reverseOS, true)
 		codeLength += sublength
 		codeLength += encodeLength(reverseOS, sublength)
-		// write tag: CONTEXT_CLASS, CONSTRUCTED, 1
+		// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 1
 		reverseOS.writeByte(0xA1)
 		codeLength += 1
 		return codeLength

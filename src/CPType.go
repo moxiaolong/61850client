@@ -1,47 +1,50 @@
 package src
 
+import (
+	"bytes"
+	"strconv"
+)
+
 type CPType struct {
 	ModeSelector         *ModeSelector
 	NormalModeParameters *CPTypeNormalModeParameters
 	tag                  *BerTag
+	modeSelector         *ModeSelector
+	normalModeParameters *NormalModeParameters
 }
 
-func (receiver *CPType) decode()  {
-	int tlByteCount = 0;
-	int vByteCount = 0;
-	BerTag berTag = NewBerTag(0,0,0);
+func (t *CPType) decode(is *bytes.Buffer, withTag bool) int {
+	tlByteCount := 0
+	vByteCount := 0
+	berTag := NewBerTag(0, 0, 0)
 
-	if (withTag) {
-		tlByteCount += tag.decodeAndCheck(is);
+	if withTag {
+		tlByteCount += t.tag.decodeAndCheck(is)
 	}
 
-	BerLength length = NewBerLength();
-	tlByteCount += length.decode(is);
-	int lengthVal = length.val;
+	length := NewBerLength()
+	tlByteCount += length.decode(is)
+	lengthVal := length.val
 
-	while (vByteCount < lengthVal || lengthVal < 0) {
-		vByteCount += berTag.decode(is);
-		if (berTag.equals(128, 32, 0)) {
-			modeSelector = NewModeSelector();
-			vByteCount += modeSelector.decode(is, false);
-		} else if (berTag.equals(128, 32, 2)) {
-			normalModeParameters = NewNormalModeParameters();
-			vByteCount += normalModeParameters.decode(is, false);
-		} else if (lengthVal < 0 && berTag.equals(0, 0, 0)) {
-			vByteCount += BerLength.readEocByte(is);
-			return tlByteCount + vByteCount;
+	for vByteCount < lengthVal || lengthVal < 0 {
+		vByteCount += berTag.decode(is)
+		if berTag.equals(128, 32, 0) {
+			t.modeSelector = NewModeSelector()
+			vByteCount += t.modeSelector.decode(is, false)
+		} else if berTag.equals(128, 32, 2) {
+			t.normalModeParameters = NewNormalModeParameters()
+			vByteCount += t.normalModeParameters.decode(is, false)
+		} else if lengthVal < 0 && berTag.equals(0, 0, 0) {
+			vByteCount += readEocByte(is)
+			return tlByteCount + vByteCount
 		} else {
-			throw("Tag does not match any set component: " + berTag);
+			throw("tag does not match any set component: " + berTag.toString())
 		}
 	}
-	if (vByteCount != lengthVal) {
-		throw(
-			"Length of set does not match length tag, length tag: "
-		+ lengthVal
-		+ ", actual set length: "
-		+ vByteCount);
+	if vByteCount != lengthVal {
+		throw("Length of set does not match length tag, length tag: ", strconv.Itoa(lengthVal), ", actual set length: ", strconv.Itoa(vByteCount))
 	}
-	return tlByteCount + vByteCount;
+	return tlByteCount + vByteCount
 }
 
 func (t *CPType) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
@@ -49,13 +52,13 @@ func (t *CPType) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) i
 	codeLength := 0
 	if t.NormalModeParameters != nil {
 		codeLength += t.NormalModeParameters.encode(reverseOS, false)
-		// write tag: CONTEXT_CLASS, CONSTRUCTED, 2
+		// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 2
 		reverseOS.writeByte(0xA2)
 		codeLength += 1
 	}
 
 	codeLength += t.ModeSelector.encode(reverseOS, false)
-	// write tag: CONTEXT_CLASS, CONSTRUCTED, 0
+	// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 0
 	reverseOS.writeByte(0xA0)
 	codeLength += 1
 

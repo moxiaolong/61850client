@@ -60,7 +60,7 @@ func (a *RLREApdu) decode(is *bytes.Buffer, withTag bool) int {
 }
 func (a *RLREApdu) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
 	if a.code != nil {
-		reverseOS.write(a.code)
+		reverseOS.writeByte(a.code)
 		if withTag {
 			return a.tag.encode(reverseOS) + len(a.code)
 		}
@@ -70,14 +70,14 @@ func (a *RLREApdu) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool)
 	codeLength := 0
 	if a.userInformation != nil {
 		codeLength += a.userInformation.encode(reverseOS, false)
-		// write tag: CONTEXT_CLASS, CONSTRUCTED, 30
+		// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 30
 		reverseOS.writeByte(0xBE)
 		codeLength += 1
 	}
 
 	if a.reason != nil {
 		codeLength += a.reason.encode(reverseOS, false)
-		// write tag: CONTEXT_CLASS, PRIMITIVE, 0
+		// writeByte tag: CONTEXT_CLASS, PRIMITIVE, 0
 		reverseOS.writeByte(0x80)
 		codeLength += 1
 	}

@@ -1,82 +1,92 @@
 package src
 
+import "bytes"
+
 type MyexternalEncoding struct {
 	SingleASN1Type *BerAny
+	code           []byte
+	singleASN1Type *BerAny
+	octetAligned   *BerOctetString
+	arbitrary      *BerBitString
 }
 
 func (e *MyexternalEncoding) encode(reverseOS *ReverseByteArrayOutputStream) int {
-	if (code != nil) {
-		reverseOS.write(code);
-		return code.length;
+	if e.code != nil {
+		reverseOS.writeByte(e.code)
+		return len(e.code)
 	}
 
-	int codeLength = 0;
-	int sublength;
+	codeLength := 0
+	sublength := 0
 
-	if (arbitrary != nil) {
-		codeLength += arbitrary.encode(reverseOS, false);
-		// write tag: CONTEXT_CLASS, PRIMITIVE, 2
-		reverseOS.write(0x82);
-		codeLength += 1;
-		return codeLength;
+	if e.arbitrary != nil {
+		codeLength += e.arbitrary.encode(reverseOS, false)
+		// writeByte tag: CONTEXT_CLASS, PRIMITIVE, 2
+		reverseOS.writeByte(0x82)
+		codeLength += 1
+		return codeLength
 	}
 
-	if (octetAligned != nil) {
-		codeLength += octetAligned.encode(reverseOS, false);
-		// write tag: CONTEXT_CLASS, PRIMITIVE, 1
-		reverseOS.write(0x81);
-		codeLength += 1;
-		return codeLength;
+	if e.octetAligned != nil {
+		codeLength += e.octetAligned.encode(reverseOS, false)
+		// writeByte tag: CONTEXT_CLASS, PRIMITIVE, 1
+		reverseOS.writeByte(0x81)
+		codeLength += 1
+		return codeLength
 	}
 
-	if (singleASN1Type != nil) {
-		sublength = singleASN1Type.encode(reverseOS);
-		codeLength += sublength;
-		codeLength += BerLength.encodeLength(reverseOS, sublength);
-		// write tag: CONTEXT_CLASS, CONSTRUCTED, 0
-		reverseOS.write(0xA0);
-		codeLength += 1;
-		return codeLength;
+	if e.singleASN1Type != nil {
+		sublength = e.singleASN1Type.encode(reverseOS)
+		codeLength += sublength
+		codeLength += encodeLength(reverseOS, sublength)
+		// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 0
+		reverseOS.writeByte(0xA0)
+		codeLength += 1
+		return codeLength
 	}
 
-	throw("Error encoding CHOICE: No element of CHOICE was selected.");
+	throw("Error encoding CHOICE: No element of CHOICE was selected.")
+	return 0
 }
 
-func (e *MyexternalEncoding) decode()  {
-	int tlvByteCount = 0;
-	boolean tagWasPassed = (berTag != nil);
+func (e *MyexternalEncoding) decode(is *bytes.Buffer, berTag *BerTag) int {
 
-	if (berTag == nil) {
-		berTag = NewBerTag(0,0,0);
-		tlvByteCount += berTag.decode(is);
+	tlvByteCount := 0
+	tagWasPassed := berTag != nil
+
+	if berTag == nil {
+		berTag = NewBerTag(0, 0, 0)
+		tlvByteCount += berTag.decode(is)
 	}
 
-	if (berTag.equals(128, 32, 0)) {
-		BerLength length = NewBerLength();
-		tlvByteCount += length.decode(is);
-		singleASN1Type = NewBerAny();
-		tlvByteCount += singleASN1Type.decode(is, nil);
-		tlvByteCount += length.readEocIfIndefinite(is);
-		return tlvByteCount;
+	if berTag.equals(128, 32, 0) {
+
+		length := NewBerLength()
+		tlvByteCount += length.decode(is)
+		e.singleASN1Type = NewBerAny(nil)
+		tlvByteCount += e.singleASN1Type.decode(is, nil)
+		tlvByteCount += length.readEocIfIndefinite(is)
+		return tlvByteCount
 	}
 
-	if (berTag.equals(128, 0, 1)) {
-		octetAligned = NewBerOctetString();
-		tlvByteCount += octetAligned.decode(is, false);
-		return tlvByteCount;
+	if berTag.equals(128, 0, 1) {
+		e.octetAligned = NewBerOctetString(nil)
+		tlvByteCount += e.octetAligned.decode(is, false)
+		return tlvByteCount
 	}
 
-	if (berTag.equals(128, 0, 2)) {
-		arbitrary = NewBerBitString();
-		tlvByteCount += arbitrary.decode(is, false);
-		return tlvByteCount;
+	if berTag.equals(128, 0, 2) {
+		e.arbitrary = NewBerBitString(nil, nil, 0)
+		tlvByteCount += e.arbitrary.decode(is, false)
+		return tlvByteCount
 	}
 
-	if (tagWasPassed) {
-		return 0;
+	if tagWasPassed {
+		return 0
 	}
 
-	throw("Error decoding CHOICE: Tag " + berTag + " matched to no item.");
+	throw("Error decoding CHOICE: tag " + berTag.toString() + " matched to no item.")
+	return 0
 }
 func NewMyexternalEncoding() *MyexternalEncoding {
 	return &MyexternalEncoding{}

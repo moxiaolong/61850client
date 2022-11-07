@@ -205,21 +205,21 @@ func (a *AAREApdu) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool)
 
 	if a.userInformation != nil {
 		codeLength += a.userInformation.encode(reverseOS, false)
-		// write tag: CONTEXT_CLASS, CONSTRUCTED, 30
+		// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 30
 		reverseOS.writeByte(0xBE)
 		codeLength += 1
 	}
 
 	if a.implementationInformation != nil {
 		codeLength += a.implementationInformation.encode(reverseOS, false)
-		// write tag: CONTEXT_CLASS, PRIMITIVE, 29
+		// writeByte tag: CONTEXT_CLASS, PRIMITIVE, 29
 		reverseOS.writeByte(0x9D)
 		codeLength += 1
 	}
 
 	if a.applicationContextNameList != nil {
 		codeLength += a.applicationContextNameList.encode(reverseOS, false)
-		// write tag: CONTEXT_CLASS, CONSTRUCTED, 11
+		// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 11
 		reverseOS.writeByte(0xAB)
 		codeLength += 1
 	}
@@ -228,21 +228,21 @@ func (a *AAREApdu) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool)
 		sublength = a.respondingAuthenticationValue.encode(reverseOS)
 		codeLength += sublength
 		codeLength += encodeLength(reverseOS, sublength)
-		// write tag: CONTEXT_CLASS, CONSTRUCTED, 10
+		// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 10
 		reverseOS.writeByte(0xAA)
 		codeLength += 1
 	}
 
 	if a.mechanismName != nil {
 		codeLength += a.mechanismName.encode(reverseOS, false)
-		// write tag: CONTEXT_CLASS, PRIMITIVE, 9
+		// writeByte tag: CONTEXT_CLASS, PRIMITIVE, 9
 		reverseOS.writeByte(0x89)
 		codeLength += 1
 	}
 
 	if a.responderAcseRequirements != nil {
 		codeLength += a.responderAcseRequirements.encode(reverseOS, false)
-		// write tag: CONTEXT_CLASS, PRIMITIVE, 8
+		// writeByte tag: CONTEXT_CLASS, PRIMITIVE, 8
 		reverseOS.writeByte(0x88)
 		codeLength += 1
 	}
@@ -251,7 +251,7 @@ func (a *AAREApdu) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool)
 		sublength = a.respondingAEInvocationIdentifier.encode(reverseOS, true)
 		codeLength += sublength
 		codeLength += encodeLength(reverseOS, sublength)
-		// write tag: CONTEXT_CLASS, CONSTRUCTED, 7
+		// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 7
 		reverseOS.writeByte(0xA7)
 		codeLength += 1
 	}
@@ -260,7 +260,7 @@ func (a *AAREApdu) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool)
 		sublength = a.respondingAPInvocationIdentifier.encode(reverseOS, true)
 		codeLength += sublength
 		codeLength += encodeLength(reverseOS, sublength)
-		// write tag: CONTEXT_CLASS, CONSTRUCTED, 6
+		// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 6
 		reverseOS.writeByte(0xA6)
 		codeLength += 1
 	}
@@ -269,7 +269,7 @@ func (a *AAREApdu) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool)
 		sublength = a.respondingAEQualifier.encode(reverseOS)
 		codeLength += sublength
 		codeLength += encodeLength(reverseOS, sublength)
-		// write tag: CONTEXT_CLASS, CONSTRUCTED, 5
+		// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 5
 		reverseOS.writeByte(0xA5)
 		codeLength += 1
 	}
@@ -278,7 +278,7 @@ func (a *AAREApdu) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool)
 		sublength = a.respondingAPTitle.encode(reverseOS)
 		codeLength += sublength
 		codeLength += encodeLength(reverseOS, sublength)
-		// write tag: CONTEXT_CLASS, CONSTRUCTED, 4
+		// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 4
 		reverseOS.writeByte(0xA4)
 		codeLength += 1
 	}
@@ -286,27 +286,27 @@ func (a *AAREApdu) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool)
 	sublength = a.resultSourceDiagnostic.encode(reverseOS)
 	codeLength += sublength
 	codeLength += encodeLength(reverseOS, sublength)
-	// write tag: CONTEXT_CLASS, CONSTRUCTED, 3
+	// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 3
 	reverseOS.writeByte(0xA3)
 	codeLength += 1
 
 	sublength = a.result.encode(reverseOS, true)
 	codeLength += sublength
 	codeLength += encodeLength(reverseOS, sublength)
-	// write tag: CONTEXT_CLASS, CONSTRUCTED, 2
+	// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 2
 	reverseOS.writeByte(0xA2)
 	codeLength += 1
 
 	sublength = a.applicationContextName.encode(reverseOS, true)
 	codeLength += sublength
 	codeLength += encodeLength(reverseOS, sublength)
-	// write tag: CONTEXT_CLASS, CONSTRUCTED, 1
+	// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 1
 	reverseOS.writeByte(0xA1)
 	codeLength += 1
 
 	if a.protocolVersion != nil {
 		codeLength += a.protocolVersion.encode(reverseOS, false)
-		// write tag: CONTEXT_CLASS, PRIMITIVE, 0
+		// writeByte tag: CONTEXT_CLASS, PRIMITIVE, 0
 		reverseOS.writeByte(0x80)
 		codeLength += 1
 	}

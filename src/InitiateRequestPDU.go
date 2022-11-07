@@ -1,6 +1,9 @@
 package src
 
-import "bytes"
+import (
+	"bytes"
+	"strconv"
+)
 
 type InitiateRequestPDU struct {
 	LocalDetailCalling                *Integer32
@@ -8,109 +11,116 @@ type InitiateRequestPDU struct {
 	ProposedMaxServOutstandingCalled  *Integer16
 	ProposedDataStructureNestingLevel *Integer8
 	InitRequestDetail                 *InitRequestDetail
-	Tag                               *BerTag
+	tag                               *BerTag
+	localDetailCalling                *Integer32
+	proposedMaxServOutstandingCalling *Integer16
+	proposedMaxServOutstandingCalled  *Integer16
+	proposedDataStructureNestingLevel *Integer8
+	initRequestDetail                 *InitRequestDetail
+	code                              []byte
 }
 
-func (p *InitiateRequestPDU) decode(is *bytes.Buffer, b bool) int {
-	int tlByteCount = 0;
-	int vByteCount = 0;
-	BerTag berTag = NewBerTag(0,0,0);
+func (p *InitiateRequestPDU) decode(is *bytes.Buffer, withTag bool) int {
+	tlByteCount := 0
+	vByteCount := 0
+	berTag := NewBerTag(0, 0, 0)
 
-	if (withTag) {
-		tlByteCount += tag.decodeAndCheck(is);
+	if withTag {
+		tlByteCount += p.tag.decodeAndCheck(is)
 	}
 
-	BerLength length = NewBerLength();
-	tlByteCount += length.decode(is);
-	int lengthVal = length.val;
-	vByteCount += berTag.decode(is);
+	length := NewBerLength()
+	tlByteCount += length.decode(is)
 
-	if (berTag.equals(128, 0, 0)) {
-		localDetailCalling = NewInteger32();
-		vByteCount += localDetailCalling.decode(is, false);
-		vByteCount += berTag.decode(is);
+	lengthVal := length.val
+	vByteCount += berTag.decode(is)
+
+	if berTag.equals(128, 0, 0) {
+		p.localDetailCalling = NewInteger32(0)
+		vByteCount += p.localDetailCalling.decode(is, false)
+		vByteCount += berTag.decode(is)
 	}
 
-	if (berTag.equals(128, 0, 1)) {
-		proposedMaxServOutstandingCalling = NewInteger16();
-		vByteCount += proposedMaxServOutstandingCalling.decode(is, false);
-		vByteCount += berTag.decode(is);
+	if berTag.equals(128, 0, 1) {
+		p.proposedMaxServOutstandingCalling = NewInteger16(nil, 0)
+		vByteCount += p.proposedMaxServOutstandingCalling.decode(is, false)
+		vByteCount += berTag.decode(is)
 	} else {
-		throw("Tag does not match mandatory sequence component.");
+		throw("tag does not match mandatory sequence component.")
 	}
 
-	if (berTag.equals(128, 0, 2)) {
-		proposedMaxServOutstandingCalled = NewInteger16();
-		vByteCount += proposedMaxServOutstandingCalled.decode(is, false);
-		vByteCount += berTag.decode(is);
+	if berTag.equals(128, 0, 2) {
+		p.proposedMaxServOutstandingCalled = NewInteger16(nil, 0)
+		vByteCount += p.proposedMaxServOutstandingCalled.decode(is, false)
+		vByteCount += berTag.decode(is)
 	} else {
-		throw("Tag does not match mandatory sequence component.");
+		throw("tag does not match mandatory sequence component.")
 	}
 
-	if (berTag.equals(128, 0, 3)) {
-		proposedDataStructureNestingLevel = NewInteger8();
-		vByteCount += proposedDataStructureNestingLevel.decode(is, false);
-		vByteCount += berTag.decode(is);
+	if berTag.equals(128, 0, 3) {
+		p.proposedDataStructureNestingLevel = NewInteger8(0)
+		vByteCount += p.proposedDataStructureNestingLevel.decode(is, false)
+		vByteCount += berTag.decode(is)
 	}
 
-	if (berTag.equals(128, 32, 4)) {
-		initRequestDetail = NewInitRequestDetail();
-		vByteCount += initRequestDetail.decode(is, false);
-		if (lengthVal >= 0 && vByteCount == lengthVal) {
-			return tlByteCount + vByteCount;
+	if berTag.equals(128, 32, 4) {
+		p.initRequestDetail = NewInitRequestDetail()
+		vByteCount += p.initRequestDetail.decode(is, false)
+		if lengthVal >= 0 && vByteCount == lengthVal {
+			return tlByteCount + vByteCount
 		}
-		vByteCount += berTag.decode(is);
+		vByteCount += berTag.decode(is)
 	} else {
-		throw("Tag does not match mandatory sequence component.");
+		throw("tag does not match mandatory sequence component.")
 	}
 
-	if (lengthVal < 0) {
-		if (!berTag.equals(0, 0, 0)) {
-			throw("Decoded sequence has wrong end of contents octets");
+	if lengthVal < 0 {
+		if !berTag.equals(0, 0, 0) {
+			throw("Decoded sequence has wrong end of contents octets")
 		}
-		vByteCount += BerLength.readEocByte(is);
-		return tlByteCount + vByteCount;
+		vByteCount += readEocByte(is)
+		return tlByteCount + vByteCount
 	}
 
-	throw(
-		"Unexpected end of sequence, length tag: " + lengthVal + ", bytes decoded: " + vByteCount);
+	throw("Unexpected end of sequence, length tag: " + strconv.Itoa(lengthVal) + ", bytes decoded: " + strconv.Itoa(vByteCount))
+	return 0
 }
 
 func (p *InitiateRequestPDU) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
-	if code != nil {
-		reverseOS.write(code)
+	if p.code != nil {
+		reverseOS.writeByte(p.code)
 		if withTag {
-			return tag.encode(reverseOS) + code.length
+			return p.tag.encode(reverseOS) + len(p.code)
 		}
-		return code.length
+		return len(p.code)
 	}
 
 	codeLength := 0
 	codeLength += p.InitRequestDetail.encode(reverseOS, false)
-	// write tag: CONTEXT_CLASS, CONSTRUCTED, 4
+	// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 4
 	reverseOS.writeByte(0xA4)
 	codeLength += 1
 
 	if p.ProposedDataStructureNestingLevel != nil {
 		codeLength += p.ProposedDataStructureNestingLevel.encode(reverseOS, false)
-		// write tag: CONTEXT_CLASS, PRIMITIVE, 3
+		// writeByte tag: CONTEXT_CLASS, PRIMITIVE, 3
 		reverseOS.writeByte(0x83)
 		codeLength += 1
 	}
 
 	codeLength += p.ProposedMaxServOutstandingCalled.encode(reverseOS, false)
-	// write tag: CONTEXT_CLASS, PRIMITIVE, 2
+	// writeByte tag: CONTEXT_CLASS, PRIMITIVE, 2
 	reverseOS.writeByte(0x82)
 	codeLength += 1
 
 	codeLength += p.ProposedMaxServOutstandingCalling.encode(reverseOS, false)
-	// write tag: CONTEXT_CLASS, PRIMITIVE, 1
+	// writeByte tag: CONTEXT_CLASS, PRIMITIVE, 1
 	reverseOS.writeByte(0x81)
 	codeLength += 1
 
 	if p.LocalDetailCalling != nil {
 		codeLength += p.LocalDetailCalling.encode(reverseOS, false)
-		// write tag: CONTEXT_CLASS, PRIMITIVE, 0
+		// writeByte tag: CONTEXT_CLASS, PRIMITIVE, 0
 		reverseOS.writeByte(0x80)
 		codeLength += 1
 	}
@@ -118,12 +128,12 @@ func (p *InitiateRequestPDU) encode(reverseOS *ReverseByteArrayOutputStream, wit
 	codeLength += encodeLength(reverseOS, codeLength)
 
 	if withTag {
-		codeLength += p.Tag.encode(reverseOS)
+		codeLength += p.tag.encode(reverseOS)
 	}
 
 	return codeLength
 }
 
 func NewInitiateRequestPDU() *InitiateRequestPDU {
-	return &InitiateRequestPDU{Tag: NewBerTag(0, 32, 16)}
+	return &InitiateRequestPDU{tag: NewBerTag(0, 32, 16)}
 }

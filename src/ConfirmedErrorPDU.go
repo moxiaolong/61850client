@@ -32,7 +32,7 @@ func (p *ConfirmedErrorPDU) decode(is *bytes.Buffer, withTag bool) int {
 		vByteCount += p.invokeID.decode(is, false)
 		vByteCount += berTag.decode(is)
 	} else {
-		throw("Tag does not match mandatory sequence component.")
+		throw("tag does not match mandatory sequence component.")
 	}
 
 	if berTag.equals(128, 0, 1) {
@@ -49,7 +49,7 @@ func (p *ConfirmedErrorPDU) decode(is *bytes.Buffer, withTag bool) int {
 		}
 		vByteCount += berTag.decode(is)
 	} else {
-		throw("Tag does not match mandatory sequence component.")
+		throw("tag does not match mandatory sequence component.")
 	}
 
 	if lengthVal < 0 {
@@ -75,19 +75,19 @@ func (p *ConfirmedErrorPDU) encode(reverseOS *ReverseByteArrayOutputStream, with
 
 	codeLength := 0
 	codeLength += p.serviceError.encode(reverseOS, false)
-	// write tag: CONTEXT_CLASS, CONSTRUCTED, 2
+	// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 2
 	reverseOS.writeByte(0xA2)
 	codeLength += 1
 
 	if p.modifierPosition != nil {
 		codeLength += p.modifierPosition.encode(reverseOS, false)
-		// write tag: CONTEXT_CLASS, PRIMITIVE, 1
+		// writeByte tag: CONTEXT_CLASS, PRIMITIVE, 1
 		reverseOS.writeByte(0x81)
 		codeLength += 1
 	}
 
 	codeLength += p.invokeID.encode(reverseOS, false)
-	// write tag: CONTEXT_CLASS, PRIMITIVE, 0
+	// writeByte tag: CONTEXT_CLASS, PRIMITIVE, 0
 	reverseOS.writeByte(0x80)
 	codeLength += 1
 

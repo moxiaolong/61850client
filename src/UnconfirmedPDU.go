@@ -1,70 +1,76 @@
 package src
 
-import "bytes"
+import (
+	"bytes"
+	"strconv"
+)
 
 type UnconfirmedPDU struct {
 	Service *UnconfirmedService
+	service *UnconfirmedService
+	code    []byte
+	tag     *BerTag
 }
 
-func (p *UnconfirmedPDU) decode(is *bytes.Buffer, b bool) int {
-	int tlByteCount = 0;
-	int vByteCount = 0;
-	int numDecodedBytes;
-	BerTag berTag = NewBerTag(0,0,0);
+func (p *UnconfirmedPDU) decode(is *bytes.Buffer, withTag bool) int {
+	tlByteCount := 0
+	vByteCount := 0
+	numDecodedBytes := 0
+	berTag := NewBerTag(0, 0, 0)
 
-	if (withTag) {
-		tlByteCount += tag.decodeAndCheck(is);
+	if withTag {
+		tlByteCount += p.tag.decodeAndCheck(is)
 	}
 
-	BerLength length = NewBerLength();
-	tlByteCount += length.decode(is);
-	int lengthVal = length.val;
-	vByteCount += berTag.decode(is);
+	length := NewBerLength()
+	tlByteCount += length.decode(is)
+	lengthVal := length.val
+	vByteCount += berTag.decode(is)
 
-	service = NewUnconfirmedService();
-	numDecodedBytes = service.decode(is, berTag);
-	if (numDecodedBytes != 0) {
-		vByteCount += numDecodedBytes;
-		if (lengthVal >= 0 && vByteCount == lengthVal) {
-			return tlByteCount + vByteCount;
+	p.service = NewUnconfirmedService()
+	numDecodedBytes = p.service.decode(is, berTag)
+	if numDecodedBytes != 0 {
+		vByteCount += numDecodedBytes
+		if lengthVal >= 0 && vByteCount == lengthVal {
+			return tlByteCount + vByteCount
 		}
-		vByteCount += berTag.decode(is);
+		vByteCount += berTag.decode(is)
 	} else {
-		throw("Tag does not match mandatory sequence component.");
+		throw("tag does not match mandatory sequence component.")
 	}
-	if (lengthVal < 0) {
-		if (!berTag.equals(0, 0, 0)) {
-			throw("Decoded sequence has wrong end of contents octets");
+	if lengthVal < 0 {
+		if !berTag.equals(0, 0, 0) {
+			throw("Decoded sequence has wrong end of contents octets")
 		}
-		vByteCount += BerLength.readEocByte(is);
-		return tlByteCount + vByteCount;
+		vByteCount += readEocByte(is)
+		return tlByteCount + vByteCount
 	}
 
-	throw(
-		"Unexpected end of sequence, length tag: " + lengthVal + ", bytes decoded: " + vByteCount);
+	throw("Unexpected end of sequence, length tag: " + strconv.Itoa(lengthVal) + ", bytes decoded: " + strconv.Itoa(vByteCount))
+	return 0
 }
 
-func (p *UnconfirmedPDU) encode(os *ReverseByteArrayOutputStream, b bool) int {
-	if (code != nil) {
-		reverseOS.write(code);
-		if (withTag) {
-			return tag.encode(reverseOS) + code.length;
+func (p *UnconfirmedPDU) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
+	if p.code != nil {
+		reverseOS.writeByte(p.code)
+		if withTag {
+			return p.tag.encode(reverseOS) + len(p.code)
 		}
-		return code.length;
+		return len(p.code)
 	}
 
-	int codeLength = 0;
-	codeLength += service.encode(reverseOS);
+	codeLength := 0
+	codeLength += p.service.encode(reverseOS)
 
-	codeLength += BerLength.encodeLength(reverseOS, codeLength);
+	codeLength += encodeLength(reverseOS, codeLength)
 
-	if (withTag) {
-		codeLength += tag.encode(reverseOS);
+	if withTag {
+		codeLength += p.tag.encode(reverseOS)
 	}
 
-	return codeLength;
+	return codeLength
 }
 
 func NewUnconfirmedPDU() *UnconfirmedPDU {
-	return &UnconfirmedPDU{}
+	return &UnconfirmedPDU{tag: NewBerTag(0, 32, 16)}
 }

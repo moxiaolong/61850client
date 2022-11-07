@@ -8,32 +8,33 @@ import (
 type ResultList struct {
 	tag   *BerTag
 	seqOf []*SEQUENCE
+	code  []byte
 }
 
 func NewResultList() *ResultList {
 	return &ResultList{tag: NewBerTag(0, 32, 16), seqOf: make([]*SEQUENCE, 0)}
 }
-func (r *ResultList) encode() {
-	if (code != nil) {
-		reverseOS.write(code);
-		if (withTag) {
-			return tag.encode(reverseOS) + code.length;
+func (r *ResultList) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
+	if r.code != nil {
+		reverseOS.writeByte(r.code)
+		if withTag {
+			return r.tag.encode(reverseOS) + len(r.code)
 		}
-		return code.length;
+		return len(r.code)
 	}
 
-	int codeLength = 0;
-	for (int i = (seqOf.size() - 1); i >= 0; i--) {
-		codeLength += seqOf.get(i).encode(reverseOS, true);
+	codeLength := 0
+	for i := len(r.seqOf) - 1; i >= 0; i-- {
+		codeLength += r.seqOf[i].encode(reverseOS, true)
 	}
 
-	codeLength += BerLength.encodeLength(reverseOS, codeLength);
+	codeLength += encodeLength(reverseOS, codeLength)
 
-	if (withTag) {
-		codeLength += tag.encode(reverseOS);
+	if withTag {
+		codeLength += r.tag.encode(reverseOS)
 	}
 
-	return codeLength;
+	return codeLength
 }
 
 func (r *ResultList) decode(is *bytes.Buffer, withTag bool) int {

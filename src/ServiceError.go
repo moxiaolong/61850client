@@ -83,14 +83,14 @@ func (p *ServiceError) encode(reverseOS *ReverseByteArrayOutputStream, withTag b
 
 	if p.additionalDescription != nil {
 		codeLength += p.additionalDescription.encode(reverseOS, false)
-		// write tag: CONTEXT_CLASS, PRIMITIVE, 2
+		// writeByte tag: CONTEXT_CLASS, PRIMITIVE, 2
 		reverseOS.writeByte(0x82)
 		codeLength += 1
 	}
 
 	if p.additionalCode != nil {
 		codeLength += p.additionalCode.encode(reverseOS, false)
-		// write tag: CONTEXT_CLASS, PRIMITIVE, 1
+		// writeByte tag: CONTEXT_CLASS, PRIMITIVE, 1
 		reverseOS.writeByte(0x81)
 		codeLength += 1
 	}
@@ -98,7 +98,7 @@ func (p *ServiceError) encode(reverseOS *ReverseByteArrayOutputStream, withTag b
 	sublength = p.ErrorClass.encode(reverseOS)
 	codeLength += sublength
 	codeLength += encodeLength(reverseOS, sublength)
-	// write tag: CONTEXT_CLASS, CONSTRUCTED, 0
+	// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 0
 	reverseOS.writeByte(0xA0)
 	codeLength += 1
 

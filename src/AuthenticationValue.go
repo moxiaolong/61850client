@@ -54,7 +54,7 @@ func (v *AuthenticationValue) encode(reverseOS *ReverseByteArrayOutputStream) in
 	codeLength := 0
 	if v.external != nil {
 		codeLength += v.external.encode(reverseOS, false)
-		// write tag: CONTEXT_CLASS, CONSTRUCTED, 2
+		// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 2
 		reverseOS.writeByte(0xA2)
 		codeLength += 1
 		return codeLength
@@ -62,7 +62,7 @@ func (v *AuthenticationValue) encode(reverseOS *ReverseByteArrayOutputStream) in
 
 	if v.bitstring != nil {
 		codeLength += v.bitstring.encode(reverseOS, false)
-		// write tag: CONTEXT_CLASS, PRIMITIVE, 1
+		// writeByte tag: CONTEXT_CLASS, PRIMITIVE, 1
 		reverseOS.writeByte(0x81)
 		codeLength += 1
 		return codeLength
@@ -70,7 +70,7 @@ func (v *AuthenticationValue) encode(reverseOS *ReverseByteArrayOutputStream) in
 
 	if v.charstring != nil {
 		codeLength += v.charstring.encode(reverseOS, false)
-		// write tag: CONTEXT_CLASS, PRIMITIVE, 0
+		// writeByte tag: CONTEXT_CLASS, PRIMITIVE, 0
 		reverseOS.writeByte(0x80)
 		codeLength += 1
 		return codeLength

@@ -133,7 +133,7 @@ func (a *AcseAssociation) startSConnection(ssduList [][]byte, ssduOffsets []int,
 	for _, item := range ssduLengths {
 		ssduLength += item
 	}
-	// write ISO 8327-1 Header
+	// writeByte ISO 8327-1 Header
 	// SPDU Type: CONNECT (13)
 	spduHeader[idx] = 0x0d
 	idx++
@@ -219,7 +219,7 @@ func (a *AcseAssociation) startSConnection(ssduList [][]byte, ssduOffsets []int,
 	idx++
 	// Parameter length
 	spduHeader[idx] = (byte)(ssduLength & 0xff)
-	// write session user data
+	// writeByte session user data
 	ssduList = append([][]byte{spduHeader}, ssduList...)
 
 	ssduOffsets = append([]int{0}, ssduOffsets...)

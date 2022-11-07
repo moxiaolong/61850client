@@ -46,7 +46,7 @@ func (e *Encoding) decode(is *bytes.Buffer, berTag *BerTag) int {
 		return 0
 	}
 
-	throw("Error decoding CHOICE: Tag " + berTag.toString() + " matched to no item.")
+	throw("Error decoding CHOICE: tag " + berTag.toString() + " matched to no item.")
 	return 0
 }
 func (e *Encoding) encode(reverseOS *ReverseByteArrayOutputStream, tag *BerTag) int {
@@ -60,7 +60,7 @@ func (e *Encoding) encode(reverseOS *ReverseByteArrayOutputStream, tag *BerTag) 
 
 	if e.arbitrary != nil {
 		codeLength += e.arbitrary.encode(reverseOS, false)
-		// write tag: CONTEXT_CLASS, PRIMITIVE, 2
+		// writeByte tag: CONTEXT_CLASS, PRIMITIVE, 2
 		reverseOS.writeByte(0x82)
 		codeLength += 1
 		return codeLength
@@ -68,7 +68,7 @@ func (e *Encoding) encode(reverseOS *ReverseByteArrayOutputStream, tag *BerTag) 
 
 	if e.octetAligned != nil {
 		codeLength += e.octetAligned.encode(reverseOS, false)
-		// write tag: CONTEXT_CLASS, PRIMITIVE, 1
+		// writeByte tag: CONTEXT_CLASS, PRIMITIVE, 1
 		reverseOS.writeByte(0x81)
 		codeLength += 1
 		return codeLength
@@ -78,7 +78,7 @@ func (e *Encoding) encode(reverseOS *ReverseByteArrayOutputStream, tag *BerTag) 
 		sublength = e.singleASN1Type.encode(reverseOS)
 		codeLength += sublength
 		codeLength += encodeLength(reverseOS, sublength)
-		// write tag: CONTEXT_CLASS, CONSTRUCTED, 0
+		// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 0
 		reverseOS.writeByte(0xA0)
 		codeLength += 1
 		return codeLength

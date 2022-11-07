@@ -22,7 +22,7 @@ func (s *MMSpdu) encode(reverseOS *ReverseByteArrayOutputStream) int {
 	codeLength := 0
 	if s.concludeRequestPDU != nil {
 		codeLength += s.concludeRequestPDU.encode(reverseOS, false)
-		// write tag: CONTEXT_CLASS, PRIMITIVE, 11
+		// writeByte tag: CONTEXT_CLASS, PRIMITIVE, 11
 		reverseOS.writeByte(0x8B)
 		codeLength += 1
 		return codeLength
@@ -30,7 +30,7 @@ func (s *MMSpdu) encode(reverseOS *ReverseByteArrayOutputStream) int {
 
 	if s.initiateErrorPDU != nil {
 		codeLength += s.initiateErrorPDU.encode(reverseOS, false)
-		// write tag: CONTEXT_CLASS, CONSTRUCTED, 10
+		// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 10
 		reverseOS.writeByte(0xAA)
 		codeLength += 1
 		return codeLength
@@ -38,7 +38,7 @@ func (s *MMSpdu) encode(reverseOS *ReverseByteArrayOutputStream) int {
 
 	if s.initiateResponsePDU != nil {
 		codeLength += s.initiateResponsePDU.encode(reverseOS, false)
-		// write tag: CONTEXT_CLASS, CONSTRUCTED, 9
+		// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 9
 		reverseOS.writeByte(0xA9)
 		codeLength += 1
 		return codeLength
@@ -46,7 +46,7 @@ func (s *MMSpdu) encode(reverseOS *ReverseByteArrayOutputStream) int {
 
 	if s.initiateRequestPDU != nil {
 		codeLength += s.initiateRequestPDU.encode(reverseOS, false)
-		// write tag: CONTEXT_CLASS, CONSTRUCTED, 8
+		// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 8
 		reverseOS.writeByte(0xA8)
 		codeLength += 1
 		return codeLength
@@ -54,7 +54,7 @@ func (s *MMSpdu) encode(reverseOS *ReverseByteArrayOutputStream) int {
 
 	if s.rejectPDU != nil {
 		codeLength += s.rejectPDU.encode(reverseOS, false)
-		// write tag: CONTEXT_CLASS, CONSTRUCTED, 4
+		// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 4
 		reverseOS.writeByte(0xA4)
 		codeLength += 1
 		return codeLength
@@ -62,7 +62,7 @@ func (s *MMSpdu) encode(reverseOS *ReverseByteArrayOutputStream) int {
 
 	if s.unconfirmedPDU != nil {
 		codeLength += s.unconfirmedPDU.encode(reverseOS, false)
-		// write tag: CONTEXT_CLASS, CONSTRUCTED, 3
+		// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 3
 		reverseOS.writeByte(0xA3)
 		codeLength += 1
 		return codeLength
@@ -70,7 +70,7 @@ func (s *MMSpdu) encode(reverseOS *ReverseByteArrayOutputStream) int {
 
 	if s.confirmedErrorPDU != nil {
 		codeLength += s.confirmedErrorPDU.encode(reverseOS, false)
-		// write tag: CONTEXT_CLASS, CONSTRUCTED, 2
+		// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 2
 		reverseOS.writeByte(0xA2)
 		codeLength += 1
 		return codeLength
@@ -78,7 +78,7 @@ func (s *MMSpdu) encode(reverseOS *ReverseByteArrayOutputStream) int {
 
 	if s.confirmedResponsePDU != nil {
 		codeLength += s.confirmedResponsePDU.encode(reverseOS, false)
-		// write tag: CONTEXT_CLASS, CONSTRUCTED, 1
+		// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 1
 		reverseOS.writeByte(0xA1)
 		codeLength += 1
 		return codeLength
@@ -86,7 +86,7 @@ func (s *MMSpdu) encode(reverseOS *ReverseByteArrayOutputStream) int {
 
 	if s.confirmedRequestPDU != nil {
 		codeLength += s.confirmedRequestPDU.encode(reverseOS, false)
-		// write tag: CONTEXT_CLASS, CONSTRUCTED, 0
+		// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 0
 		reverseOS.writeByte(0xA0)
 		codeLength += 1
 		return codeLength

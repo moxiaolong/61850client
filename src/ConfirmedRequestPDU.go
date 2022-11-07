@@ -32,7 +32,7 @@ func (p *ConfirmedRequestPDU) decode(is *bytes.Buffer, withTag bool) int {
 		vByteCount += p.invokeID.decode(is, false)
 		vByteCount += berTag.decode(is)
 	} else {
-		throw("Tag does not match mandatory sequence component.")
+		throw("tag does not match mandatory sequence component.")
 	}
 
 	p.service = NewConfirmedServiceRequest()
@@ -44,7 +44,7 @@ func (p *ConfirmedRequestPDU) decode(is *bytes.Buffer, withTag bool) int {
 		}
 		vByteCount += berTag.decode(is)
 	} else {
-		throw("Tag does not match mandatory sequence component.")
+		throw("tag does not match mandatory sequence component.")
 	}
 	if lengthVal < 0 {
 		if !berTag.equals(0, 0, 0) {

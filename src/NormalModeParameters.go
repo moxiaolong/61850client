@@ -102,6 +102,10 @@ func (p *NormalModeParameters) decode(is *bytes.Buffer, withTag bool) int {
 	return -1
 }
 
+func (p *NormalModeParameters) encode(os *ReverseByteArrayOutputStream, b bool) int {
+
+}
+
 func NewNormalModeParameters() *NormalModeParameters {
 	return &NormalModeParameters{tag: NewBerTag(0, 32, 16)}
 }

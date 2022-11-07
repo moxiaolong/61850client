@@ -10,7 +10,7 @@ type PresentationDataValues struct {
 
 func (v *PresentationDataValues) encode(reverseOS *ReverseByteArrayOutputStream) int {
 	if code != nil {
-		reverseOS.write(code)
+		reverseOS.writeByte(code)
 		return code.length
 	}
 	codeLength := 0
@@ -19,7 +19,7 @@ func (v *PresentationDataValues) encode(reverseOS *ReverseByteArrayOutputStream)
 		sublength = v.singleASN1Type.encode(reverseOS)
 		codeLength += sublength
 		codeLength += encodeLength(reverseOS, sublength)
-		// write tag: CONTEXT_CLASS, CONSTRUCTED, 0
+		// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 0
 		reverseOS.writeByte(0xA0)
 		codeLength += 1
 		return codeLength

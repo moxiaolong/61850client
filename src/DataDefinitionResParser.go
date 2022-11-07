@@ -12,12 +12,12 @@ func NewDataDefinitionResParser() *DataDefinitionResParser {
 }
 
 func parseGetDataDefinitionResponse(confirmedServiceResponse *ConfirmedServiceResponse, lnRef *ObjectReference) *LogicalNode {
-	if confirmedServiceResponse.GetVariableAccessAttributesResponse == nil {
+	if confirmedServiceResponse.getVariableAccessAttributes == nil {
 		throw("decodeGetDataDefinitionResponse: Error decoding GetDataDefinitionResponsePdu")
 	}
 	varAccAttrs :=
-		confirmedServiceResponse.GetVariableAccessAttributes
-	typeSpec := varAccAttrs.TypeDescription
+		confirmedServiceResponse.getVariableAccessAttributes
+	typeSpec := varAccAttrs.typeDescription
 	if typeSpec.Structure == nil {
 		throw("decodeGetDataDefinitionResponse: Error decoding GetDataDefinitionResponsePdu")
 	}

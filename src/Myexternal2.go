@@ -15,7 +15,7 @@ type Myexternal2 struct {
 
 func (m *Myexternal2) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
 	if m.code != nil {
-		reverseOS.write(m.code)
+		reverseOS.writeByte(m.code)
 		if withTag {
 			return m.tag.encode(reverseOS) + len(m.code)
 		}
@@ -80,7 +80,7 @@ func (m *Myexternal2) decode(is *bytes.Buffer, withTag bool) int {
 		}
 		vByteCount += berTag.decode(is)
 	} else {
-		throw("Tag does not match mandatory sequence component.")
+		throw("tag does not match mandatory sequence component.")
 	}
 	if lengthVal < 0 {
 		if !berTag.equals(0, 0, 0) {
