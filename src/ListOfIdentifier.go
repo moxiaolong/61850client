@@ -5,18 +5,18 @@ import (
 	"strconv"
 )
 
-type ListOfDirectoryEntry struct {
+type ListOfIdentifier struct {
 	tag   *BerTag
-	seqOf []*DirectoryEntry
+	seqOf []*Identifier
 	code  []byte
 }
 
-func (e *ListOfDirectoryEntry) decode(is *bytes.Buffer, withTag bool) int {
+func (c *ListOfIdentifier) decode(is *bytes.Buffer, withTag bool) int {
 	tlByteCount := 0
 	vByteCount := 0
 	berTag := NewBerTag(0, 0, 0)
 	if withTag {
-		tlByteCount += e.tag.decodeAndCheck(is)
+		tlByteCount += c.tag.decodeAndCheck(is)
 	}
 
 	length := NewBerLength()
@@ -31,13 +31,12 @@ func (e *ListOfDirectoryEntry) decode(is *bytes.Buffer, withTag bool) int {
 			break
 		}
 
-		if !berTag.equals(0, 32, 16) {
+		if !berTag.equals(0, 0, 26) {
 			throw("Tag does not match mandatory sequence of/set of component.")
 		}
-
-		element := NewDirectoryEntry()
+		element := NewIdentifier()
 		vByteCount += element.decode(is, false)
-		e.seqOf = append(e.seqOf, element)
+		c.seqOf = append(c.seqOf, element)
 	}
 	if lengthVal >= 0 && vByteCount != lengthVal {
 		throw(
@@ -46,29 +45,29 @@ func (e *ListOfDirectoryEntry) decode(is *bytes.Buffer, withTag bool) int {
 	return tlByteCount + vByteCount
 }
 
-func (e *ListOfDirectoryEntry) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
-	if e.code != nil {
-		reverseOS.write(e.code)
+func (c *ListOfIdentifier) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
+	if c.code != nil {
+		reverseOS.write(c.code)
 		if withTag {
-			return e.tag.encode(reverseOS) + len(e.code)
+			return c.tag.encode(reverseOS) + len(c.code)
 		}
-		return len(e.code)
+		return len(c.code)
 	}
 
 	codeLength := 0
-	for i := len(e.seqOf) - 1; i >= 0; i-- {
-		codeLength += e.seqOf[i].encode(reverseOS, true)
+	for i := len(c.seqOf) - 1; i >= 0; i-- {
+		codeLength += c.seqOf[i].encode(reverseOS, true)
 	}
 
 	codeLength += encodeLength(reverseOS, codeLength)
 
 	if withTag {
-		codeLength += e.tag.encode(reverseOS)
+		codeLength += c.tag.encode(reverseOS)
 	}
 
 	return codeLength
 }
 
-func NewListOfDirectoryEntry() *ListOfDirectoryEntry {
-	return &ListOfDirectoryEntry{tag: NewBerTag(0, 32, 16)}
+func NewListOfIdentifier() *ListOfIdentifier {
+	return &ListOfIdentifier{tag: NewBerTag(0, 32, 16)}
 }

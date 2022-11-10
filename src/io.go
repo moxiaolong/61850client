@@ -29,7 +29,7 @@ func readByte(r *bufio.Reader) byte {
 	return readByte
 }
 
-func writeByteShort(w *bufio.Writer, v int) {
+func writeByteByteShort(w *bufio.Writer, v int) {
 	buf := make([]byte, 2)
 	binary.BigEndian.PutUint16(buf, uint16(v))
 	_, err := w.Write(buf)
@@ -38,14 +38,14 @@ func writeByteShort(w *bufio.Writer, v int) {
 	}
 }
 
-func writeByteInt(w *bufio.Writer, b int) {
+func writeByteByteInt(w *bufio.Writer, b int) {
 	err := w.WriteByte(byte(b))
 	if err != nil {
 		panic(err)
 	}
 }
 
-func writeByte(w *bufio.Writer, b byte) {
+func writeByteByte(w *bufio.Writer, b byte) {
 	err := w.WriteByte(b)
 	if err != nil {
 		panic(err)

@@ -34,7 +34,7 @@ func (p *ServiceError) decode(is *bytes.Buffer, withTag bool) int {
 	if berTag.equals(128, 32, 0) {
 		vByteCount += length.decode(is)
 		errorClass := NewErrorClass()
-		vByteCount += errorClass.decode(is)
+		vByteCount += errorClass.decode(is, nil)
 		vByteCount += length.readEocIfIndefinite(is)
 		if lengthVal >= 0 && vByteCount == lengthVal {
 			return tlByteCount + vByteCount

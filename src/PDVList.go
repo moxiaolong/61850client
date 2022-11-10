@@ -10,15 +10,16 @@ type PDVList struct {
 	presentationDataValues        *PresentationDataValues
 	tag                           *BerTag
 	transferSyntaxName            *TransferSyntaxName
+	code                          []byte
 }
 
 func (l *PDVList) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
-	if code != nil {
-		reverseOS.writeByte(code)
+	if l.code != nil {
+		reverseOS.write(l.code)
 		if withTag {
-			return tag.encode(reverseOS) + code.length
+			return l.tag.encode(reverseOS) + len(l.code)
 		}
-		return code.length
+		return len(l.code)
 	}
 
 	codeLength := 0

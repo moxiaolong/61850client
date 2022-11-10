@@ -18,7 +18,7 @@ type Myexternal struct {
 
 func (m *Myexternal) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
 	if m.code != nil {
-		reverseOS.writeByte(m.code)
+		reverseOS.write(m.code)
 		if withTag {
 			return m.tag.encode(reverseOS) + len(m.code)
 		}

@@ -12,7 +12,7 @@ type MyexternalEncoding struct {
 
 func (e *MyexternalEncoding) encode(reverseOS *ReverseByteArrayOutputStream) int {
 	if e.code != nil {
-		reverseOS.writeByte(e.code)
+		reverseOS.write(e.code)
 		return len(e.code)
 	}
 

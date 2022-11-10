@@ -61,7 +61,7 @@ func (p *RejectPDU) decode(is *bytes.Buffer, withTag bool) int {
 
 func (p *RejectPDU) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
 	if p.code != nil {
-		reverseOS.writeByte(p.code)
+		reverseOS.write(p.code)
 		if withTag {
 			return p.tag.encode(reverseOS) + len(p.code)
 		}

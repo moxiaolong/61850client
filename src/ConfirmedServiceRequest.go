@@ -5,7 +5,7 @@ import "bytes"
 type ConfirmedServiceRequest struct {
 	getNameList                    *GetNameListRequest
 	read                           *ReadRequest
-	writeByte                      *WriteRequest
+	writeByteByte                  *WriteRequest
 	getVariableAccessAttributes    *GetVariableAccessAttributesRequest
 	defineNamedVariableList        *DefineNamedVariableListRequest
 	getNamedVariableListAttributes *GetNamedVariableListAttributesRequest
@@ -40,8 +40,8 @@ func (r *ConfirmedServiceRequest) decode(is *bytes.Buffer, berTag *BerTag) int {
 	}
 
 	if berTag.equals(128, 32, 5) {
-		r.writeByte = NewWriteRequest()
-		tlvByteCount += r.writeByte.decode(is, false)
+		r.writeByteByte = NewWriteRequest()
+		tlvByteCount += r.writeByteByte.decode(is, false)
 		return tlvByteCount
 	}
 
@@ -202,8 +202,8 @@ func (r *ConfirmedServiceRequest) encode(reverseOS *ReverseByteArrayOutputStream
 		return codeLength
 	}
 
-	if r.writeByte != nil {
-		codeLength += r.writeByte.encode(reverseOS, false)
+	if r.writeByteByte != nil {
+		codeLength += r.writeByteByte.encode(reverseOS, false)
 		// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 5
 		reverseOS.writeByte(0xA5)
 		codeLength += 1

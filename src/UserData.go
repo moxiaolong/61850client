@@ -5,12 +5,13 @@ import "bytes"
 type UserData struct {
 	simplyEncodedData *SimplyEncodedData
 	fullyEncodedData  *FullyEncodedData
+	code              []byte
 }
 
 func (t *UserData) encode(reverseOS *ReverseByteArrayOutputStream) int {
-	if code != nil {
-		reverseOS.writeByte(code)
-		return code.length
+	if t.code != nil {
+		reverseOS.write(t.code)
+		return len(t.code)
 	}
 	codeLength := 0
 	if t.fullyEncodedData != nil {

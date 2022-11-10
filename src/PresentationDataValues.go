@@ -6,12 +6,13 @@ type PresentationDataValues struct {
 	singleASN1Type *BerAny
 	octetAligned   *BerOctetString
 	arbitrary      *BerBitString
+	code           []byte
 }
 
 func (v *PresentationDataValues) encode(reverseOS *ReverseByteArrayOutputStream) int {
-	if code != nil {
-		reverseOS.writeByte(code)
-		return code.length
+	if v.code != nil {
+		reverseOS.write(v.code)
+		return len(v.code)
 	}
 	codeLength := 0
 	sublength := 0

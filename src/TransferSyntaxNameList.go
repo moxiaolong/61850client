@@ -13,7 +13,7 @@ type TransferSyntaxNameList struct {
 
 func (l *TransferSyntaxNameList) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
 	if l.code != nil {
-		reverseOS.writeByte(l.code)
+		reverseOS.write(l.code)
 		if withTag {
 			return l.tag.encode(reverseOS) + len(l.code)
 		}

@@ -16,7 +16,7 @@ func NewResultList() *ResultList {
 }
 func (r *ResultList) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
 	if r.code != nil {
-		reverseOS.writeByte(r.code)
+		reverseOS.write(r.code)
 		if withTag {
 			return r.tag.encode(reverseOS) + len(r.code)
 		}

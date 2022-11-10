@@ -31,7 +31,7 @@ func NewTConnection(socket *net.Conn, maxTPduSizeParam int, messageTimeout int, 
 	}
 
 	reader := bufio.NewReader(*socket)
-	writeByter := bufio.NewWriter(*socket)
+	writeByteByter := bufio.NewWriter(*socket)
 	var maxTPduSize int
 	if maxTPduSizeParam == 16 {
 		maxTPduSize = 65531
@@ -47,14 +47,14 @@ func NewTConnection(socket *net.Conn, maxTPduSizeParam int, messageTimeout int, 
 		messageFragmentTimeout: messageFragmentTimeout,
 		serverThread:           serverThread,
 		closed:                 false,
-		os:                     writeByter,
+		os:                     writeByteByter,
 		is:                     reader,
 		maxTPduSize:            maxTPduSize,
 	}
 }
 
 /**
- * Listens for a NewTPDU and writeBytes the extracted TSDU into the passed buffer.
+ * Listens for a NewTPDU and writeByteBytes the extracted TSDU into the passed buffer.
  *
  * @param tSduBuffer the buffer that is filled with the received TSDU data.
  * @throws EOFException if a Disconnect Request (DR) was received or the socket was simply closed
@@ -180,8 +180,8 @@ func (t *TConnection) startConnection() {
 	os := t.os
 	is := t.is
 	// writeByte RFC 1006 Header
-	writeByte(os, 0x03)
-	writeByte(os, 0x00)
+	writeByteByte(os, 0x03)
+	writeByteByte(os, 0x00)
 	// writeByte complete packet length
 	variableLength := 3
 
@@ -192,42 +192,42 @@ func (t *TConnection) startConnection() {
 		variableLength += 2 + len(t.TSelRemote)
 	}
 
-	writeByteShort(os, 4+7+variableLength)
+	writeByteByteShort(os, 4+7+variableLength)
 	// writing RFC 1006 Header finished
 
 	// writeByte connection request (CR) TPDU (§13.3)
 
 	// writeByte length indicator
-	writeByte(os, 6+variableLength)
+	writeByteByte(os, byte(6+variableLength))
 
 	// writeByte fixed part
 	// writeByte CR CDT
-	writeByte(os, 0xe0)
+	writeByteByte(os, 0xe0)
 	// writeByte DST-REF
-	writeByte(os, 0)
-	writeByte(os, 0)
+	writeByteByte(os, 0)
+	writeByteByte(os, 0)
 	// writeByte SRC-REF
-	writeByteShort(os, t.srcRef)
+	writeByteByteShort(os, t.srcRef)
 	// writeByte class
-	writeByte(os, 0)
+	writeByteByte(os, 0)
 
 	// writeByte variable part
 	// writeByte proposed maximum TPDU Size
-	writeByte(os, 0xc0)
-	writeByte(os, 1)
-	writeByte(os, t.maxTPduSizeParam)
+	writeByteByte(os, 0xc0)
+	writeByteByte(os, 1)
+	writeByteByte(os, byte(t.maxTPduSizeParam))
 
 	if t.TSelRemote != nil {
-		writeByte(os, 0xc2)
-		writeByte(os, len(t.TSelRemote))
+		writeByteByte(os, 0xc2)
+		writeByteByte(os, byte(len(t.TSelRemote)))
 		_, err := os.Write(t.TSelRemote)
 		if err != nil {
 			panic(err)
 		}
 	}
 	if t.TSelLocal != nil {
-		writeByte(os, 0xc1)
-		writeByte(os, len(t.TSelLocal))
+		writeByteByte(os, 0xc1)
+		writeByteByte(os, byte(len(t.TSelLocal)))
 		_, err := os.Write(t.TSelLocal)
 		if err != nil {
 			panic(err)
@@ -445,8 +445,8 @@ func (t *TConnection) listenForCR() {
 	}
 
 	// writeByte RFC 1006 Header
-	writeByte(os, 0x03)
-	writeByte(os, 0x00)
+	writeByteByte(os, 0x03)
+	writeByteByte(os, 0x00)
 
 	// writeByte complete packet length
 
@@ -459,27 +459,27 @@ func (t *TConnection) listenForCR() {
 		variableLength += 2 + len(t.TSelRemote)
 	}
 
-	writeByteShort(os, 4+7+variableLength)
+	writeByteByteShort(os, 4+7+variableLength)
 	// writeByte connection request (CR) TPDU (§13.3)
 
 	// writeByte length indicator
-	writeByte(os, byte(6+variableLength))
+	writeByteByte(os, byte(6+variableLength))
 
 	// writeByte fixed part
 	// writeByte CC CDT
-	writeByte(os, 0xd0)
+	writeByteByte(os, 0xd0)
 
 	// writeByte DST-REF
-	writeByteShort(os, t.dstRef)
+	writeByteByteShort(os, t.dstRef)
 	// writeByte SRC-REF
-	writeByteShort(os, t.srcRef)
+	writeByteByteShort(os, t.srcRef)
 	// writeByte class
-	writeByte(os, 0x00)
+	writeByteByte(os, 0x00)
 
 	// writeByte variable part
 	if t.TSelLocal != nil {
-		writeByte(os, 0xc2)
-		writeByte(os, len(t.TSelLocal))
+		writeByteByte(os, 0xc2)
+		writeByteByte(os, byte(len(t.TSelLocal)))
 		_, err := os.Write(t.TSelLocal)
 		if err != nil {
 			panic(err)
@@ -487,9 +487,9 @@ func (t *TConnection) listenForCR() {
 	}
 
 	if t.TSelRemote != nil {
-		writeByte(os, 0xc1)
+		writeByteByte(os, 0xc1)
 
-		writeByte(os, len(t.TSelRemote))
+		writeByteByte(os, byte(len(t.TSelRemote)))
 		_, err := os.Write(t.TSelLocal)
 		if err != nil {
 			panic(err)
@@ -497,11 +497,11 @@ func (t *TConnection) listenForCR() {
 
 	}
 	// writeByte proposed maximum TPDU Size
-	writeByte(os, 0xc0)
+	writeByteByte(os, 0xc0)
 
-	writeByte(os, 1)
+	writeByteByte(os, 1)
 
-	writeByte(os, t.maxTPduSizeParam)
+	writeByteByte(os, byte(t.maxTPduSizeParam))
 	err := os.Flush()
 	if err != nil {
 		panic(err)
@@ -550,22 +550,22 @@ func (t *TConnection) send(tsdus [][]byte, offsets []int, lengths []int) {
 
 		// --writeByte RFC 1006 Header--
 		// writeByte Version
-		writeByte(os, 0x03)
+		writeByteByte(os, 0x03)
 		// writeByte reserved bits
-		writeByte(os, 0)
+		writeByteByte(os, 0)
 		// writeByte packet Length
-		writeByteShort(os, numBytesToWrite+7)
+		writeByteByteShort(os, numBytesToWrite+7)
 
 		// --writeByte 8073 Header--
 		// writeByte Length Indicator of header
-		writeByte(os, 0x02)
+		writeByteByte(os, 0x02)
 		// writeByte TPDU Code for DT Data
-		writeByte(os, 0xf0)
+		writeByteByte(os, 0xf0)
 		// writeByte TPDU-NR and EOT, TPDU-NR is always 0 for class 0
 		if lastPacket {
-			writeByte(os, 0x80)
+			writeByteByte(os, 0x80)
 		} else {
-			writeByte(os, 0x00)
+			writeByteByte(os, 0x00)
 		}
 
 		bytesLeft -= numBytesToWrite
@@ -636,32 +636,32 @@ func (t *TConnection) disconnect() {
 	os := t.os
 	// writeByte header for rfc
 	// writeByte version
-	writeByte(os, 0x03)
+	writeByteByte(os, 0x03)
 	// writeByte reserved
-	writeByte(os, 0x00)
+	writeByteByte(os, 0x00)
 	// writeByte packet length
-	writeByteShort(os, 4+7) // t does not include the variable part
+	writeByteByteShort(os, 4+7) // t does not include the variable part
 	// which
 	// contains additional user information for
 	// disconnect
 
 	// beginning of ISO 8073 header
 	// writeByte LI
-	writeByte(os, 0x06)
+	writeByteByte(os, 0x06)
 
 	// writeByte DR
-	writeByte(os, 0x80)
+	writeByteByte(os, 0x80)
 
 	// writeByte DST-REF
-	writeByteShort(os, t.dstRef)
+	writeByteByteShort(os, t.dstRef)
 
 	// writeByte SRC-REF
-	writeByteShort(os, t.srcRef)
+	writeByteByteShort(os, t.srcRef)
 
 	// writeByte reason - 0x00 corresponds to reason not specified. Can
 	// writeByte
 	// the reasons as case structure, but need input from client
-	writeByte(os, 0x00)
+	writeByteByte(os, 0x00)
 
 	err := os.Flush()
 	if err != nil {

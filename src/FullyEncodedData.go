@@ -8,6 +8,7 @@ import (
 type FullyEncodedData struct {
 	seqOf []*PDVList
 	tag   *BerTag
+	code  []byte
 }
 
 func (d *FullyEncodedData) getPDVList() []*PDVList {
@@ -19,12 +20,12 @@ func (d *FullyEncodedData) getPDVList() []*PDVList {
 }
 
 func (d *FullyEncodedData) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
-	if code != nil {
-		reverseOS.writeByte(code)
+	if d.code != nil {
+		reverseOS.write(d.code)
 		if withTag {
-			return tag.encode(reverseOS) + code.length
+			return d.tag.encode(reverseOS) + len(d.code)
 		}
-		return code.length
+		return len(d.code)
 	}
 
 	codeLength := 0

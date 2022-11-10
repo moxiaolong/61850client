@@ -1,7 +1,7 @@
 package src
 
 type TimeOfDay struct {
-	value []byte
+	BerOctetString
 }
 
 func NewTimeOfDay() *TimeOfDay {

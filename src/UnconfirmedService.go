@@ -32,7 +32,7 @@ func (s *UnconfirmedService) decode(is *bytes.Buffer, berTag *BerTag) int {
 
 func (s *UnconfirmedService) encode(reverseOS *ReverseByteArrayOutputStream) int {
 	if s.code != nil {
-		reverseOS.writeByte(s.code)
+		reverseOS.write(s.code)
 		return len(s.code)
 	}
 

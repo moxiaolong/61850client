@@ -5,38 +5,39 @@ import (
 	"strconv"
 )
 
-type GetNamedVariableListAttributesResponse struct {
+type DirectoryEntry struct {
 	tag            *BerTag
-	mmsDeletable   *BerBoolean
-	listOfVariable *VariableDefs
+	fileAttributes *FileAttributes
+	fileName       *FileName
 	code           []byte
 }
 
-func (r *GetNamedVariableListAttributesResponse) decode(is *bytes.Buffer, withTag bool) int {
+func (e *DirectoryEntry) decode(is *bytes.Buffer, withTag bool) int {
 	tlByteCount := 0
 	vByteCount := 0
 	berTag := NewBerTag(0, 0, 0)
 
 	if withTag {
-		tlByteCount += r.tag.decodeAndCheck(is)
+		tlByteCount += e.tag.decodeAndCheck(is)
 	}
 
 	length := NewBerLength()
 	tlByteCount += length.decode(is)
+
 	lengthVal := length.val
 	vByteCount += berTag.decode(is)
 
-	if berTag.equals(128, 0, 0) {
-		r.mmsDeletable = NewBerBoolean()
-		vByteCount += r.mmsDeletable.decode(is, false)
+	if berTag.equals(128, 32, 0) {
+		e.fileName = NewFileName()
+		vByteCount += e.fileName.decode(is, false)
 		vByteCount += berTag.decode(is)
 	} else {
 		throw("Tag does not match mandatory sequence component.")
 	}
 
 	if berTag.equals(128, 32, 1) {
-		r.listOfVariable = NewVariableDefs()
-		vByteCount += r.listOfVariable.decode(is, false)
+		e.fileAttributes = NewFileAttributes()
+		vByteCount += e.fileAttributes.decode(is, false)
 		if lengthVal >= 0 && vByteCount == lengthVal {
 			return tlByteCount + vByteCount
 		}
@@ -57,35 +58,35 @@ func (r *GetNamedVariableListAttributesResponse) decode(is *bytes.Buffer, withTa
 	return 0
 }
 
-func (r *GetNamedVariableListAttributesResponse) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
-	if r.code != nil {
-		reverseOS.write(r.code)
+func (e *DirectoryEntry) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
+	if e.code != nil {
+		reverseOS.write(e.code)
 		if withTag {
-			return r.tag.encode(reverseOS) + len(r.code)
+			return e.tag.encode(reverseOS) + len(e.code)
 		}
-		return len(r.code)
+		return len(e.code)
 	}
 
 	codeLength := 0
-	codeLength += r.listOfVariable.encode(reverseOS, false)
+	codeLength += e.fileAttributes.encode(reverseOS, false)
 	// write tag: CONTEXT_CLASS, CONSTRUCTED, 1
 	reverseOS.writeByte(0xA1)
 	codeLength += 1
 
-	codeLength += r.mmsDeletable.encode(reverseOS, false)
-	// write tag: CONTEXT_CLASS, PRIMITIVE, 0
-	reverseOS.writeByte(0x80)
+	codeLength += e.fileName.encode(reverseOS, false)
+	// write tag: CONTEXT_CLASS, CONSTRUCTED, 0
+	reverseOS.writeByte(0xA0)
 	codeLength += 1
 
 	codeLength += encodeLength(reverseOS, codeLength)
 
 	if withTag {
-		codeLength += r.tag.encode(reverseOS)
+		codeLength += e.tag.encode(reverseOS)
 	}
 
 	return codeLength
 }
 
-func NewGetNamedVariableListAttributesResponse() *GetNamedVariableListAttributesResponse {
-	return &GetNamedVariableListAttributesResponse{tag: NewBerTag(0, 32, 16)}
+func NewDirectoryEntry() *DirectoryEntry {
+	return &DirectoryEntry{tag: NewBerTag(0, 32, 16)}
 }

@@ -21,14 +21,14 @@ func parseGetDataDefinitionResponse(confirmedServiceResponse *ConfirmedServiceRe
 	if typeSpec.Structure == nil {
 		throw("decodeGetDataDefinitionResponse: Error decoding GetDataDefinitionResponsePdu")
 	}
-	structure := typeSpec.Structure.Components
+	structure := typeSpec.Structure.components
 	fcDataObjects := make([]*FcDataObject, 0)
 
 	for _, fcComponent := range structure.SEQUENCE {
 		if fcComponent.ComponentName == nil {
 			throw("Error decoding GetDataDefinitionResponsePdu")
 		}
-		if fcComponent.ComponentType.TypeDescription == nil {
+		if fcComponent.ComponentType.typeDescription == nil {
 			throw(
 				"Error decoding GetDataDefinitionResponsePdu")
 		}
@@ -39,7 +39,7 @@ func parseGetDataDefinitionResponse(confirmedServiceResponse *ConfirmedServiceRe
 		//fc
 		fc := fcComponent.ComponentName.toString()
 		subStructure :=
-			fcComponent.ComponentType.TypeDescription.Structure.Components
+			fcComponent.ComponentType.typeDescription.Structure.components
 
 		fcDataObjects = append(fcDataObjects, getFcDataObjectsFromSubStructure(lnRef, fc, subStructure)...)
 	}
@@ -57,7 +57,7 @@ func getFcDataObjectsFromSubStructure(lnRef *ObjectReference, fc string, compone
 		if doComp.ComponentName == nil {
 			throw("Error decoding GetDataDefinitionResponsePdu")
 		}
-		if doComp.ComponentType.TypeDescription == nil {
+		if doComp.ComponentType.typeDescription == nil {
 			throw("Error decoding GetDataDefinitionResponsePdu")
 		}
 
@@ -66,7 +66,7 @@ func getFcDataObjectsFromSubStructure(lnRef *ObjectReference, fc string, compone
 			getDoSubModelNodesFromSubStructure(
 				doRef,
 				fc,
-				doComp.ComponentType.TypeDescription.Structure.Components)
+				doComp.ComponentType.typeDescription.Structure.components)
 		if fc == RP {
 			pointer := unsafe.Pointer(NewUrcb(doRef, children))
 			dataObjects = append(dataObjects, (*FcDataObject)(pointer))

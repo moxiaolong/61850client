@@ -15,7 +15,7 @@ type InitRequestDetail struct {
 
 func (d *InitRequestDetail) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
 	if d.code != nil {
-		reverseOS.writeByte(d.code)
+		reverseOS.write(d.code)
 		if withTag {
 			return d.tag.encode(reverseOS) + len(d.code)
 		}
@@ -78,7 +78,7 @@ func (d *InitRequestDetail) decode(is *bytes.Buffer, withTag bool) int {
 	}
 
 	if berTag.equals(128, 0, 2) {
-		d.servicesSupportedCalling = NewServiceSupportOptions(nil)
+		d.servicesSupportedCalling = NewServiceSupportOptions(nil, 0)
 		vByteCount += d.servicesSupportedCalling.decode(is, false)
 		if lengthVal >= 0 && vByteCount == lengthVal {
 			return tlByteCount + vByteCount
