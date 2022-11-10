@@ -41,7 +41,7 @@ func (d *AssociateSourceDiagnostic) decode(is *bytes.Buffer, berTag *BerTag) int
 		return 0
 	}
 
-	throw("Error decoding CHOICE: tag " + berTag.toString() + " matched to no item.")
+	throw("Error decoding WriteResponseCHOICE: tag " + berTag.toString() + " matched to no item.")
 	return 0
 }
 
@@ -75,7 +75,7 @@ func (d *AssociateSourceDiagnostic) encode(reverseOS *ReverseByteArrayOutputStre
 		return codeLength
 	}
 
-	throw("Error encoding CHOICE: No element of CHOICE was selected.")
+	throw("Error encoding WriteResponseCHOICE: No element of WriteResponseCHOICE was selected.")
 	return 0
 }
 

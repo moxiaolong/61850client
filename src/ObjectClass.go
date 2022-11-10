@@ -26,7 +26,7 @@ func (c *ObjectClass) decode(is *bytes.Buffer, berTag *BerTag) int {
 		return 0
 	}
 
-	throw("Error decoding CHOICE: Tag " + berTag.toString() + " matched to no item.")
+	throw("Error decoding WriteResponseCHOICE: Tag " + berTag.toString() + " matched to no item.")
 	return 0
 }
 
@@ -45,7 +45,7 @@ func (c *ObjectClass) encode(reverseOS *ReverseByteArrayOutputStream) int {
 		return codeLength
 	}
 
-	throw("Error encoding CHOICE: No element of CHOICE was selected.")
+	throw("Error encoding WriteResponseCHOICE: No element of WriteResponseCHOICE was selected.")
 	return 0
 }
 

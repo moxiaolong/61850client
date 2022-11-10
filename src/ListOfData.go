@@ -5,19 +5,19 @@ import (
 	"strconv"
 )
 
-type WriteResponse struct {
+type ListOfData struct {
+	seqOf []*Data
 	tag   *BerTag
-	seqOf []*WriteResponseCHOICE
 	code  []byte
 }
 
-func (r *WriteResponse) decode(is *bytes.Buffer, withTag bool) int {
+func (d *ListOfData) decode(is *bytes.Buffer, withTag bool) int {
 	tlByteCount := 0
 	vByteCount := 0
 	numDecodedBytes := 0
 	berTag := NewBerTag(0, 0, 0)
 	if withTag {
-		tlByteCount += r.tag.decodeAndCheck(is)
+		tlByteCount += d.tag.decodeAndCheck(is)
 	}
 
 	length := NewBerLength()
@@ -32,13 +32,13 @@ func (r *WriteResponse) decode(is *bytes.Buffer, withTag bool) int {
 			break
 		}
 
-		element := NewWriteResponseCHOICE()
+		element := NewData()
 		numDecodedBytes = element.decode(is, berTag)
 		if numDecodedBytes == 0 {
 			throw("Tag did not match")
 		}
 		vByteCount += numDecodedBytes
-		r.seqOf = append(r.seqOf, element)
+		d.seqOf = append(d.seqOf, element)
 	}
 	if lengthVal >= 0 && vByteCount != lengthVal {
 		throw(
@@ -47,29 +47,29 @@ func (r *WriteResponse) decode(is *bytes.Buffer, withTag bool) int {
 	return tlByteCount + vByteCount
 }
 
-func (r *WriteResponse) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
-	if r.code != nil {
-		reverseOS.write(r.code)
+func (d *ListOfData) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
+	if d.code != nil {
+		reverseOS.write(d.code)
 		if withTag {
-			return r.tag.encode(reverseOS) + len(r.code)
+			return d.tag.encode(reverseOS) + len(d.code)
 		}
-		return len(r.code)
+		return len(d.code)
 	}
 
 	codeLength := 0
-	for i := len(r.seqOf) - 1; i >= 0; i-- {
-		codeLength += r.seqOf[i].encode(reverseOS)
+	for i := len(d.seqOf) - 1; i >= 0; i-- {
+		codeLength += d.seqOf[i].encode(reverseOS)
 	}
 
 	codeLength += encodeLength(reverseOS, codeLength)
 
 	if withTag {
-		codeLength += r.tag.encode(reverseOS)
+		codeLength += d.tag.encode(reverseOS)
 	}
 
 	return codeLength
 }
 
-func NewWriteResponse() *WriteResponse {
-	return &WriteResponse{tag: NewBerTag(0, 32, 16)}
+func NewListOfData() *ListOfData {
+	return &ListOfData{tag: NewBerTag(0, 32, 16)}
 }

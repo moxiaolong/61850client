@@ -1,82 +1,90 @@
 package src
 
-import "bytes"
+import (
+	"bytes"
+	"strconv"
+)
 
 type WriteRequest struct {
+	tag                         *BerTag
+	variableAccessSpecification *VariableAccessSpecification
+	listOfData                  *ListOfData
+	code                        []byte
 }
 
-func (r *WriteRequest) decode(is *bytes.Buffer, b bool) int {
-	int tlByteCount = 0;
-	int vByteCount = 0;
-	int numDecodedBytes;
-	BerTag berTag = new BerTag();
+func (r *WriteRequest) decode(is *bytes.Buffer, withTag bool) int {
+	tlByteCount := 0
+	vByteCount := 0
+	numDecodedBytes := 0
+	berTag := NewBerTag(0, 0, 0)
 
-	if (withTag) {
-		tlByteCount += tag.decodeAndCheck(is);
+	if withTag {
+		tlByteCount += r.tag.decodeAndCheck(is)
 	}
 
-	BerLength length = new BerLength();
-	tlByteCount += length.decode(is);
-	int lengthVal = length.val;
-	vByteCount += berTag.decode(is);
+	length := NewBerLength()
+	tlByteCount += length.decode(is)
+	lengthVal := length.val
+	vByteCount += berTag.decode(is)
 
-	variableAccessSpecification = new VariableAccessSpecification();
-	numDecodedBytes = variableAccessSpecification.decode(is, berTag);
-	if (numDecodedBytes != 0) {
-		vByteCount += numDecodedBytes;
-		vByteCount += berTag.decode(is);
+	r.variableAccessSpecification = NewVariableAccessSpecification()
+	numDecodedBytes = r.variableAccessSpecification.decode(is, berTag)
+	if numDecodedBytes != 0 {
+		vByteCount += numDecodedBytes
+		vByteCount += berTag.decode(is)
 	} else {
-		throw new IOException("Tag does not match mandatory sequence component.");
+		throw("Tag does not match mandatory sequence component.")
 	}
-	if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 0)) {
-		listOfData = new ListOfData();
-		vByteCount += listOfData.decode(is, false);
-		if (lengthVal >= 0 && vByteCount == lengthVal) {
-			return tlByteCount + vByteCount;
+	if berTag.equals(128, 32, 0) {
+		r.listOfData = NewListOfData()
+		vByteCount += r.listOfData.decode(is, false)
+		if lengthVal >= 0 && vByteCount == lengthVal {
+			return tlByteCount + vByteCount
 		}
-		vByteCount += berTag.decode(is);
+		vByteCount += berTag.decode(is)
 	} else {
-		throw new IOException("Tag does not match mandatory sequence component.");
+		throw("Tag does not match mandatory sequence component.")
 	}
 
-	if (lengthVal < 0) {
-		if (!berTag.equals(0, 0, 0)) {
-			throw new IOException("Decoded sequence has wrong end of contents octets");
+	if lengthVal < 0 {
+		if !berTag.equals(0, 0, 0) {
+			throw("Decoded sequence has wrong end of contents octets")
 		}
-		vByteCount += BerLength.readEocByte(is);
-		return tlByteCount + vByteCount;
+		vByteCount += readEocByte(is)
+		return tlByteCount + vByteCount
 	}
 
-	throw new IOException(
-		"Unexpected end of sequence, length tag: " + lengthVal + ", bytes decoded: " + vByteCount);
+	throw(
+		"Unexpected end of sequence, length tag: " + strconv.Itoa(lengthVal) + ", bytes decoded: " + strconv.Itoa(vByteCount))
+	return 0
 }
 
-func (r *WriteRequest) encode(os *ReverseByteArrayOutputStream, b bool) int {
-	if (code != null) {
-		reverseOS.write(code);
-		if (withTag) {
-			return tag.encode(reverseOS) + code.length;
+func (r *WriteRequest) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
+	if r.code != nil {
+		reverseOS.write(r.code)
+		if withTag {
+			return r.tag.encode(reverseOS) + len(r.code)
 		}
-		return code.length;
+		return len(r.code)
 	}
 
-	int codeLength = 0;
-	codeLength += listOfData.encode(reverseOS, false);
+	codeLength := 0
+	codeLength += r.listOfData.encode(reverseOS, false)
 	// write tag: CONTEXT_CLASS, CONSTRUCTED, 0
-	reverseOS.write(0xA0);
-	codeLength += 1;
+	reverseOS.writeByte(0xA0)
+	codeLength += 1
 
-	codeLength += variableAccessSpecification.encode(reverseOS);
+	codeLength += r.variableAccessSpecification.encode(reverseOS)
 
-	codeLength += BerLength.encodeLength(reverseOS, codeLength);
+	codeLength += encodeLength(reverseOS, codeLength)
 
-	if (withTag) {
-		codeLength += tag.encode(reverseOS);
+	if withTag {
+		codeLength += r.tag.encode(reverseOS)
 	}
 
-	return codeLength;
+	return codeLength
 }
 
 func NewWriteRequest() *WriteRequest {
-	return &WriteRequest{}
+	return &WriteRequest{tag: NewBerTag(0, 32, 16)}
 }
