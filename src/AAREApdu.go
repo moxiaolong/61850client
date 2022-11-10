@@ -6,7 +6,7 @@ import (
 )
 
 type AAREApdu struct {
-	UserInformation                  *UserInformation
+	userInformation                  *AssociationInformation
 	code                             []byte
 	tag                              *BerTag
 	protocolVersion                  *BerBitString
@@ -22,7 +22,6 @@ type AAREApdu struct {
 	respondingAuthenticationValue    *AuthenticationValue
 	applicationContextNameList       *ApplicationContextNameList
 	implementationInformation        *ImplementationData
-	userInformation                  *AssociationInformation
 }
 
 func (a *AAREApdu) decode(is *bytes.Buffer, withTag bool) int {

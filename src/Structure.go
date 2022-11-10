@@ -73,7 +73,7 @@ func (s *Structure) decode(is *bytes.Buffer, withTag bool) int {
 		}
 		vByteCount += berTag.decode(is)
 	} else {
-		throw("Tag does not match mandatory sequence component.")
+		throw("tag does not match mandatory sequence component.")
 	}
 
 	if lengthVal < 0 {

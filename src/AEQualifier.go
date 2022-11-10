@@ -5,14 +5,14 @@ import (
 )
 
 type AEQualifier struct {
-	AeQualifierForm2 *AEQualifierForm2
+	aeQualifierForm2 *AEQualifierForm2
 }
 
 func (q *AEQualifier) encode(reverseOS *ReverseByteArrayOutputStream) int {
 
 	codeLength := 0
-	if q.AeQualifierForm2 != nil {
-		codeLength += q.AeQualifierForm2.encode(reverseOS, true)
+	if q.aeQualifierForm2 != nil {
+		codeLength += q.aeQualifierForm2.encode(reverseOS, true)
 		return codeLength
 	}
 
@@ -31,8 +31,8 @@ func (q *AEQualifier) decode(is *bytes.Buffer, berTag *BerTag) int {
 	}
 
 	if berTag.equals(0, 0, 2) {
-		aeQualifierForm2 := NewAEQualifierForm2(0)
-		tlvByteCount += aeQualifierForm2.decode(is, false)
+		q.aeQualifierForm2 = NewAEQualifierForm2(0)
+		tlvByteCount += q.aeQualifierForm2.decode(is, false)
 		return tlvByteCount
 	}
 

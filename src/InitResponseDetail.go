@@ -6,12 +6,10 @@ import (
 )
 
 type InitResponseDetail struct {
-	NegotiatedVersionNumber *NegotiatedVersionNumber
-	ServicesSupportedCalled *ServicesSupportedCalled
-	tag                     *BerTag
 	negotiatedVersionNumber *Integer16
-	negotiatedParameterCBB  *ParameterSupportOptions
 	servicesSupportedCalled *ServiceSupportOptions
+	tag                     *BerTag
+	negotiatedParameterCBB  *ParameterSupportOptions
 	code                    []byte
 }
 
@@ -34,7 +32,7 @@ func (d *InitResponseDetail) decode(is *bytes.Buffer, withTag bool) int {
 		vByteCount += d.negotiatedVersionNumber.decode(is, false)
 		vByteCount += berTag.decode(is)
 	} else {
-		throw("Tag does not match mandatory sequence component.")
+		throw("tag does not match mandatory sequence component.")
 	}
 
 	if berTag.equals(128, 0, 1) {
@@ -42,7 +40,7 @@ func (d *InitResponseDetail) decode(is *bytes.Buffer, withTag bool) int {
 		vByteCount += d.negotiatedParameterCBB.decode(is, false)
 		vByteCount += berTag.decode(is)
 	} else {
-		throw("Tag does not match mandatory sequence component.")
+		throw("tag does not match mandatory sequence component.")
 	}
 
 	if berTag.equals(128, 0, 2) {
@@ -53,7 +51,7 @@ func (d *InitResponseDetail) decode(is *bytes.Buffer, withTag bool) int {
 		}
 		vByteCount += berTag.decode(is)
 	} else {
-		throw("Tag does not match mandatory sequence component.")
+		throw("tag does not match mandatory sequence component.")
 	}
 
 	if lengthVal < 0 {

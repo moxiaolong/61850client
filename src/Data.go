@@ -7,13 +7,12 @@ type Data struct {
 	bitString     *BerBitString
 	Unsigned      *BerInteger
 	bool          *BerBoolean
-	OctetString   *BerOctetString
+	octetString   *BerOctetString
 	binaryTime    *TimeOfDay
 	array         *Array
 	integer       *BerInteger
 	unsigned      *BerInteger
 	floatingPoint *FloatingPoint
-	octetString   *BerOctetString
 	mMSString     *MMSString
 	utcTime       *UtcTime
 	structure     *Structure
@@ -106,7 +105,7 @@ func (d *Data) decode(is *bytes.Buffer, berTag *BerTag) int {
 		return 0
 	}
 
-	throw("Error decoding WriteResponseCHOICE: Tag " + berTag.toString() + " matched to no item.")
+	throw("Error decoding WriteResponseCHOICE: tag " + berTag.toString() + " matched to no item.")
 	return 0
 }
 

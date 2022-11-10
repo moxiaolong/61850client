@@ -6,20 +6,16 @@ import (
 )
 
 type CPTypeNormalModeParameters struct {
-	CallingPresentationSelector       *CallingPresentationSelector
-	CalledPresentationSelector        *CalledPresentationSelector
-	PresentationContextDefinitionList *PresentationContextDefinitionList
-	UserData                          *UserData
-	tag                               *BerTag
-	code                              []byte
-	protocolVersion                   *ProtocolVersion
 	callingPresentationSelector       *CallingPresentationSelector
 	calledPresentationSelector        *CalledPresentationSelector
 	presentationContextDefinitionList *PresentationContextDefinitionList
+	userData                          *UserData
+	tag                               *BerTag
+	code                              []byte
+	protocolVersion                   *ProtocolVersion
 	defaultContextName                *DefaultContextName
 	presentationRequirements          *PresentationRequirements
 	userSessionRequirements           *UserSessionRequirements
-	userData                          *UserData
 }
 
 func (t *CPTypeNormalModeParameters) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {

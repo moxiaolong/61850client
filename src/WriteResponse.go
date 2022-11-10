@@ -35,7 +35,7 @@ func (r *WriteResponse) decode(is *bytes.Buffer, withTag bool) int {
 		element := NewWriteResponseCHOICE()
 		numDecodedBytes = element.decode(is, berTag)
 		if numDecodedBytes == 0 {
-			throw("Tag did not match")
+			throw("tag did not match")
 		}
 		vByteCount += numDecodedBytes
 		r.seqOf = append(r.seqOf, element)

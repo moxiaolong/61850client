@@ -39,7 +39,7 @@ func (r *FileName) decode(is *bytes.Buffer, withTag bool) int {
 		}
 
 		if !berTag.equals(0, 0, 25) {
-			throw("Tag does not match mandatory sequence of/set of component.")
+			throw("tag does not match mandatory sequence of/set of component.")
 		}
 
 		element := NewBerGraphicString()

@@ -34,7 +34,7 @@ func (r *GetNameListRequest) decode(is *bytes.Buffer, withTag bool) int {
 		vByteCount += length.readEocIfIndefinite(is)
 		vByteCount += berTag.decode(is)
 	} else {
-		throw("Tag does not match mandatory sequence component.")
+		throw("tag does not match mandatory sequence component.")
 	}
 
 	if berTag.equals(128, 32, 1) {
@@ -47,7 +47,7 @@ func (r *GetNameListRequest) decode(is *bytes.Buffer, withTag bool) int {
 		}
 		vByteCount += berTag.decode(is)
 	} else {
-		throw("Tag does not match mandatory sequence component.")
+		throw("tag does not match mandatory sequence component.")
 	}
 
 	if berTag.equals(128, 0, 2) {

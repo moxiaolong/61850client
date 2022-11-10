@@ -3,9 +3,8 @@ package src
 import "bytes"
 
 type AccessResult struct {
-	Success *Data
-	failure *DataAccessError
 	success *Data
+	failure *DataAccessError
 	code    []byte
 }
 
@@ -38,7 +37,7 @@ func (r *AccessResult) decode(is *bytes.Buffer, berTag *BerTag) int {
 		return 0
 	}
 
-	throw("Error decoding WriteResponseCHOICE: Tag " + berTag.toString() + " matched to no item.")
+	throw("Error decoding WriteResponseCHOICE: tag " + berTag.toString() + " matched to no item.")
 	return 0
 }
 

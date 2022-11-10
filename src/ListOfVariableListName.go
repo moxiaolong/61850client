@@ -36,7 +36,7 @@ func (n *ListOfVariableListName) decode(is *bytes.Buffer, withTag bool) int {
 		element := NewObjectName()
 		numDecodedBytes = element.decode(is, berTag)
 		if numDecodedBytes == 0 {
-			throw("Tag did not match")
+			throw("tag did not match")
 		}
 		vByteCount += numDecodedBytes
 		n.seqOf = append(n.seqOf, element)

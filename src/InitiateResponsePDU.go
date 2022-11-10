@@ -6,17 +6,12 @@ import (
 )
 
 type InitiateResponsePDU struct {
-	LocalDetailCalled                   *LocalDetailCalled
-	NegotiatedMaxServOutstandingCalling *NegotiatedMaxServOutstandingCalling
-	NegotiatedMaxServOutstandingCalled  *NegotiatedMaxServOutstandingCalled
-	NegotiatedDataStructureNestingLevel *NegotiatedDataStructureNestingLevel
-	InitResponseDetail                  *InitResponseDetail
-	tag                                 *BerTag
 	localDetailCalled                   *Integer32
 	negotiatedMaxServOutstandingCalling *Integer16
 	negotiatedMaxServOutstandingCalled  *Integer16
 	negotiatedDataStructureNestingLevel *Integer8
 	initResponseDetail                  *InitResponseDetail
+	tag                                 *BerTag
 	code                                []byte
 }
 

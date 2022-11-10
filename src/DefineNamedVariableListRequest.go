@@ -33,7 +33,7 @@ func (r *DefineNamedVariableListRequest) decode(is *bytes.Buffer, withTag bool) 
 		vByteCount += numDecodedBytes
 		vByteCount += berTag.decode(is)
 	} else {
-		throw("Tag does not match mandatory sequence component.")
+		throw("tag does not match mandatory sequence component.")
 	}
 	if berTag.equals(128, 32, 0) {
 		r.listOfVariable = NewVariableDefs()
@@ -43,7 +43,7 @@ func (r *DefineNamedVariableListRequest) decode(is *bytes.Buffer, withTag bool) 
 		}
 		vByteCount += berTag.decode(is)
 	} else {
-		throw("Tag does not match mandatory sequence component.")
+		throw("tag does not match mandatory sequence component.")
 	}
 
 	if lengthVal < 0 {

@@ -6,11 +6,10 @@ import (
 )
 
 type CPType struct {
-	ModeSelector         *ModeSelector
-	NormalModeParameters *CPTypeNormalModeParameters
-	tag                  *BerTag
 	modeSelector         *ModeSelector
-	normalModeParameters *NormalModeParameters
+	normalModeParameters *CPTypeNormalModeParameters
+	tag                  *BerTag
+	code                 []byte
 }
 
 func (t *CPType) decode(is *bytes.Buffer, withTag bool) int {
@@ -32,7 +31,7 @@ func (t *CPType) decode(is *bytes.Buffer, withTag bool) int {
 			t.modeSelector = NewModeSelector()
 			vByteCount += t.modeSelector.decode(is, false)
 		} else if berTag.equals(128, 32, 2) {
-			t.normalModeParameters = NewNormalModeParameters()
+			t.normalModeParameters = NewCPTypeNormalModeParameters()
 			vByteCount += t.normalModeParameters.decode(is, false)
 		} else if lengthVal < 0 && berTag.equals(0, 0, 0) {
 			vByteCount += readEocByte(is)
@@ -48,16 +47,23 @@ func (t *CPType) decode(is *bytes.Buffer, withTag bool) int {
 }
 
 func (t *CPType) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
+	if t.code != nil {
+		reverseOS.write(t.code)
+		if withTag {
+			return t.tag.encode(reverseOS) + len(t.code)
+		}
+		return len(t.code)
+	}
 
 	codeLength := 0
-	if t.NormalModeParameters != nil {
-		codeLength += t.NormalModeParameters.encode(reverseOS, false)
+	if t.normalModeParameters != nil {
+		codeLength += t.normalModeParameters.encode(reverseOS, false)
 		// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 2
 		reverseOS.writeByte(0xA2)
 		codeLength += 1
 	}
 
-	codeLength += t.ModeSelector.encode(reverseOS, false)
+	codeLength += t.modeSelector.encode(reverseOS, false)
 	// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 0
 	reverseOS.writeByte(0xA0)
 	codeLength += 1

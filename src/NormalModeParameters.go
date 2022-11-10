@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-type NormalModeParameters struct {
+type CPAPPDUNormalModeParameters struct {
 	tag                                     *BerTag
 	protocolVersion                         *ProtocolVersion
 	respondingPresentationSelector          *RespondingPresentationSelector
@@ -16,7 +16,7 @@ type NormalModeParameters struct {
 	code                                    []byte
 }
 
-func (p *NormalModeParameters) decode(is *bytes.Buffer, withTag bool) int {
+func (p *CPAPPDUNormalModeParameters) decode(is *bytes.Buffer, withTag bool) int {
 	tlByteCount := 0
 	vByteCount := 0
 	numDecodedBytes := 0
@@ -104,7 +104,7 @@ func (p *NormalModeParameters) decode(is *bytes.Buffer, withTag bool) int {
 	return 0
 }
 
-func (p *NormalModeParameters) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
+func (p *CPAPPDUNormalModeParameters) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
 	if p.code != nil {
 		reverseOS.write(p.code)
 		if withTag {
@@ -162,6 +162,6 @@ func (p *NormalModeParameters) encode(reverseOS *ReverseByteArrayOutputStream, w
 	return codeLength
 }
 
-func NewNormalModeParameters() *NormalModeParameters {
-	return &NormalModeParameters{tag: NewBerTag(0, 32, 16)}
+func NewCPAPPDUNormalModeParameters() *CPAPPDUNormalModeParameters {
+	return &CPAPPDUNormalModeParameters{tag: NewBerTag(0, 32, 16)}
 }

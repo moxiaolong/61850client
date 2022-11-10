@@ -167,12 +167,12 @@ func constructInitRequestPdu(proposedMaxPduSize int, proposedMaxServOutstandingC
 	initRequestDetail.servicesSupportedCalling = NewServiceSupportOptions(servicesSupportedCalling, 85)
 
 	initiateRequestPdu := NewInitiateRequestPDU()
-	initiateRequestPdu.LocalDetailCalling = NewInteger32(proposedMaxPduSize)
-	initiateRequestPdu.ProposedMaxServOutstandingCalling = NewInteger16(nil, proposedMaxServOutstandingCalling)
+	initiateRequestPdu.localDetailCalling = NewInteger32(proposedMaxPduSize)
+	initiateRequestPdu.proposedMaxServOutstandingCalling = NewInteger16(nil, proposedMaxServOutstandingCalling)
 
-	initiateRequestPdu.ProposedMaxServOutstandingCalled = NewInteger16(nil, proposedMaxServOutstandingCalled)
-	initiateRequestPdu.ProposedDataStructureNestingLevel = NewInteger8(proposedDataStructureNestingLevel)
-	initiateRequestPdu.InitRequestDetail = initRequestDetail
+	initiateRequestPdu.proposedMaxServOutstandingCalled = NewInteger16(nil, proposedMaxServOutstandingCalled)
+	initiateRequestPdu.proposedDataStructureNestingLevel = NewInteger8(proposedDataStructureNestingLevel)
+	initiateRequestPdu.initRequestDetail = initRequestDetail
 
 	initiateRequestMMSpdu := NewMMSpdu()
 	initiateRequestMMSpdu.initiateRequestPDU = initiateRequestPdu

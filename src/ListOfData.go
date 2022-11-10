@@ -35,7 +35,7 @@ func (d *ListOfData) decode(is *bytes.Buffer, withTag bool) int {
 		element := NewData()
 		numDecodedBytes = element.decode(is, berTag)
 		if numDecodedBytes == 0 {
-			throw("Tag did not match")
+			throw("tag did not match")
 		}
 		vByteCount += numDecodedBytes
 		d.seqOf = append(d.seqOf, element)

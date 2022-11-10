@@ -22,7 +22,7 @@ const (
 	SG = "SG"
 	/** Setting group editable */
 	SE = "SE"
-	/** Service response / Service tracking */
+	/** service response / service tracking */
 	SR = "SR"
 	/** Operate received */
 	OR = "OR"

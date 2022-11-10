@@ -3,10 +3,9 @@ package src
 import "bytes"
 
 type TypeDescription struct {
-	Structure     *Structure
+	structure     *Structure
 	code          []byte
 	array         *Array
-	structure     *Structure
 	bool          *BerNull
 	bitString     *Integer32
 	integer       *Unsigned8
@@ -104,7 +103,7 @@ func (d *TypeDescription) decode(is *bytes.Buffer, berTag *BerTag) int {
 		return 0
 	}
 
-	throw("Error decoding WriteResponseCHOICE: Tag " + berTag.toString() + " matched to no item.")
+	throw("Error decoding WriteResponseCHOICE: tag " + berTag.toString() + " matched to no item.")
 	return 0
 }
 

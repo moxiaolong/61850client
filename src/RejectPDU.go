@@ -6,9 +6,8 @@ import (
 )
 
 type RejectPDU struct {
-	OriginalInvokeID *Unsigned32
-	tag              *BerTag
 	originalInvokeID *Unsigned32
+	tag              *BerTag
 	rejectReason     *RejectReason
 	code             []byte
 }

@@ -39,19 +39,21 @@ func (a *AcseAssociation) startAssociation(payload *bytes.Buffer, address string
 	calling_ap_title.apTitleForm2 = NewApTitleForm2(apTitleCalling)
 
 	called_ae_qualifier := NewAEQualifier()
-	called_ae_qualifier.AeQualifierForm2 = NewAEQualifierForm2(aeQualifierCalled)
+	called_ae_qualifier.aeQualifierForm2 = NewAEQualifierForm2(aeQualifierCalled)
 	calling_ae_qualifier := NewAEQualifier()
-	calling_ae_qualifier.AeQualifierForm2 = NewAEQualifierForm2(aeQualifierCalling)
+	calling_ae_qualifier.aeQualifierForm2 = NewAEQualifierForm2(aeQualifierCalling)
 
 	encoding := NewMyexternalEncoding()
 
 	//TODO
-	encoding.SingleASN1Type = NewBerAny(payload.Bytes())
+	//Arrays.copyOfRange(payload.array(), payload.arrayOffset() + payload.position(), payload.limit())
+	i := payload.Bytes()
+	encoding.singleASN1Type = NewBerAny(i)
 
 	myExternal := NewMyexternal()
-	myExternal.DirectReference = NewBerObjectIdentifier([]byte{0x02, 0x51, 0x01}) //static
-	myExternal.IndirectReference = NewBerInteger([]byte{0x01, 0x03}, 0)           //static
-	myExternal.Encoding = encoding
+	myExternal.directReference = NewBerObjectIdentifier([]byte{0x02, 0x51, 0x01}) //static
+	myExternal.indirectReference = NewBerInteger([]byte{0x01, 0x03}, 0)           //static
+	myExternal.encoding = encoding
 
 	userInformation := NewAssociationInformation()
 	userInformation.seqOf = append(userInformation.seqOf, myExternal)
@@ -73,16 +75,16 @@ func (a *AcseAssociation) startAssociation(payload *bytes.Buffer, address string
 	userData := getPresentationUserDataField(reverseOStream.getArray())
 
 	normalModeParameter := NewCPTypeNormalModeParameters()
-	normalModeParameter.CallingPresentationSelector = NewCallingPresentationSelector(a.pSelLocalBerOctetString.value)
-	normalModeParameter.CalledPresentationSelector = NewCalledPresentationSelector(pSelRemote)
-	normalModeParameter.PresentationContextDefinitionList = NewPresentationContextDefinitionList([]byte{0x23, 0x30, 0x0f, 0x02, 0x01, 0x01, 0x06, 0x04, 0x52, 0x01, 0x00, 0x01, 0x30, 0x04, 0x06, 0x02, 0x51, 0x01, 0x30, 0x10, 0x02, 0x01, 0x03, 0x06, 0x05, 0x28, 0xca, 0x22, 0x02, 0x01, 0x30, 0x04, 0x06, 0x02, 0x51, 0x01})
-	normalModeParameter.UserData = userData
+	normalModeParameter.callingPresentationSelector = NewCallingPresentationSelector(a.pSelLocalBerOctetString.value)
+	normalModeParameter.calledPresentationSelector = NewCalledPresentationSelector(pSelRemote)
+	normalModeParameter.presentationContextDefinitionList = NewPresentationContextDefinitionList([]byte{0x23, 0x30, 0x0f, 0x02, 0x01, 0x01, 0x06, 0x04, 0x52, 0x01, 0x00, 0x01, 0x30, 0x04, 0x06, 0x02, 0x51, 0x01, 0x30, 0x10, 0x02, 0x01, 0x03, 0x06, 0x05, 0x28, 0xca, 0x22, 0x02, 0x01, 0x30, 0x04, 0x06, 0x02, 0x51, 0x01})
+	normalModeParameter.userData = userData
 
 	cpType := NewCPType()
 	modeSelector := NewModeSelector()
 	modeSelector.modeValue = NewBerInteger(nil, 1)
-	cpType.ModeSelector = modeSelector
-	cpType.NormalModeParameters = normalModeParameter
+	cpType.modeSelector = modeSelector
+	cpType.normalModeParameters = normalModeParameter
 
 	reverseOStream.reset()
 	cpType.encode(reverseOStream, true)
@@ -118,7 +120,7 @@ func decodePConResponse(ppdu *bytes.Buffer) *bytes.Buffer {
 	acseApdu := NewACSEApdu()
 	buffer := bytes.NewBuffer(value)
 	acseApdu.decode(buffer, nil)
-	return bytes.NewBuffer(acseApdu.aare.UserInformation.Myexternal[0].Encoding.SingleASN1Type.value)
+	return bytes.NewBuffer(acseApdu.aare.userInformation.seqOf[0].encoding.singleASN1Type.value)
 }
 
 func (a *AcseAssociation) startSConnection(ssduList [][]byte, ssduOffsets []int, ssduLengths []int, address string, port int, tSAP *ClientTSap, sSelRemote []byte, sSelLocal []byte) *bytes.Buffer {

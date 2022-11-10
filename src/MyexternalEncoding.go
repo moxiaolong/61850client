@@ -3,9 +3,8 @@ package src
 import "bytes"
 
 type MyexternalEncoding struct {
-	SingleASN1Type *BerAny
-	code           []byte
 	singleASN1Type *BerAny
+	code           []byte
 	octetAligned   *BerOctetString
 	arbitrary      *BerBitString
 }

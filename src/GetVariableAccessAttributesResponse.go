@@ -31,7 +31,7 @@ func (r *GetVariableAccessAttributesResponse) decode(is *bytes.Buffer, withTag b
 		vByteCount += r.mmsDeletable.decode(is, false)
 		vByteCount += berTag.decode(is)
 	} else {
-		throw("Tag does not match mandatory sequence component.")
+		throw("tag does not match mandatory sequence component.")
 	}
 
 	if berTag.equals(128, 32, 2) {
@@ -44,7 +44,7 @@ func (r *GetVariableAccessAttributesResponse) decode(is *bytes.Buffer, withTag b
 		}
 		vByteCount += berTag.decode(is)
 	} else {
-		throw("Tag does not match mandatory sequence component.")
+		throw("tag does not match mandatory sequence component.")
 	}
 
 	if lengthVal < 0 {

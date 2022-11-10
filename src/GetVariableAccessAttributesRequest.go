@@ -29,7 +29,7 @@ func (r *GetVariableAccessAttributesRequest) decode(is *bytes.Buffer, berTag *Be
 		return 0
 	}
 
-	throw("Error decoding WriteResponseCHOICE: Tag " + berTag.toString() + " matched to no item.")
+	throw("Error decoding WriteResponseCHOICE: tag " + berTag.toString() + " matched to no item.")
 	return 0
 }
 

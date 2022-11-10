@@ -6,15 +6,15 @@ import (
 )
 
 type ServiceError struct {
-	ErrorClass            *ErrorClass
-	Tag                   *BerTag
+	errorClass            *ErrorClass
+	tag                   *BerTag
 	additionalDescription *BerVisibleString
 	additionalCode        *BerInteger
 }
 
 func NewServiceError() *ServiceError {
 
-	return &ServiceError{Tag: NewBerTag(0, 32, 16)}
+	return &ServiceError{tag: NewBerTag(0, 32, 16)}
 }
 
 func (p *ServiceError) decode(is *bytes.Buffer, withTag bool) int {
@@ -23,7 +23,7 @@ func (p *ServiceError) decode(is *bytes.Buffer, withTag bool) int {
 	berTag := &BerTag{}
 
 	if withTag {
-		tlByteCount += p.Tag.decodeAndCheck(is)
+		tlByteCount += p.tag.decodeAndCheck(is)
 	}
 
 	length := NewBerLength()
@@ -95,7 +95,7 @@ func (p *ServiceError) encode(reverseOS *ReverseByteArrayOutputStream, withTag b
 		codeLength += 1
 	}
 
-	sublength = p.ErrorClass.encode(reverseOS)
+	sublength = p.errorClass.encode(reverseOS)
 	codeLength += sublength
 	codeLength += encodeLength(reverseOS, sublength)
 	// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 0
@@ -105,7 +105,7 @@ func (p *ServiceError) encode(reverseOS *ReverseByteArrayOutputStream, withTag b
 	codeLength += encodeLength(reverseOS, codeLength)
 
 	if withTag {
-		codeLength += p.Tag.encode(reverseOS)
+		codeLength += p.tag.encode(reverseOS)
 	}
 
 	return codeLength

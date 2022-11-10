@@ -6,10 +6,9 @@ import (
 )
 
 type InformationReport struct {
-	VariableAccessSpecification *VariableAccessSpecification
+	variableAccessSpecification *VariableAccessSpecification
 	listOfAccessResult          *ListOfAccessResult
 	tag                         *BerTag
-	variableAccessSpecification *VariableAccessSpecification
 	code                        []byte
 }
 
@@ -35,7 +34,7 @@ func (r *InformationReport) decode(is *bytes.Buffer, withTag bool) int {
 		vByteCount += numDecodedBytes
 		vByteCount += berTag.decode(is)
 	} else {
-		throw("Tag does not match mandatory sequence component.")
+		throw("tag does not match mandatory sequence component.")
 	}
 	if berTag.equals(128, 32, 0) {
 		r.listOfAccessResult = NewListOfAccessResult()
@@ -45,7 +44,7 @@ func (r *InformationReport) decode(is *bytes.Buffer, withTag bool) int {
 		}
 		vByteCount += berTag.decode(is)
 	} else {
-		throw("Tag does not match mandatory sequence component.")
+		throw("tag does not match mandatory sequence component.")
 	}
 
 	if lengthVal < 0 {

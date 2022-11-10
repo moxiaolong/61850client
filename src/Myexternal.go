@@ -6,14 +6,11 @@ import (
 )
 
 type Myexternal struct {
-	DirectReference   *BerObjectIdentifier
-	IndirectReference *BerInteger
-	Encoding          *MyexternalEncoding
-	tag               *BerTag
-	code              []byte
 	directReference   *BerObjectIdentifier
 	indirectReference *BerInteger
-	encoding          *Encoding
+	encoding          *MyexternalEncoding
+	tag               *BerTag
+	code              []byte
 }
 
 func (m *Myexternal) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
@@ -25,14 +22,14 @@ func (m *Myexternal) encode(reverseOS *ReverseByteArrayOutputStream, withTag boo
 		return len(m.code)
 	}
 	codeLength := 0
-	codeLength += m.Encoding.encode(reverseOS)
+	codeLength += m.encoding.encode(reverseOS)
 
-	if m.IndirectReference != nil {
-		codeLength += m.IndirectReference.encode(reverseOS, true)
+	if m.indirectReference != nil {
+		codeLength += m.indirectReference.encode(reverseOS, true)
 	}
 
-	if m.DirectReference != nil {
-		codeLength += m.DirectReference.encode(reverseOS, true)
+	if m.directReference != nil {
+		codeLength += m.directReference.encode(reverseOS, true)
 	}
 
 	codeLength += encodeLength(reverseOS, codeLength)
@@ -71,7 +68,7 @@ func (m *Myexternal) decode(is *bytes.Buffer, withTag bool) int {
 		vByteCount += berTag.decode(is)
 	}
 
-	m.encoding = NewEncoding()
+	m.encoding = NewMyexternalEncoding()
 	numDecodedBytes = m.encoding.decode(is, berTag)
 	if numDecodedBytes != 0 {
 		vByteCount += numDecodedBytes

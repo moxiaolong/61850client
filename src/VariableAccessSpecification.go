@@ -3,9 +3,8 @@ package src
 import "bytes"
 
 type VariableAccessSpecification struct {
-	ListOfVariable   *VariableDefs
-	code             []byte
 	listOfVariable   *VariableDefs
+	code             []byte
 	variableListName *ObjectName
 }
 
@@ -37,7 +36,7 @@ func (s *VariableAccessSpecification) decode(is *bytes.Buffer, berTag *BerTag) i
 		return 0
 	}
 
-	throw("Error decoding WriteResponseCHOICE: Tag " + berTag.toString() + " matched to no item.")
+	throw("Error decoding WriteResponseCHOICE: tag " + berTag.toString() + " matched to no item.")
 	return 0
 }
 

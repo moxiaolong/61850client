@@ -8,7 +8,7 @@ import (
 type CPAPPDU struct {
 	tag                  *BerTag
 	modeSelector         *ModeSelector
-	normalModeParameters *NormalModeParameters
+	normalModeParameters *CPAPPDUNormalModeParameters
 	code                 []byte
 }
 
@@ -62,7 +62,7 @@ func (c *CPAPPDU) decode(is *bytes.Buffer) int {
 			c.modeSelector = NewModeSelector()
 			vByteCount += c.modeSelector.decode(is, false)
 		} else if berTag.equals(128, 32, 2) {
-			c.normalModeParameters = NewNormalModeParameters()
+			c.normalModeParameters = NewCPAPPDUNormalModeParameters()
 			vByteCount += c.normalModeParameters.decode(is, false)
 		} else if lengthVal < 0 && berTag.equals(0, 0, 0) {
 			vByteCount += readEocByte(is)

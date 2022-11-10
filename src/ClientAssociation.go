@@ -70,7 +70,7 @@ func NewClientAssociation(address string, port int, acseSap *ClientAcseSap, prop
 
 func (c *ClientAssociation) handleInitiateResponse(responsePdu *MMSpdu, proposedMaxPduSize int, proposedMaxServOutstandingCalling int, proposedMaxServOutstandingCalled int, proposedDataStructureNestingLevel int) {
 	if responsePdu.initiateErrorPDU != nil {
-		throw("Got response error of class: ") //responsePdu.initiateErrorPDU.ErrorClass) TODO
+		throw("Got response error of class: ") //responsePdu.initiateErrorPDU.errorClass) TODO
 	}
 
 	if responsePdu.initiateResponsePDU == nil {
@@ -80,20 +80,20 @@ func (c *ClientAssociation) handleInitiateResponse(responsePdu *MMSpdu, proposed
 
 	initiateResponsePDU := responsePdu.initiateResponsePDU
 
-	if initiateResponsePDU.LocalDetailCalled != nil {
-		c.negotiatedMaxPduSize = initiateResponsePDU.LocalDetailCalled.intValue()
+	if initiateResponsePDU.localDetailCalled != nil {
+		c.negotiatedMaxPduSize = initiateResponsePDU.localDetailCalled.intValue()
 	}
 
 	negotiatedMaxServOutstandingCalling :=
-		initiateResponsePDU.NegotiatedMaxServOutstandingCalling.intValue()
+		initiateResponsePDU.negotiatedMaxServOutstandingCalling.intValue()
 
 	negotiatedMaxServOutstandingCalled :=
-		initiateResponsePDU.NegotiatedMaxServOutstandingCalled.intValue()
+		initiateResponsePDU.negotiatedMaxServOutstandingCalled.intValue()
 
 	var negotiatedDataStructureNestingLevel int
-	if initiateResponsePDU.NegotiatedDataStructureNestingLevel != nil {
+	if initiateResponsePDU.negotiatedDataStructureNestingLevel != nil {
 		negotiatedDataStructureNestingLevel =
-			initiateResponsePDU.NegotiatedDataStructureNestingLevel.intValue()
+			initiateResponsePDU.negotiatedDataStructureNestingLevel.intValue()
 	} else {
 		negotiatedDataStructureNestingLevel = proposedDataStructureNestingLevel
 	}
@@ -105,12 +105,12 @@ func (c *ClientAssociation) handleInitiateResponse(responsePdu *MMSpdu, proposed
 	}
 
 	version :=
-		initiateResponsePDU.InitResponseDetail.NegotiatedVersionNumber.intValue()
+		initiateResponsePDU.initResponseDetail.negotiatedVersionNumber.intValue()
 	if version != 1 {
 		throw("Unsupported version number was negotiated.")
 	}
 
-	c.servicesSupported = initiateResponsePDU.InitResponseDetail.ServicesSupportedCalled.value
+	c.servicesSupported = initiateResponsePDU.initResponseDetail.servicesSupportedCalled.value
 	if (c.servicesSupported[0] & 0x40) != 0x40 {
 		throw("Obligatory services are not supported by the server.")
 	}

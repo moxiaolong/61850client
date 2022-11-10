@@ -44,7 +44,7 @@ func (r *ClientReceiver) run() {
 		decodedResponsePdu.decode(bytes.NewBuffer(buffer))
 
 		if decodedResponsePdu.unconfirmedPDU != nil {
-			if decodedResponsePdu.unconfirmedPDU.Service.informationReport.VariableAccessSpecification.ListOfVariable != nil {
+			if decodedResponsePdu.unconfirmedPDU.service.informationReport.variableAccessSpecification.listOfVariable != nil {
 				// Discarding LastApplError Report
 			} else {
 				if r.reportListener != nil {
@@ -63,7 +63,7 @@ func (r *ClientReceiver) run() {
 				if r.expectedResponseId == -1 {
 					// Discarding Reject MMS PDU because no listener for request was found.
 					continue
-				} else if decodedResponsePdu.rejectPDU.OriginalInvokeID.value != r.expectedResponseId {
+				} else if decodedResponsePdu.rejectPDU.originalInvokeID.value != r.expectedResponseId {
 					// Discarding Reject MMS PDU because no listener with fitting invokeID was found.
 					continue
 				} else {
@@ -133,11 +133,11 @@ func (r *ClientReceiver) processReport(mmsPdu *MMSpdu) *Report {
 
 	unconfirmedRes := mmsPdu.unconfirmedPDU
 
-	if unconfirmedRes.Service == nil {
+	if unconfirmedRes.service == nil {
 		throw("getReport: Error decoding server response")
 	}
 
-	unconfirmedServ := unconfirmedRes.Service
+	unconfirmedServ := unconfirmedRes.service
 
 	if unconfirmedServ.informationReport == nil {
 		throw("getReport: Error decoding server response")
@@ -148,37 +148,37 @@ func (r *ClientReceiver) processReport(mmsPdu *MMSpdu) *Report {
 
 	index := 0
 
-	if listRes[index].Success.visibleString == nil {
+	if listRes[index].success.visibleString == nil {
 		throw("processReport: report does not contain RptID")
 	}
 	index++
-	rptId := listRes[index].Success.visibleString.toString()
+	rptId := listRes[index].success.visibleString.toString()
 
-	if listRes[index].Success.bitString == nil {
+	if listRes[index].success.bitString == nil {
 		throw("processReport: report does not contain OptFlds")
 	}
 
 	optFlds := NewBdaOptFlds(NewObjectReference("none"), "")
 	index++
-	optFlds.value = listRes[(index)].Success.bitString.value
+	optFlds.value = listRes[(index)].success.bitString.value
 
 	var sqNum *int = nil
 	if optFlds.isSequenceNumber() {
 		index++
-		sqNum = &listRes[index].Success.Unsigned.value
+		sqNum = &listRes[index].success.Unsigned.value
 	}
 
 	var timeOfEntry *BdaEntryTime = nil
 	if optFlds.isReportTimestamp() {
 		timeOfEntry = NewBdaEntryTime(NewObjectReference("none"), "", "", false, false)
 		index++
-		timeOfEntry.setValueFromMmsDataObj(listRes[index].Success)
+		timeOfEntry.setValueFromMmsDataObj(listRes[index].success)
 	}
 
 	dataSetRef := ""
 	if optFlds.isDataSetName() {
 		index++
-		dataSetRef = listRes[index].Success.visibleString.toString()
+		dataSetRef = listRes[index].success.visibleString.toString()
 	} else {
 		urcbs := r.association.ServerModel.urcbs
 		for s := range urcbs {
@@ -206,34 +206,34 @@ func (r *ClientReceiver) processReport(mmsPdu *MMSpdu) *Report {
 	var bufOvfl *bool
 	if optFlds.isBufferOverflow() {
 		index++
-		bufOvfl = &listRes[index].Success.bool.value
+		bufOvfl = &listRes[index].success.bool.value
 	}
 
 	var entryId *BdaOctetString = nil
 	if optFlds.isEntryId() {
 		entryId = NewBdaOctetString(NewObjectReference("none"), "", "", 8, false, false)
 		index++
-		entryId.setValue(listRes[index].Success.OctetString.value)
+		entryId.setValue(listRes[index].success.octetString.value)
 	}
 
 	var confRev *int = nil
 	if optFlds.isConfigRevision() {
 
 		index++
-		confRev = &listRes[index].Success.Unsigned.value
+		confRev = &listRes[index].success.Unsigned.value
 	}
 
 	var subSqNum *int = nil
 	moreSegmentsFollow := false
 	if optFlds.isSegmentation() {
 		index++
-		subSqNum = &listRes[index].Success.Unsigned.value
+		subSqNum = &listRes[index].success.Unsigned.value
 		index++
-		moreSegmentsFollow = listRes[index].Success.bool.value
+		moreSegmentsFollow = listRes[index].success.bool.value
 	}
 
 	index++
-	inclusionBitString := listRes[index].Success.bitString.getValueAsBooleans()
+	inclusionBitString := listRes[index].success.bitString.getValueAsBooleans()
 	numMembersReported := 0
 
 	for _, bit := range inclusionBitString {
@@ -259,7 +259,7 @@ func (r *ClientReceiver) processReport(mmsPdu *MMSpdu) *Report {
 			c := dataSetMember.copy()
 			pointer := unsafe.Pointer(c)
 			dataSetMemberCopy := (*FcModelNode)(pointer)
-			dataSetMemberCopy.setValueFromMmsDataObj(accessRes.Success)
+			dataSetMemberCopy.setValueFromMmsDataObj(accessRes.success)
 			reportedDataSetMembers = append(reportedDataSetMembers, dataSetMemberCopy)
 		}
 		dataSetIndex++
@@ -274,7 +274,7 @@ func (r *ClientReceiver) processReport(mmsPdu *MMSpdu) *Report {
 				reasonForInclusion := NewBdaReasonForInclusion(nil)
 				reasonCodes = append(reasonCodes, reasonForInclusion)
 				index++
-				reason := listRes[index].Success.bitString.value
+				reason := listRes[index].success.bitString.value
 				reasonForInclusion.value = reason
 			}
 		}

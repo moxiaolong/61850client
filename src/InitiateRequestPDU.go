@@ -6,17 +6,12 @@ import (
 )
 
 type InitiateRequestPDU struct {
-	LocalDetailCalling                *Integer32
-	ProposedMaxServOutstandingCalling *Integer16
-	ProposedMaxServOutstandingCalled  *Integer16
-	ProposedDataStructureNestingLevel *Integer8
-	InitRequestDetail                 *InitRequestDetail
-	tag                               *BerTag
 	localDetailCalling                *Integer32
 	proposedMaxServOutstandingCalling *Integer16
 	proposedMaxServOutstandingCalled  *Integer16
 	proposedDataStructureNestingLevel *Integer8
 	initRequestDetail                 *InitRequestDetail
+	tag                               *BerTag
 	code                              []byte
 }
 
@@ -96,30 +91,30 @@ func (p *InitiateRequestPDU) encode(reverseOS *ReverseByteArrayOutputStream, wit
 	}
 
 	codeLength := 0
-	codeLength += p.InitRequestDetail.encode(reverseOS, false)
+	codeLength += p.initRequestDetail.encode(reverseOS, false)
 	// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 4
 	reverseOS.writeByte(0xA4)
 	codeLength += 1
 
-	if p.ProposedDataStructureNestingLevel != nil {
-		codeLength += p.ProposedDataStructureNestingLevel.encode(reverseOS, false)
+	if p.proposedDataStructureNestingLevel != nil {
+		codeLength += p.proposedDataStructureNestingLevel.encode(reverseOS, false)
 		// writeByte tag: CONTEXT_CLASS, PRIMITIVE, 3
 		reverseOS.writeByte(0x83)
 		codeLength += 1
 	}
 
-	codeLength += p.ProposedMaxServOutstandingCalled.encode(reverseOS, false)
+	codeLength += p.proposedMaxServOutstandingCalled.encode(reverseOS, false)
 	// writeByte tag: CONTEXT_CLASS, PRIMITIVE, 2
 	reverseOS.writeByte(0x82)
 	codeLength += 1
 
-	codeLength += p.ProposedMaxServOutstandingCalling.encode(reverseOS, false)
+	codeLength += p.proposedMaxServOutstandingCalling.encode(reverseOS, false)
 	// writeByte tag: CONTEXT_CLASS, PRIMITIVE, 1
 	reverseOS.writeByte(0x81)
 	codeLength += 1
 
-	if p.LocalDetailCalling != nil {
-		codeLength += p.LocalDetailCalling.encode(reverseOS, false)
+	if p.localDetailCalling != nil {
+		codeLength += p.localDetailCalling.encode(reverseOS, false)
 		// writeByte tag: CONTEXT_CLASS, PRIMITIVE, 0
 		reverseOS.writeByte(0x80)
 		codeLength += 1

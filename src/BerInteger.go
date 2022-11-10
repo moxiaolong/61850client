@@ -11,6 +11,10 @@ type BerInteger struct {
 	Tag   *BerTag
 }
 
+func (i *BerInteger) intValue() int {
+	return i.value
+}
+
 func (t *BerInteger) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
 	if t.code != nil {
 		reverseOS.write(t.code)

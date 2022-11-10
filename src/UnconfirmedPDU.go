@@ -6,7 +6,6 @@ import (
 )
 
 type UnconfirmedPDU struct {
-	Service *UnconfirmedService
 	service *UnconfirmedService
 	code    []byte
 	tag     *BerTag
