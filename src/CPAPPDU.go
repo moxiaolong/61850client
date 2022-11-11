@@ -47,7 +47,7 @@ func (c *CPAPPDU) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) 
 func (c *CPAPPDU) decode(is *bytes.Buffer) int {
 	tlByteCount := 0
 	vByteCount := 0
-	berTag := NewBerTag(0, 0, 0)
+	berTag := NewEmptyBerTag()
 
 	tlByteCount += c.tag.decodeAndCheck(is)
 

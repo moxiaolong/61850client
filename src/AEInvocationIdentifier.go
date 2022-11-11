@@ -5,5 +5,5 @@ type AEInvocationIdentifier struct {
 }
 
 func NewAEInvocationIdentifier() *AEInvocationIdentifier {
-	return &AEInvocationIdentifier{}
+	return &AEInvocationIdentifier{BerInteger: *NewBerInteger(nil, 0)}
 }

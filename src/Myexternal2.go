@@ -48,7 +48,7 @@ func (m *Myexternal2) decode(is *bytes.Buffer, withTag bool) int {
 	vByteCount := 0
 
 	numDecodedBytes := 0
-	berTag := NewBerTag(0, 0, 0)
+	berTag := NewEmptyBerTag()
 
 	if withTag {
 		tlByteCount += m.tag.decodeAndCheck(is)

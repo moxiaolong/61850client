@@ -41,7 +41,7 @@ func (c *ContextList) encode(reverseOS *ReverseByteArrayOutputStream, withTag bo
 func (c *ContextList) decode(is *bytes.Buffer, withTag bool) int {
 	tlByteCount := 0
 	vByteCount := 0
-	berTag := NewBerTag(0, 0, 0)
+	berTag := NewEmptyBerTag()
 	if withTag {
 		tlByteCount += c.tag.decodeAndCheck(is)
 	}

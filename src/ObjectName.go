@@ -14,7 +14,7 @@ func (n *ObjectName) decode(is *bytes.Buffer, berTag *BerTag) int {
 	tagWasPassed := (berTag != nil)
 
 	if berTag == nil {
-		berTag = NewBerTag(0, 0, 0)
+		berTag = NewEmptyBerTag()
 		tlvByteCount += berTag.decode(is)
 	}
 

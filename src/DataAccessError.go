@@ -5,5 +5,5 @@ type DataAccessError struct {
 }
 
 func NewDataAccessError() *DataAccessError {
-	return &DataAccessError{}
+	return &DataAccessError{BerInteger: *NewBerInteger(nil, 0)}
 }

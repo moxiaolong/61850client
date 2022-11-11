@@ -12,7 +12,7 @@ func (r *GetVariableAccessAttributesRequest) decode(is *bytes.Buffer, berTag *Be
 	tagWasPassed := (berTag != nil)
 
 	if berTag == nil {
-		berTag = NewBerTag(0, 0, 0)
+		berTag = NewEmptyBerTag()
 		tlvByteCount += berTag.decode(is)
 	}
 

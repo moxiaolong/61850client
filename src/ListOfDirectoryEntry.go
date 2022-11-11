@@ -14,7 +14,7 @@ type ListOfDirectoryEntry struct {
 func (e *ListOfDirectoryEntry) decode(is *bytes.Buffer, withTag bool) int {
 	tlByteCount := 0
 	vByteCount := 0
-	berTag := NewBerTag(0, 0, 0)
+	berTag := NewEmptyBerTag()
 	if withTag {
 		tlByteCount += e.tag.decodeAndCheck(is)
 	}

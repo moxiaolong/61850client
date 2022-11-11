@@ -21,7 +21,7 @@ func (r *FileName) decode(is *bytes.Buffer, withTag bool) int {
 
 	vByteCount := 0
 
-	berTag := NewBerTag(0, 0, 0)
+	berTag := NewEmptyBerTag()
 	if withTag {
 		tlByteCount += r.tag.decodeAndCheck(is)
 	}

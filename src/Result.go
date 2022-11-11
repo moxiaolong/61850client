@@ -5,5 +5,5 @@ type Result struct {
 }
 
 func NewResult() *Result {
-	return &Result{}
+	return &Result{BerInteger: *NewBerInteger(nil, 0)}
 }

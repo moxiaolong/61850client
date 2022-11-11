@@ -5,5 +5,5 @@ type APInvocationIdentifier struct {
 }
 
 func NewAPInvocationIdentifier() *APInvocationIdentifier {
-	return &APInvocationIdentifier{}
+	return &APInvocationIdentifier{BerInteger: *NewBerInteger(nil, 0)}
 }

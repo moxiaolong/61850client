@@ -17,7 +17,7 @@ func (a *BerAny) decode(is *bytes.Buffer, tag *BerTag) int {
 	decodedLength := 0
 	tagLength := 0
 	if tag == nil {
-		tag = NewBerTag(0, 0, 0)
+		tag = NewEmptyBerTag()
 		tagLength = tag.decode(is)
 		decodedLength += tagLength
 	} else {
@@ -27,11 +27,17 @@ func (a *BerAny) decode(is *bytes.Buffer, tag *BerTag) int {
 	lengthField := NewBerLength()
 	lengthLength := lengthField.decode(is)
 	decodedLength += lengthLength + lengthField.val
-	a.value = make([]byte, tagLength+lengthLength+lengthField.val)
+
+	//跳过off 读l位
+	off := tagLength + lengthLength
+	l := lengthField.val
+	a.value = make([]byte, l)
 	_, err := is.Read(a.value)
 	if err != nil {
 		panic(err)
 	}
+	a.value = append(make([]byte, off), a.value...)
+
 	os := NewReverseByteArrayOutputStreamWithBufferAndIndex(a.value, tagLength+lengthLength-1)
 	encodeLength(os, lengthField.val)
 	tag.encode(os)

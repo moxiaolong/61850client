@@ -16,7 +16,7 @@ func (r *DefineNamedVariableListRequest) decode(is *bytes.Buffer, withTag bool) 
 	tlByteCount := 0
 	vByteCount := 0
 	numDecodedBytes := 0
-	berTag := NewBerTag(0, 0, 0)
+	berTag := NewEmptyBerTag()
 
 	if withTag {
 		tlByteCount += r.tag.decodeAndCheck(is)

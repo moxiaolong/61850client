@@ -5,5 +5,5 @@ type ReleaseRequestReason struct {
 }
 
 func NewReleaseRequestReason() *ReleaseRequestReason {
-	return &ReleaseRequestReason{}
+	return &ReleaseRequestReason{BerInteger: *NewBerInteger(nil, 0)}
 }

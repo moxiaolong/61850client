@@ -97,7 +97,7 @@ func (t *CPTypeNormalModeParameters) decode(is *bytes.Buffer, withTag bool) int 
 	vByteCount := 0
 	numDecodedBytes := 0
 
-	berTag := NewBerTag(0, 0, 0)
+	berTag := NewEmptyBerTag()
 
 	if withTag {
 		tlByteCount += t.tag.decodeAndCheck(is)

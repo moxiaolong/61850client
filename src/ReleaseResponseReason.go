@@ -5,5 +5,5 @@ type ReleaseResponseReason struct {
 }
 
 func NewReleaseResponseReason() *ReleaseResponseReason {
-	return &ReleaseResponseReason{}
+	return &ReleaseResponseReason{BerInteger: *NewBerInteger(nil, 0)}
 }

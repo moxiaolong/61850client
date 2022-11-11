@@ -5,5 +5,5 @@ type AssociateResult struct {
 }
 
 func NewAssociateResult() *AssociateResult {
-	return &AssociateResult{}
+	return &AssociateResult{BerInteger: *NewBerInteger(nil, 0)}
 }

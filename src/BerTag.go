@@ -117,3 +117,8 @@ func NewBerTag(identifierClass int, primitive int, tagNumber int) *BerTag {
 	b.code()
 	return b
 }
+
+func NewEmptyBerTag() *BerTag {
+	b := &BerTag{}
+	return b
+}
