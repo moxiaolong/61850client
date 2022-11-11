@@ -13,7 +13,6 @@ type ClientReceiver struct {
 	maxMmsPduSize         int
 	lock                  *sync.Mutex
 	closed                bool
-	acseAssociation       *AcseAssociation
 	reportListener        *ClientEventListener
 	incomingResponses     *list.List
 	incomingResponsesLock *sync.Mutex
@@ -22,7 +21,7 @@ type ClientReceiver struct {
 }
 
 func NewClientReceiver(maxMmsPduSize int, association *ClientAssociation) *ClientReceiver {
-	return &ClientReceiver{maxMmsPduSize: maxMmsPduSize, closed: false, incomingResponses: list.New(), expectedResponseId: -1, association: association}
+	return &ClientReceiver{maxMmsPduSize: maxMmsPduSize, closed: false, incomingResponses: list.New(), expectedResponseId: -1, association: association, pduBuffer: bytes.NewBuffer(make([]byte, maxMmsPduSize+400))}
 }
 func (r *ClientReceiver) start() {
 	go r.run()
@@ -39,7 +38,7 @@ func (r *ClientReceiver) run() {
 	for {
 		r.pduBuffer.Reset()
 		var buffer []byte
-		buffer = r.acseAssociation.receive(r.pduBuffer)
+		buffer = r.association.acseAssociation.receive(r.pduBuffer)
 		decodedResponsePdu := NewMMSpdu()
 		decodedResponsePdu.decode(bytes.NewBuffer(buffer))
 
@@ -110,7 +109,7 @@ func (r *ClientReceiver) close(err any) {
 	r.lock.Lock()
 	if r.closed == false {
 		r.closed = true
-		r.acseAssociation.disconnect()
+		r.association.acseAssociation.disconnect()
 
 		if r.reportListener != nil {
 			go r.reportListener.associationClosed(err)

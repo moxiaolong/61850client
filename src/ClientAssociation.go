@@ -149,11 +149,11 @@ func (c *ClientAssociation) RetrieveModel() *ServerModel {
 		lds = append(lds, NewLogicalDevice(NewObjectReference(ldNames[i]), lns))
 	}
 
-	serverModel := NewServerModel(lds, nil)
+	c.ServerModel = NewServerModel(lds, nil)
 
 	c.updateDataSets()
 
-	return serverModel
+	return c.ServerModel
 
 }
 
