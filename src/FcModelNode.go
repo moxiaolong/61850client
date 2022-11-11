@@ -10,5 +10,5 @@ func (n *FcModelNode) setValueFromMmsDataObj(success *Data) {
 }
 
 func NewFcModelNode() *FcModelNode {
-	return &FcModelNode{}
+	return &FcModelNode{ModelNode: *NewModelNode()}
 }

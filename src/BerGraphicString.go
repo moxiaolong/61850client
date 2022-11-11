@@ -8,7 +8,7 @@ type BerGraphicString struct {
 }
 
 func NewBerGraphicString() *BerGraphicString {
-	return &BerGraphicString{tag: NewBerTag(0, 0, 25)}
+	return &BerGraphicString{tag: NewBerTag(0, 0, 25), BerOctetString: *NewBerOctetString(nil)}
 }
 
 func (b *BerGraphicString) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {

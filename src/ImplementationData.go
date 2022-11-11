@@ -5,5 +5,5 @@ type ImplementationData struct {
 }
 
 func NewImplementationData() *ImplementationData {
-	return &ImplementationData{}
+	return &ImplementationData{BerGraphicString: *NewBerGraphicString()}
 }

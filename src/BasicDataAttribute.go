@@ -12,6 +12,7 @@ type BasicDataAttribute struct {
 
 func NewBasicDataAttribute(objectReference *ObjectReference, fc string, sAddr string, dchg bool, dupd bool) *BasicDataAttribute {
 	b := &BasicDataAttribute{}
+	b.FcModelNode = *NewFcModelNode()
 	b.objectReference = objectReference
 	b.Fc = fc
 	b.sAddr = sAddr

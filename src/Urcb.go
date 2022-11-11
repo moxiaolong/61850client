@@ -6,5 +6,5 @@ type Urcb struct {
 }
 
 func NewUrcb(*ObjectReference, []*FcModelNode) *Urcb {
-	return &Urcb{}
+	return &Urcb{Rcb: *NewRcb()}
 }

@@ -5,5 +5,5 @@ type MechanismName struct {
 }
 
 func NewMechanismName() *MechanismName {
-	return &MechanismName{}
+	return &MechanismName{BerObjectIdentifier: *NewBerObjectIdentifier(nil)}
 }

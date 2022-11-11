@@ -5,5 +5,5 @@ type TimeOfDay struct {
 }
 
 func NewTimeOfDay() *TimeOfDay {
-	return &TimeOfDay{}
+	return &TimeOfDay{BerOctetString: *NewBerOctetString(nil)}
 }

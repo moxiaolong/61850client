@@ -5,5 +5,5 @@ type FloatingPoint struct {
 }
 
 func NewFloatingPoint() *FloatingPoint {
-	return &FloatingPoint{}
+	return &FloatingPoint{BerOctetString: *NewBerOctetString(nil)}
 }

@@ -7,7 +7,7 @@ type ServerModel struct {
 }
 
 func NewServerModel([]*LogicalDevice, []*DataSet) *ServerModel {
-	return &ServerModel{}
+	return &ServerModel{ModelNode: *NewModelNode()}
 
 }
 

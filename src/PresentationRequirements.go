@@ -5,5 +5,5 @@ type PresentationRequirements struct {
 }
 
 func NewPresentationRequirements() *PresentationRequirements {
-	return &PresentationRequirements{}
+	return &PresentationRequirements{BerBitString: *NewBerBitString(nil, nil, 0)}
 }

@@ -5,5 +5,5 @@ type BasicIdentifier struct {
 }
 
 func NewBasicIdentifier() *BasicIdentifier {
-	return &BasicIdentifier{}
+	return &BasicIdentifier{BerVisibleString: *NewBerVisibleString()}
 }

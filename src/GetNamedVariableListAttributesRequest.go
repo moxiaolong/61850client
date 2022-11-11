@@ -5,5 +5,5 @@ type GetNamedVariableListAttributesRequest struct {
 }
 
 func NewGetNamedVariableListAttributesRequest() *GetNamedVariableListAttributesRequest {
-	return &GetNamedVariableListAttributesRequest{}
+	return &GetNamedVariableListAttributesRequest{ObjectName: *NewObjectName()}
 }

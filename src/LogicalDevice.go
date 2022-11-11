@@ -5,5 +5,5 @@ type LogicalDevice struct {
 }
 
 func NewLogicalDevice(*ObjectReference, []*LogicalNode) *LogicalDevice {
-	return &LogicalDevice{}
+	return &LogicalDevice{ModelNode: *NewModelNode()}
 }

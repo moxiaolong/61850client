@@ -5,5 +5,5 @@ type ApplicationContextName struct {
 }
 
 func NewApplicationContextName() *ApplicationContextName {
-	return &ApplicationContextName{}
+	return &ApplicationContextName{BerObjectIdentifier: *NewBerObjectIdentifier(nil)}
 }

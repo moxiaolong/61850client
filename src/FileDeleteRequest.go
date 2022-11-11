@@ -5,5 +5,5 @@ type FileDeleteRequest struct {
 }
 
 func NewFileDeleteRequest() *FileDeleteRequest {
-	return &FileDeleteRequest{}
+	return &FileDeleteRequest{FileName: *NewFileName()}
 }

@@ -12,5 +12,5 @@ func (s *BdaVisibleString) getStringValue() string {
 }
 
 func NewBdaVisibleString() *BdaVisibleString {
-	return &BdaVisibleString{}
+	return &BdaVisibleString{BasicDataAttribute: *NewBasicDataAttribute(nil, "", "", false, false)}
 }

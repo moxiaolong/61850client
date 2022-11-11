@@ -5,5 +5,5 @@ type FileDeleteResponse struct {
 }
 
 func NewFileDeleteResponse() *FileDeleteResponse {
-	return &FileDeleteResponse{}
+	return &FileDeleteResponse{BerNull: *NewBerNull()}
 }

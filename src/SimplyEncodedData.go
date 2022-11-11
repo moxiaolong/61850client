@@ -5,5 +5,5 @@ type SimplyEncodedData struct {
 }
 
 func NewSimplyEncodedData() *SimplyEncodedData {
-	return &SimplyEncodedData{}
+	return &SimplyEncodedData{BerOctetString: *NewBerOctetString(nil)}
 }

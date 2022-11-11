@@ -5,5 +5,5 @@ type MMSString struct {
 }
 
 func NewMMSString() *MMSString {
-	return &MMSString{}
+	return &MMSString{BerVisibleString: *NewBerVisibleString()}
 }

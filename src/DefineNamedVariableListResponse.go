@@ -5,5 +5,5 @@ type DefineNamedVariableListResponse struct {
 }
 
 func NewDefineNamedVariableListResponse() *DefineNamedVariableListResponse {
-	return &DefineNamedVariableListResponse{}
+	return &DefineNamedVariableListResponse{BerNull: *NewBerNull()}
 }

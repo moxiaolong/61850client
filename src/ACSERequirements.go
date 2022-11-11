@@ -5,5 +5,5 @@ type ACSERequirements struct {
 }
 
 func NewACSERequirements() *ACSERequirements {
-	return &ACSERequirements{}
+	return &ACSERequirements{BerBitString: *NewBerBitString(nil, nil, 0)}
 }

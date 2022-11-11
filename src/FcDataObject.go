@@ -5,5 +5,5 @@ type FcDataObject struct {
 }
 
 func NewFcDataObject(*ObjectReference, string, []*FcModelNode) *FcDataObject {
-	return &FcDataObject{}
+	return &FcDataObject{FcModelNode: *NewFcModelNode()}
 }

@@ -5,5 +5,5 @@ type UtcTime struct {
 }
 
 func NewUtcTime() *UtcTime {
-	return &UtcTime{}
+	return &UtcTime{BerOctetString: *NewBerOctetString(nil)}
 }

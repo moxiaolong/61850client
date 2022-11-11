@@ -5,5 +5,5 @@ type FileReadRequest struct {
 }
 
 func NewFileReadRequest() *FileReadRequest {
-	return &FileReadRequest{}
+	return &FileReadRequest{Integer32: *NewInteger32(0)}
 }

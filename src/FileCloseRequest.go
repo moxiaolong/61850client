@@ -5,5 +5,5 @@ type FileCloseRequest struct {
 }
 
 func NewFileCloseRequest() *FileCloseRequest {
-	return &FileCloseRequest{}
+	return &FileCloseRequest{Integer32: *NewInteger32(0)}
 }

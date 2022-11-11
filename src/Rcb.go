@@ -7,7 +7,7 @@ type Rcb struct {
 }
 
 func NewRcb() *Rcb {
-	return &Rcb{}
+	return &Rcb{FcDataObject: *NewFcDataObject(nil, "", nil)}
 }
 
 func (r *Rcb) getRptId() *BdaVisibleString {

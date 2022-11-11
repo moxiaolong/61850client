@@ -5,5 +5,5 @@ type UserSessionRequirements struct {
 }
 
 func NewUserSessionRequirements() *UserSessionRequirements {
-	return &UserSessionRequirements{}
+	return &UserSessionRequirements{BerBitString: *NewBerBitString(nil, nil, 0)}
 }

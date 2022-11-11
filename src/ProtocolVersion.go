@@ -5,5 +5,5 @@ type ProtocolVersion struct {
 }
 
 func NewProtocolVersion() *ProtocolVersion {
-	return &ProtocolVersion{}
+	return &ProtocolVersion{BerBitString: *NewBerBitString(nil, nil, 0)}
 }

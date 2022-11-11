@@ -5,5 +5,5 @@ type FileCloseResponse struct {
 }
 
 func NewFileCloseResponse() *FileCloseResponse {
-	return &FileCloseResponse{}
+	return &FileCloseResponse{BerNull: *NewBerNull()}
 }

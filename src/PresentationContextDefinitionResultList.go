@@ -5,5 +5,5 @@ type PresentationContextDefinitionResultList struct {
 }
 
 func NewPresentationContextDefinitionResultList() *PresentationContextDefinitionResultList {
-	return &PresentationContextDefinitionResultList{}
+	return &PresentationContextDefinitionResultList{ResultList: *NewResultList()}
 }

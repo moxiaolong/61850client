@@ -5,5 +5,5 @@ type Brcb struct {
 }
 
 func NewBrcb(*ObjectReference, []*FcModelNode) *Brcb {
-	return &Brcb{}
+	return &Brcb{Rcb: *NewRcb()}
 }
