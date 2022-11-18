@@ -38,6 +38,6 @@ func (s *BerVisibleString) toString() string {
 	return string(s.value)
 }
 
-func NewBerVisibleString() *BerVisibleString {
-	return &BerVisibleString{tag: NewBerTag(0, 0, 26)}
+func NewBerVisibleString(value []byte) *BerVisibleString {
+	return &BerVisibleString{tag: NewBerTag(0, 0, 26), value: value}
 }

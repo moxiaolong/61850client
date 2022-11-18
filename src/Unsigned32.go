@@ -4,6 +4,6 @@ type Unsigned32 struct {
 	BerInteger
 }
 
-func NewUnsigned32() *Unsigned32 {
-	return &Unsigned32{BerInteger: *NewBerInteger(nil, 0)}
+func NewUnsigned32(value int) *Unsigned32 {
+	return &Unsigned32{BerInteger: *NewBerInteger(nil, value)}
 }

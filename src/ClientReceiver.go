@@ -2,26 +2,25 @@ package src
 
 import (
 	"bytes"
-	"container/list"
 	"strings"
 	"sync"
 	"unsafe"
 )
 
 type ClientReceiver struct {
-	pduBuffer             *bytes.Buffer
-	maxMmsPduSize         int
-	lock                  *sync.Mutex
-	closed                bool
-	reportListener        *ClientEventListener
-	incomingResponses     *list.List
-	incomingResponsesLock *sync.Mutex
-	expectedResponseId    int
-	association           *ClientAssociation
+	pduBuffer          *bytes.Buffer
+	maxMmsPduSize      int
+	lock               *sync.Mutex
+	closed             bool
+	reportListener     *ClientEventListener
+	expectedResponseId int
+	association        *ClientAssociation
+	lastIOException    string
 }
 
 func NewClientReceiver(maxMmsPduSize int, association *ClientAssociation) *ClientReceiver {
-	return &ClientReceiver{maxMmsPduSize: maxMmsPduSize, closed: false, incomingResponses: list.New(), expectedResponseId: -1, association: association, pduBuffer: bytes.NewBuffer(make([]byte, maxMmsPduSize+400))}
+	return &ClientReceiver{maxMmsPduSize: maxMmsPduSize, closed: false, expectedResponseId: -1, association: association, pduBuffer: bytes.NewBuffer(make([]byte, maxMmsPduSize+400)),
+		lock: &sync.Mutex{}}
 }
 func (r *ClientReceiver) start() {
 	go r.run()
@@ -57,7 +56,7 @@ func (r *ClientReceiver) run() {
 				}
 			}
 		} else if decodedResponsePdu.rejectPDU != nil {
-			r.incomingResponsesLock.Lock()
+			r.association.incomingResponsesLock.Lock()
 			{
 				if r.expectedResponseId == -1 {
 					// Discarding Reject MMS PDU because no listener for request was found.
@@ -66,12 +65,12 @@ func (r *ClientReceiver) run() {
 					// Discarding Reject MMS PDU because no listener with fitting invokeID was found.
 					continue
 				} else {
-					r.incomingResponses.PushBack(decodedResponsePdu)
+					r.association.incomingResponses <- decodedResponsePdu
 				}
 			}
-			r.incomingResponsesLock.Unlock()
+			r.association.incomingResponsesLock.Unlock()
 		} else if decodedResponsePdu.confirmedErrorPDU != nil {
-			r.incomingResponsesLock.Lock()
+			r.association.incomingResponsesLock.Lock()
 
 			if r.expectedResponseId == -1 {
 				// Discarding ConfirmedError MMS PDU because no listener for request was found.
@@ -81,11 +80,11 @@ func (r *ClientReceiver) run() {
 				// found.
 				continue
 			} else {
-				r.incomingResponses.PushBack(decodedResponsePdu)
+				r.association.incomingResponses <- decodedResponsePdu
 			}
-			r.incomingResponsesLock.Unlock()
+			r.association.incomingResponsesLock.Unlock()
 		} else {
-			r.incomingResponsesLock.Lock()
+			r.association.incomingResponsesLock.Lock()
 
 			if r.expectedResponseId == -1 {
 				// Discarding ConfirmedResponse MMS PDU because no listener for request was found.
@@ -96,9 +95,9 @@ func (r *ClientReceiver) run() {
 				// found.
 				continue
 			} else {
-				r.incomingResponses.PushBack(decodedResponsePdu)
+				r.association.incomingResponses <- decodedResponsePdu
 			}
-			r.incomingResponsesLock.Unlock()
+			r.association.incomingResponsesLock.Unlock()
 		}
 
 	}
@@ -118,7 +117,7 @@ func (r *ClientReceiver) close(err any) {
 		mmsPdu := NewMMSpdu()
 		mmsPdu.confirmedRequestPDU = NewConfirmedRequestPDU()
 
-		r.incomingResponses.PushBack(mmsPdu)
+		r.association.incomingResponses <- mmsPdu
 
 	}
 
@@ -292,4 +291,12 @@ func (r *ClientReceiver) processReport(mmsPdu *MMSpdu) *Report {
 		inclusionBitString,
 		reportedDataSetMembers,
 		reasonCodes)
+}
+
+func (r *ClientReceiver) removeExpectedResponse() *MMSpdu {
+	r.association.incomingResponsesLock.Lock()
+	r.expectedResponseId = -1
+	spdu := <-r.association.incomingResponses
+	r.association.incomingResponsesLock.Unlock()
+	return spdu
 }

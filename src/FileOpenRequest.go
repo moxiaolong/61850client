@@ -35,7 +35,7 @@ func (r *FileOpenRequest) decode(is *bytes.Buffer, withTag bool) int {
 	}
 
 	if berTag.equals(128, 0, 1) {
-		r.initialPosition = NewUnsigned32()
+		r.initialPosition = NewUnsigned32(0)
 		vByteCount += r.initialPosition.decode(is, false)
 		if lengthVal >= 0 && vByteCount == lengthVal {
 			return tlByteCount + vByteCount

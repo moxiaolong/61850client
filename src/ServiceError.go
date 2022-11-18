@@ -54,7 +54,7 @@ func (p *ServiceError) decode(is *bytes.Buffer, withTag bool) int {
 	}
 
 	if berTag.equals(128, 0, 2) {
-		p.additionalDescription = NewBerVisibleString()
+		p.additionalDescription = NewBerVisibleString(nil)
 		vByteCount += p.additionalDescription.decode(is, false)
 		if lengthVal >= 0 && vByteCount == lengthVal {
 			return tlByteCount + vByteCount

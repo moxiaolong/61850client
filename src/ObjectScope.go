@@ -25,7 +25,7 @@ func (s *ObjectScope) decode(is *bytes.Buffer, berTag *BerTag) int {
 	}
 
 	if berTag.equals(128, 0, 1) {
-		s.domainSpecific = NewIdentifier()
+		s.domainSpecific = NewIdentifier(nil)
 		tlvByteCount += s.domainSpecific.decode(is, false)
 		return tlvByteCount
 	}

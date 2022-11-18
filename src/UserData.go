@@ -21,6 +21,13 @@ func (t *UserData) encode(reverseOS *ReverseByteArrayOutputStream) int {
 		codeLength += 1
 		return codeLength
 	}
+	if t.simplyEncodedData != nil {
+		codeLength += t.simplyEncodedData.encode(reverseOS, false)
+		// write tag: APPLICATION_CLASS, PRIMITIVE, 0
+		reverseOS.writeByte(0x40)
+		codeLength += 1
+		return codeLength
+	}
 
 	throw("Error encoding WriteResponseCHOICE: No element of WriteResponseCHOICE was selected.")
 	return -1

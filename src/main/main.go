@@ -10,6 +10,7 @@ var (
 )
 
 func main() {
+
 	//defer func() {
 	//	if r := recover(); r != nil {
 	//		log.Println(r)
@@ -17,7 +18,7 @@ func main() {
 	//}()
 	hostName := "localhost"
 	port := 8080
-	modelFilePath := "文件名"
+	//modelFilePath := "文件名"
 
 	clientSap := src.NewClientSap()
 	association := clientSap.Associate(hostName, port, src.NewEventListener())
@@ -25,8 +26,8 @@ func main() {
 		association.Close()
 	}()
 
-	serverModel = src.SclParserParse(modelFilePath)[0]
-	association.ServerModel = serverModel
+	//serverModel = src.SclParserParse(modelFilePath)[0]
+	//association.ServerModel = serverModel
 
 	serverModel = association.RetrieveModel()
 

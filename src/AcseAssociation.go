@@ -442,6 +442,62 @@ func (a *AcseAssociation) decodePresentationLayer(pduBuffer *bytes.Buffer) []byt
 	return userData.fullyEncodedData.seqOf[0].presentationDataValues.singleASN1Type.value
 }
 
+func (a *AcseAssociation) sendByteBuffer(payload *bytes.Buffer) {
+	ssduList := make([][]byte, 0)
+	ssduOffsets := make([]int, 0)
+	ssduLengths := make([]int, 0)
+
+	ssduList, ssduOffsets, ssduLengths = a.encodePresentationLayer(payload, ssduList, ssduOffsets, ssduLengths)
+
+	ssduList, ssduOffsets, ssduLengths = a.encodeSessionLayer(ssduList, ssduOffsets, ssduLengths)
+
+	a.tConnection.send(ssduList, ssduOffsets, ssduLengths)
+}
+
+func (a *AcseAssociation) encodePresentationLayer(payload *bytes.Buffer, ssduList [][]byte, ssduOffsets []int, ssduLengths []int) ([][]byte, []int, []int) {
+	pdv_list := NewPDVList()
+	pdv_list.presentationContextIdentifier = NewPresentationContextIdentifier(nil, 3)
+
+	presentationDataValues := NewPresentationDataValues()
+	b := payload.Bytes()
+	presentationDataValues.singleASN1Type = NewBerAny(b)
+
+	pdv_list.presentationDataValues = presentationDataValues
+
+	fully_encoded_data := NewFullyEncodedData()
+	pdv_list_list := fully_encoded_data.getPDVList()
+	fully_encoded_data.seqOf = append(pdv_list_list, pdv_list)
+
+	user_data := NewUserData()
+	user_data.fullyEncodedData = (fully_encoded_data)
+
+	reverseOStream := NewReverseByteArrayOutputStream(200)
+	user_data.encode(reverseOStream)
+
+	ssduList = append(ssduList, reverseOStream.buffer)
+	ssduOffsets = append(ssduOffsets, reverseOStream.index+1)
+	ssduLengths = append(ssduLengths, len(reverseOStream.buffer)-(reverseOStream.index+1))
+	return ssduList, ssduOffsets, ssduLengths
+}
+
+func (a *AcseAssociation) encodeSessionLayer(ssduList [][]byte, ssduOffsets []int, ssduLengths []int) ([][]byte, []int, []int) {
+	spduHeader := make([]byte, 4)
+	// --write iso 8327-1 Header--
+	// write SPDU Type: give tokens PDU
+	spduHeader[0] = 0x01
+	// length 0
+	spduHeader[1] = 0
+	// write SPDU Type: DATA TRANSFER (DT)
+	spduHeader[2] = 0x01
+	// length 0
+	spduHeader[3] = 0
+
+	ssduList = append([][]byte{spduHeader}, ssduList...)
+	ssduOffsets = append([]int{0}, ssduOffsets...)
+	ssduLengths = append([]int{len(spduHeader)}, ssduLengths...)
+	return ssduList, ssduOffsets, ssduLengths
+}
+
 func getSPDUTypeString(spduType byte) string {
 	switch spduType {
 	case 0:
@@ -517,7 +573,7 @@ func getPresentationUserDataField(userDataBytes []byte) *UserData {
 	presDataValues := NewPresentationDataValues()
 	presDataValues.singleASN1Type = NewBerAny(userDataBytes)
 	pdvList := NewPDVList()
-	pdvList.presentationContextIdentifier = NewPresentationContextIdentifier([]byte{0x01, 0x01})
+	pdvList.presentationContextIdentifier = NewPresentationContextIdentifier([]byte{0x01, 0x01}, 0)
 	pdvList.presentationDataValues = presDataValues
 
 	fullyEncodedData := NewFullyEncodedData()

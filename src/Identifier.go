@@ -4,6 +4,6 @@ type Identifier struct {
 	BerVisibleString
 }
 
-func NewIdentifier() *Identifier {
-	return &Identifier{BerVisibleString: *NewBerVisibleString()}
+func NewIdentifier(value []byte) *Identifier {
+	return &Identifier{BerVisibleString: *NewBerVisibleString(value)}
 }

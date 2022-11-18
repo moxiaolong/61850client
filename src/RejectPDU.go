@@ -30,7 +30,7 @@ func (p *RejectPDU) decode(is *bytes.Buffer, withTag bool) int {
 	vByteCount += berTag.decode(is)
 
 	if berTag.equals(128, 0, 0) {
-		p.originalInvokeID = NewUnsigned32()
+		p.originalInvokeID = NewUnsigned32(0)
 		vByteCount += p.originalInvokeID.decode(is, false)
 		vByteCount += berTag.decode(is)
 	}

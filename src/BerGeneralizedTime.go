@@ -28,6 +28,6 @@ func (s *BerGeneralizedTime) encode(reverseOS *ReverseByteArrayOutputStream, wit
 func NewBerGeneralizedTime() *BerGeneralizedTime {
 
 	time := BerGeneralizedTime{tag: NewBerTag(0, 0, 24)}
-	time.BerVisibleString = *NewBerVisibleString()
+	time.BerVisibleString = *NewBerVisibleString(nil)
 	return &time
 }

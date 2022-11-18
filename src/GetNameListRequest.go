@@ -51,7 +51,7 @@ func (r *GetNameListRequest) decode(is *bytes.Buffer, withTag bool) int {
 	}
 
 	if berTag.equals(128, 0, 2) {
-		r.continueAfter = NewIdentifier()
+		r.continueAfter = NewIdentifier(nil)
 		vByteCount += r.continueAfter.decode(is, false)
 		if lengthVal >= 0 && vByteCount == lengthVal {
 			return tlByteCount + vByteCount

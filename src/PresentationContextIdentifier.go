@@ -4,6 +4,6 @@ type PresentationContextIdentifier struct {
 	BerInteger
 }
 
-func NewPresentationContextIdentifier(code []byte) *PresentationContextIdentifier {
-	return &PresentationContextIdentifier{BerInteger: *NewBerInteger(code, 0)}
+func NewPresentationContextIdentifier(code []byte, value int) *PresentationContextIdentifier {
+	return &PresentationContextIdentifier{BerInteger: *NewBerInteger(code, value)}
 }

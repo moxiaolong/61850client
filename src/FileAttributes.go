@@ -27,7 +27,7 @@ func (a *FileAttributes) decode(is *bytes.Buffer, withTag bool) int {
 	vByteCount += berTag.decode(is)
 
 	if berTag.equals(128, 0, 0) {
-		a.sizeOfFile = NewUnsigned32()
+		a.sizeOfFile = NewUnsigned32(0)
 		vByteCount += a.sizeOfFile.decode(is, false)
 		if lengthVal >= 0 && vByteCount == lengthVal {
 			return tlByteCount + vByteCount

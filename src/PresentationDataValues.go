@@ -16,11 +16,28 @@ func (v *PresentationDataValues) encode(reverseOS *ReverseByteArrayOutputStream)
 	}
 	codeLength := 0
 	sublength := 0
+
+	if v.arbitrary != nil {
+		codeLength += v.encode(reverseOS)
+		// write tag: CONTEXT_CLASS, PRIMITIVE, 2
+		reverseOS.writeByte(0x82)
+		codeLength += 1
+		return codeLength
+	}
+
+	if v.octetAligned != nil {
+		codeLength += v.octetAligned.encode(reverseOS, false)
+		// write tag: CONTEXT_CLASS, PRIMITIVE, 1
+		reverseOS.writeByte(0x81)
+		codeLength += 1
+		return codeLength
+	}
+
 	if v.singleASN1Type != nil {
 		sublength = v.singleASN1Type.encode(reverseOS)
 		codeLength += sublength
 		codeLength += encodeLength(reverseOS, sublength)
-		// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 0
+		// write tag: CONTEXT_CLASS, CONSTRUCTED, 0
 		reverseOS.writeByte(0xA0)
 		codeLength += 1
 		return codeLength

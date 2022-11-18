@@ -27,7 +27,7 @@ func (r *DeleteNamedVariableListResponse) decode(is *bytes.Buffer, withTag bool)
 	vByteCount += berTag.decode(is)
 
 	if berTag.equals(128, 0, 0) {
-		r.numberMatched = NewUnsigned32()
+		r.numberMatched = NewUnsigned32(0)
 		vByteCount += r.numberMatched.decode(is, false)
 		vByteCount += berTag.decode(is)
 	} else {
@@ -35,7 +35,7 @@ func (r *DeleteNamedVariableListResponse) decode(is *bytes.Buffer, withTag bool)
 	}
 
 	if berTag.equals(128, 0, 1) {
-		r.numberDeleted = NewUnsigned32()
+		r.numberDeleted = NewUnsigned32(0)
 		vByteCount += r.numberDeleted.decode(is, false)
 		if lengthVal >= 0 && vByteCount == lengthVal {
 			return tlByteCount + vByteCount

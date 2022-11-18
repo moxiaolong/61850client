@@ -28,7 +28,7 @@ func (p *ConfirmedRequestPDU) decode(is *bytes.Buffer, withTag bool) int {
 	vByteCount += berTag.decode(is)
 
 	if berTag.equals(0, 0, 2) {
-		p.invokeID = NewUnsigned32()
+		p.invokeID = NewUnsigned32(0)
 		vByteCount += p.invokeID.decode(is, false)
 		vByteCount += berTag.decode(is)
 	} else {

@@ -35,7 +35,7 @@ func (a *Array) decode(is *bytes.Buffer, withTag bool) int {
 	}
 
 	if berTag.equals(128, 0, 1) {
-		a.numberOfElements = NewUnsigned32()
+		a.numberOfElements = NewUnsigned32(0)
 		vByteCount += a.numberOfElements.decode(is, false)
 		vByteCount += berTag.decode(is)
 	} else {

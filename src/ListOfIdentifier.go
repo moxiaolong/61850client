@@ -34,7 +34,7 @@ func (c *ListOfIdentifier) decode(is *bytes.Buffer, withTag bool) int {
 		if !berTag.equals(0, 0, 26) {
 			throw("tag does not match mandatory sequence of/set of component.")
 		}
-		element := NewIdentifier()
+		element := NewIdentifier(nil)
 		vByteCount += element.decode(is, false)
 		c.seqOf = append(c.seqOf, element)
 	}

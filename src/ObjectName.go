@@ -19,7 +19,7 @@ func (n *ObjectName) decode(is *bytes.Buffer, berTag *BerTag) int {
 	}
 
 	if berTag.equals(128, 0, 0) {
-		n.vmdSpecific = NewIdentifier()
+		n.vmdSpecific = NewIdentifier(nil)
 		tlvByteCount += n.vmdSpecific.decode(is, false)
 		return tlvByteCount
 	}
@@ -31,7 +31,7 @@ func (n *ObjectName) decode(is *bytes.Buffer, berTag *BerTag) int {
 	}
 
 	if berTag.equals(128, 0, 2) {
-		n.aaSpecific = NewIdentifier()
+		n.aaSpecific = NewIdentifier(nil)
 		tlvByteCount += n.aaSpecific.decode(is, false)
 		return tlvByteCount
 	}

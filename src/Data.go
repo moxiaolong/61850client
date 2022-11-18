@@ -78,7 +78,7 @@ func (d *Data) decode(is *bytes.Buffer, berTag *BerTag) int {
 	}
 
 	if berTag.equals(128, 0, 10) {
-		d.visibleString = NewBerVisibleString()
+		d.visibleString = NewBerVisibleString(nil)
 		tlvByteCount += d.visibleString.decode(is, false)
 		return tlvByteCount
 	}

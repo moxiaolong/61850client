@@ -28,7 +28,7 @@ func (p *ConfirmedErrorPDU) decode(is *bytes.Buffer, withTag bool) int {
 	vByteCount += berTag.decode(is)
 
 	if berTag.equals(128, 0, 0) {
-		p.invokeID = NewUnsigned32()
+		p.invokeID = NewUnsigned32(0)
 		vByteCount += p.invokeID.decode(is, false)
 		vByteCount += berTag.decode(is)
 	} else {
@@ -36,7 +36,7 @@ func (p *ConfirmedErrorPDU) decode(is *bytes.Buffer, withTag bool) int {
 	}
 
 	if berTag.equals(128, 0, 1) {
-		p.modifierPosition = NewUnsigned32()
+		p.modifierPosition = NewUnsigned32(0)
 		vByteCount += p.modifierPosition.decode(is, false)
 		vByteCount += berTag.decode(is)
 	}

@@ -107,7 +107,8 @@ func (t *TConnection) receive(tSduBuffer *bytes.Buffer) {
 		li = int(readByte(is) & 0xff)
 
 		// read TPDU code
-		tPduCode = int(readByte(is) & 0xff)
+		b := readByte(is)
+		tPduCode = int(b & 0xff)
 
 		if tPduCode == 0xf0 {
 			// Data Transfer (DT) Code

@@ -58,7 +58,7 @@ func (l *PDVList) decode(is *bytes.Buffer, withTag bool) int {
 	}
 
 	if berTag.equals(0, 0, 2) {
-		l.presentationContextIdentifier = NewPresentationContextIdentifier(nil)
+		l.presentationContextIdentifier = NewPresentationContextIdentifier(nil, 0)
 		vByteCount += l.presentationContextIdentifier.decode(is, false)
 		vByteCount += berTag.decode(is)
 	} else {

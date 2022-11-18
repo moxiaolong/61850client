@@ -27,7 +27,7 @@ func (s *DomainSpecific) decode(is *bytes.Buffer, withTag bool) int {
 	vByteCount += berTag.decode(is)
 
 	if berTag.equals(0, 0, 26) {
-		s.domainID = NewIdentifier()
+		s.domainID = NewIdentifier(nil)
 		vByteCount += s.domainID.decode(is, false)
 		vByteCount += berTag.decode(is)
 	} else {
@@ -35,7 +35,7 @@ func (s *DomainSpecific) decode(is *bytes.Buffer, withTag bool) int {
 	}
 
 	if berTag.equals(0, 0, 26) {
-		s.itemID = NewIdentifier()
+		s.itemID = NewIdentifier(nil)
 		vByteCount += s.itemID.decode(is, false)
 		if lengthVal >= 0 && vByteCount == lengthVal {
 			return tlByteCount + vByteCount
