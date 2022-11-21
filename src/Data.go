@@ -30,7 +30,7 @@ func (d *Data) decode(is *bytes.Buffer, berTag *BerTag) int {
 	}
 
 	if berTag.equals(128, 32, 1) {
-		d.array = NewArray()
+		d.array = NewArray(nil, "", nil)
 		tlvByteCount += d.array.decode(is, false)
 		return tlvByteCount
 	}

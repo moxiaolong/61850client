@@ -5,6 +5,6 @@ type InitiateErrorPDU struct {
 }
 
 func NewInitiateErrorPDU() *InitiateErrorPDU {
-	serviceError := NewServiceError()
+	serviceError := ()
 	return &InitiateErrorPDU{ServiceError: *serviceError}
 }

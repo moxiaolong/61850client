@@ -3,6 +3,7 @@ package src
 import "C"
 import (
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 	"unsafe"
@@ -192,9 +193,8 @@ func (c *ClientAssociation) retrieveDataDefinitions(lnRef *ObjectReference) *Log
 	return decodeGetDataDefinitionResponse(confirmedServiceResponse, lnRef)
 }
 
-func decodeGetDataDefinitionResponse(response *ConfirmedServiceResponse, ref *ObjectReference) *LogicalNode {
-	//TODO
-	return nil
+func decodeGetDataDefinitionResponse(confirmedServiceResponse *ConfirmedServiceResponse, lnRef *ObjectReference) *LogicalNode {
+	return parseGetDataDefinitionResponse(confirmedServiceResponse, lnRef)
 }
 
 func (c *ClientAssociation) encodeWriteReadDecode(serviceRequest *ConfirmedServiceRequest) *ConfirmedServiceResponse {
@@ -265,7 +265,7 @@ func (c *ClientAssociation) encodeWriteReadDecode(serviceRequest *ConfirmedServi
 		}
 	}
 
-	if decodedResponsePdu.confirmedResponsePDU != nil {
+	if decodedResponsePdu.confirmedRequestPDU != nil {
 		c.incomingResponses <- decodedResponsePdu
 		throw("connection was closed", c.clientReceiver.lastIOException)
 	}
@@ -301,7 +301,7 @@ func testForRejectResponse(mmsResponsePdu *MMSpdu) {
 }
 
 func testForErrorResponse(mmsResponsePdu *MMSpdu) {
-	if mmsResponsePdu.confirmedResponsePDU == nil {
+	if mmsResponsePdu.confirmedErrorPDU == nil {
 		return
 	}
 
@@ -394,8 +394,18 @@ func testForInitiateErrorResponse(mmsResponsePdu *MMSpdu) {
 	}
 }
 
-func (c *ClientAssociation) retrieveLogicalNodeNames(s string) []string {
-	return nil
+func (c *ClientAssociation) retrieveLogicalNodeNames(ld string) []string {
+	lns := make([]string, 0)
+	continueAfterRef := ""
+	once := false
+	for !once || continueAfterRef != "" {
+		once = true
+		serviceRequest := c.constructGetDirectoryRequest(ld, continueAfterRef, true)
+		confirmedServiceResponse := c.encodeWriteReadDecode(serviceRequest)
+		continueAfterRef = c.decodeGetDirectoryResponse(confirmedServiceResponse, lns)
+	}
+
+	return lns
 }
 
 func (c *ClientAssociation) constructGetServerDirectoryRequest() *ConfirmedServiceRequest {
@@ -415,16 +425,71 @@ func (c *ClientAssociation) constructGetServerDirectoryRequest() *ConfirmedServi
 	return confirmedServiceRequest
 }
 
-func (c *ClientAssociation) decodeGetServerDirectoryResponse(response *ConfirmedServiceResponse) []string {
-	return nil
+func (c *ClientAssociation) decodeGetServerDirectoryResponse(confirmedServiceResponse *ConfirmedServiceResponse) []string {
+	if confirmedServiceResponse.getNameList == nil {
+		throw(
+			"FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINTError decoding Get Server Directory Response Pdu")
+	}
+
+	identifiers := confirmedServiceResponse.getNameList.listOfIdentifier.getIdentifier()
+	objectRefs := make([]string, 0) // ObjectReference[identifiers.size()];
+
+	for _, identifier := range identifiers {
+		objectRefs = append(objectRefs, identifier.toString())
+	}
+
+	return objectRefs
 }
 
-func (c *ClientAssociation) constructGetDirectoryRequest(name interface{}, s string, b bool) *ConfirmedServiceRequest {
-	return nil
+func (c *ClientAssociation) constructGetDirectoryRequest(ldRef string, continueAfter string, logicalDevice bool) *ConfirmedServiceRequest {
+
+	objectClass := NewObjectClass()
+
+	if logicalDevice {
+		objectClass.basicObjectClass = NewBerInteger(nil, 0)
+	} else { // for data sets
+		objectClass.basicObjectClass = NewBerInteger(nil, 2)
+	}
+
+	ldRefByte := *(*[]byte)(unsafe.Pointer(&ldRef))
+	objectScopeChoiceType := NewObjectScope()
+	objectScopeChoiceType.domainSpecific = NewIdentifier(ldRefByte)
+
+	getNameListRequest := NewGetNameListRequest()
+	getNameListRequest.objectClass = objectClass
+	getNameListRequest.objectScope = objectScopeChoiceType
+	if continueAfter != "" {
+		continueAfterByte := *(*[]byte)(unsafe.Pointer(&continueAfter))
+		getNameListRequest.continueAfter = NewIdentifier(continueAfterByte)
+	}
+
+	confirmedServiceRequest := NewConfirmedServiceRequest()
+	confirmedServiceRequest.getNameList = getNameListRequest
+	return confirmedServiceRequest
 }
 
-func (c *ClientAssociation) decodeAndRetrieveDsNamesAndDefinitions(response *ConfirmedServiceResponse, l *LogicalDevice) {
+func (c *ClientAssociation) decodeAndRetrieveDsNamesAndDefinitions(confirmedServiceResponse *ConfirmedServiceResponse, ld *LogicalDevice) {
+	if confirmedServiceResponse.getNameList == nil {
+		throw(
+			" ServiceError decodeGetDataSetResponse: Error decoding server response")
+	}
 
+	getNameListResponse := confirmedServiceResponse.getNameList
+
+	identifiers := getNameListResponse.listOfIdentifier.getIdentifier()
+
+	if len(identifiers) == 0 {
+		return
+	}
+
+	for _, identifier := range identifiers {
+		// TODO delete DataSets that no longer exist
+		c.getDataSetDirectory(identifier, ld)
+	}
+
+	if getNameListResponse.moreFollows != nil && getNameListResponse.moreFollows.value == true {
+		throw("FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT")
+	}
 }
 
 func (c *ClientAssociation) constructGetDataDefinitionRequest(lnRef *ObjectReference) *ConfirmedServiceRequest {
@@ -447,4 +512,121 @@ func (c *ClientAssociation) constructGetDataDefinitionRequest(lnRef *ObjectRefer
 func (c *ClientAssociation) getInvokeId() int {
 	c.invokeId = (c.invokeId + 1) % 2147483647
 	return c.invokeId
+}
+
+func (c *ClientAssociation) decodeGetDirectoryResponse(confirmedServiceResponse *ConfirmedServiceResponse, lns []string) string {
+	if confirmedServiceResponse.getNameList == nil {
+		throw(
+			"FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT decodeGetLDDirectoryResponse: Error decoding server response")
+	}
+
+	getNameListResponse := confirmedServiceResponse.getNameList
+
+	identifiers := getNameListResponse.listOfIdentifier.getIdentifier()
+
+	if len(identifiers) == 0 {
+		throw(
+			"INSTANCE_NOT_AVAILABLE decodeGetLDDirectoryResponse: Instance not available")
+	}
+
+	var identifier *Identifier = nil
+	for _, identifier = range identifiers {
+
+		idString := identifier.toString()
+
+		if strings.Index(idString, "$") == -1 {
+			lns = append(lns, idString)
+		}
+	}
+
+	if getNameListResponse.moreFollows != nil && getNameListResponse.moreFollows.value == false {
+		return ""
+	} else {
+		return identifier.toString()
+	}
+}
+
+func (c *ClientAssociation) getDataSetDirectory(dsId *Identifier, ld *LogicalDevice) {
+	serviceRequest := c.constructGetDataSetDirectoryRequest(dsId, ld)
+	confirmedServiceResponse := c.encodeWriteReadDecode(serviceRequest)
+	c.decodeGetDataSetDirectoryResponse(confirmedServiceResponse, dsId, ld)
+}
+
+func (c *ClientAssociation) constructGetDataSetDirectoryRequest(dsId *Identifier, ld *LogicalDevice) *ConfirmedServiceRequest {
+	domainSpecificObjectName := NewDomainSpecific()
+	name := ld.getName()
+	nameByte := *(*[]byte)(unsafe.Pointer(&name))
+	domainSpecificObjectName.domainID = NewIdentifier(nameByte)
+	domainSpecificObjectName.itemID = dsId
+
+	dataSetObj := NewGetNamedVariableListAttributesRequest()
+	dataSetObj.domainSpecific = domainSpecificObjectName
+
+	confirmedServiceRequest := NewConfirmedServiceRequest()
+	confirmedServiceRequest.getNamedVariableListAttributes = dataSetObj
+
+	return confirmedServiceRequest
+}
+
+func (c *ClientAssociation) decodeGetDataSetDirectoryResponse(confirmedServiceResponse *ConfirmedServiceResponse, dsId *Identifier, ld *LogicalDevice) {
+	if confirmedServiceResponse.getNamedVariableListAttributes == nil {
+		throw(
+			"FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT decodeGetDataSetDirectoryResponse: Error decoding server response")
+	}
+
+	getNamedVariableListAttResponse :=
+		confirmedServiceResponse.getNamedVariableListAttributes
+	deletable := getNamedVariableListAttResponse.mmsDeletable.value
+	variables :=
+		getNamedVariableListAttResponse.listOfVariable.seqOf
+
+	if len(variables) == 0 {
+		throw(
+			"INSTANCE_NOT_AVAILABLE decodeGetDataSetDirectoryResponse: Instance not available")
+	}
+
+	dsMems := make([]*FcModelNode, 0)
+
+	for _, variableDef := range variables {
+		var member *FcModelNode = nil
+		// TODO remove this try catch statement once all possible FCs are
+		// supported
+		// it is only there so that Functional Constraints such as GS will
+		// be ignored and DataSet cotaining elements with these FCs are
+		// ignored and not created.
+		func() {
+			defer func() {
+				recover()
+				return
+			}()
+			member = c.ServerModel.getNodeFromVariableDef(variableDef)
+		}()
+
+		if member == nil {
+			throw(
+
+				"INSTANCE_NOT_AVAILABLE decodeGetDataSetDirectoryResponse: data set memeber does not exist, you might have to call retrieveModel first")
+		}
+		dsMems = append(dsMems, member)
+	}
+
+	dsObjRef := ld.getName() + "/" + strings.ReplaceAll(dsId.toString(), "$", ".")
+
+	dataSet := NewDataSetWithRef(dsObjRef, dsMems, deletable)
+
+	index := strings.Index(dsId.toString(), "$")
+	if ld.getChild(dsId.toString()[0:index], "") == nil {
+		throw(
+			"INSTANCE_NOT_AVAILABLE decodeGetDataSetDirectoryResponse: LN for returned DataSet is not available")
+	}
+
+	existingDs := c.ServerModel.getDataSet(dsObjRef)
+	if existingDs == nil {
+		c.ServerModel.addDataSet(dataSet)
+	} else if !existingDs.deletable {
+		return
+	} else {
+		c.ServerModel.removeDataSet(dsObjRef)
+		c.ServerModel.addDataSet(dataSet)
+	}
 }

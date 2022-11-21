@@ -9,11 +9,14 @@ type ObjectReference struct {
 }
 
 func (r *ObjectReference) toString() string {
-	return ""
+	return r.objectReference
 }
 
 func (r *ObjectReference) getName() string {
-	return ""
+	if r.nodeNames == nil {
+		r.parseForNameList()
+	}
+	return r.nodeNames[len(r.nodeNames)-1]
 }
 
 func (r *ObjectReference) get(i int) string {

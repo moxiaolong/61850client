@@ -68,6 +68,13 @@ func (c *ListOfIdentifier) encode(reverseOS *ReverseByteArrayOutputStream, withT
 	return codeLength
 }
 
+func (c *ListOfIdentifier) getIdentifier() []*Identifier {
+	if c.seqOf == nil {
+		c.seqOf = make([]*Identifier, 0)
+	}
+	return c.seqOf
+}
+
 func NewListOfIdentifier() *ListOfIdentifier {
 	return &ListOfIdentifier{tag: NewBerTag(0, 32, 16)}
 }

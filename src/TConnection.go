@@ -614,14 +614,14 @@ func (t *TConnection) SendSingle(tsdu []byte, offset int, length int) (err error
 			err = r.(error)
 		}
 	}()
-	tsdus := make([][]byte, 1)
+	tsdus := make([][]byte, 0)
 	tsdus = append(tsdus, tsdu)
 
 	offsets :=
-		make([]int, 1)
+		make([]int, 0)
 	offsets = append(offsets, offset)
 
-	lengths := make([]int, 1)
+	lengths := make([]int, 0)
 	lengths = append(lengths, length)
 
 	t.send(tsdus, offsets, lengths)

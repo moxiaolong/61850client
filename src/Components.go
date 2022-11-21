@@ -67,6 +67,13 @@ func (c *Components) decode(is *bytes.Buffer, withTag bool) int {
 	return tlByteCount + vByteCount
 }
 
+func (c *Components) getSEQUENCE() []*SEQUENCE {
+	if c.seqOf == nil {
+		c.seqOf = make([]*SEQUENCE, 0)
+	}
+	return c.seqOf
+}
+
 func NewComponents() *Components {
 	return &Components{tag: NewBerTag(0, 32, 16)}
 }

@@ -3,14 +3,17 @@ package src
 import (
 	"bytes"
 	"strconv"
+	"unsafe"
 )
 
 type Array struct {
+	FcModelNode
 	tag              *BerTag
 	packed           *BerBoolean
 	numberOfElements *Unsigned32
 	elementType      *TypeSpecification
 	code             []byte
+	items            []*ModelNode
 }
 
 func (a *Array) decode(is *bytes.Buffer, withTag bool) int {
@@ -109,6 +112,25 @@ func (a *Array) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) in
 	return codeLength
 }
 
-func NewArray() *Array {
-	return &Array{tag: NewBerTag(0, 32, 16)}
+func (a *Array) copy() *Array {
+	itemsCopy := make([]*FcModelNode, 0)
+
+	for _, item := range a.items {
+		itemsCopy = append(itemsCopy, (*FcModelNode)(unsafe.Pointer(item.copy())))
+	}
+	return NewArray(a.objectReference, a.Fc, itemsCopy)
+}
+
+func NewArray(objectReference *ObjectReference, fc string, children []*FcModelNode) *Array {
+	a := &Array{tag: NewBerTag(0, 32, 16)}
+	a.objectReference = objectReference
+	a.Fc = fc
+	a.items = make([]*ModelNode, 0)
+	for _, child := range children {
+		a.items = append(a.items, &child.ModelNode)
+		child.parent = &a.ModelNode
+	}
+	//TODO 可能有bug
+
+	return a
 }

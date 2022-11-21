@@ -9,6 +9,11 @@ func (n *FcModelNode) setValueFromMmsDataObj(success *Data) {
 
 }
 
+func (n *FcModelNode) copy() *FcModelNode {
+	//TODO
+	return n
+}
+
 func NewFcModelNode() *FcModelNode {
 	return &FcModelNode{ModelNode: *NewModelNode()}
 }

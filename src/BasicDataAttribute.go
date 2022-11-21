@@ -6,6 +6,7 @@ type BasicDataAttribute struct {
 	sAddr     string
 	dchg      bool
 	dupd      bool
+	qchg      bool
 	chgRcbs   []*Urcb
 	dupdRcbs  []*Urcb
 }

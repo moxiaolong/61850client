@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"strings"
 	"sync"
-	"unsafe"
 )
 
 type ClientReceiver struct {
@@ -247,16 +246,16 @@ func (r *ClientReceiver) processReport(mmsPdu *MMSpdu) *Report {
 		index += numMembersReported
 	}
 
-	reportedDataSetMembers := make([]*FcModelNode, numMembersReported)
+	reportedDataSetMembers := make([]*FcModelNode, 0)
+	//reportedDataSetMembers := make([]*FcModelNode, numMembersReported)
 	dataSetIndex := 0
 	for _, dataSetMember := range dataSet.getMembers() {
 		if inclusionBitString[dataSetIndex] {
 			index++
 			accessRes := listRes[index]
 
-			c := dataSetMember.copy()
-			pointer := unsafe.Pointer(c)
-			dataSetMemberCopy := (*FcModelNode)(pointer)
+			//TPDO
+			dataSetMemberCopy := dataSetMember.copy()
 			dataSetMemberCopy.setValueFromMmsDataObj(accessRes.success)
 			reportedDataSetMembers = append(reportedDataSetMembers, dataSetMemberCopy)
 		}
@@ -265,7 +264,8 @@ func (r *ClientReceiver) processReport(mmsPdu *MMSpdu) *Report {
 
 	var reasonCodes []*BdaReasonForInclusion = nil
 	if optFlds.isReasonForInclusion() {
-		reasonCodes = make([]*BdaReasonForInclusion, len(dataSet.getMembers()))
+		//reasonCodes = make([]*BdaReasonForInclusion, len(dataSet.getMembers()))
+		reasonCodes = make([]*BdaReasonForInclusion, 0)
 		for i := 0; i < len(dataSet.getMembers()); i++ {
 			if inclusionBitString[i] {
 

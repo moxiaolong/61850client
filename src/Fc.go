@@ -1,6 +1,7 @@
 package src
 
 const (
+
 	// The following FCs are not part of this enum because they are not really
 	// FCs and only defined in part 8-1:
 	// RP (report), LG (log), BR (buffered report), GO, GS, MS, US

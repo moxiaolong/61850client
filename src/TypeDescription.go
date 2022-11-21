@@ -10,7 +10,7 @@ type TypeDescription struct {
 	bitString     *Integer32
 	integer       *Unsigned8
 	unsigned      *Unsigned8
-	floatingPoint *FloatingPoint
+	floatingPoint *TypeDescriptionFloatingPoint
 	octetString   *Integer32
 	visibleString *Integer32
 	binaryTime    *BerBoolean
@@ -28,7 +28,7 @@ func (d *TypeDescription) decode(is *bytes.Buffer, berTag *BerTag) int {
 	}
 
 	if berTag.equals(128, 32, 1) {
-		d.array = NewArray()
+		d.array = NewArray(nil, "", nil)
 		tlvByteCount += d.array.decode(is, false)
 		return tlvByteCount
 	}
@@ -64,7 +64,7 @@ func (d *TypeDescription) decode(is *bytes.Buffer, berTag *BerTag) int {
 	}
 
 	if berTag.equals(128, 32, 7) {
-		d.floatingPoint = NewFloatingPoint()
+		d.floatingPoint = NewTypeDescriptionFloatingPoint()
 		tlvByteCount += d.floatingPoint.decode(is, false)
 		return tlvByteCount
 	}

@@ -11,6 +11,6 @@ func (s *BdaVisibleString) getStringValue() string {
 	return string(s.value)
 }
 
-func NewBdaVisibleString() *BdaVisibleString {
+func NewBdaVisibleString(objectReference *ObjectReference, fc string, sAddr string, maxLength int, dchg bool, dupd bool) *BdaVisibleString {
 	return &BdaVisibleString{BasicDataAttribute: *NewBasicDataAttribute(nil, "", "", false, false)}
 }
