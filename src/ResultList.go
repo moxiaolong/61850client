@@ -7,12 +7,12 @@ import (
 
 type ResultList struct {
 	tag   *BerTag
-	seqOf []*ContextListSEQUENCE
+	seqOf []*ResultListSEQUENCE
 	code  []byte
 }
 
 func NewResultList() *ResultList {
-	return &ResultList{tag: NewBerTag(0, 32, 16), seqOf: make([]*ContextListSEQUENCE, 0)}
+	return &ResultList{tag: NewBerTag(0, 32, 16), seqOf: make([]*ResultListSEQUENCE, 0)}
 }
 func (r *ResultList) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
 	if r.code != nil {
@@ -61,7 +61,7 @@ func (r *ResultList) decode(is *bytes.Buffer, withTag bool) int {
 			throw("tag does not match mandatory sequence of/set of component.")
 		}
 
-		element := NewSEQUENCE()
+		element := NewResultListSEQUENCE()
 		vByteCount += element.decode(is, false)
 		r.seqOf = append(r.seqOf, element)
 	}

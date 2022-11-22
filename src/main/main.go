@@ -2,6 +2,7 @@ package main
 
 import (
 	"Go61850Client/src"
+	"log"
 	"time"
 )
 
@@ -30,6 +31,7 @@ func main() {
 	//association.ServerModel = serverModel
 
 	serverModel = association.RetrieveModel()
+	log.Println(serverModel)
 
 	for {
 		time.Sleep(time.Millisecond * 10)

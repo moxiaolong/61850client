@@ -90,6 +90,6 @@ func (s *ResultListSEQUENCE) decode(is *bytes.Buffer, withTag bool) int {
 	return 0
 }
 
-func NewResultListSEQUENCE() *ContextListSEQUENCE {
-	return &ContextListSEQUENCE{tag: NewBerTag(0, 32, 16)}
+func NewResultListSEQUENCE() *ResultListSEQUENCE {
+	return &ResultListSEQUENCE{tag: NewBerTag(0, 32, 16)}
 }

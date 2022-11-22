@@ -30,7 +30,7 @@ func NewTConnection(socket *net.Conn, maxTPduSizeParam int, messageTimeout int, 
 		throw("maxTPduSizeParam is incorrect")
 	}
 
-	reader := bufio.NewReader(*socket)
+	reader := bufio.NewReaderSize(*socket, 8192)
 	writeByteByter := bufio.NewWriter(*socket)
 	var maxTPduSize int
 	if maxTPduSizeParam == 16 {

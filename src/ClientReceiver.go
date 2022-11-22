@@ -30,6 +30,7 @@ func (r *ClientReceiver) run() {
 		err := recover()
 		if err != nil {
 			r.close(err)
+			panic(err)
 		}
 	}()
 
