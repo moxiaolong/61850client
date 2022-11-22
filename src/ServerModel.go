@@ -1,179 +1,190 @@
 package src
 
+import (
+	"strings"
+	"unsafe"
+)
+
 type ServerModel struct {
 	ModelNode
-	urcbs   map[string]*Urcb
-	brcbs   map[string]*Brcb
-	dataSet map[string]*DataSet
+	urcbs    map[string]*Urcb
+	brcbs    map[string]*Brcb
+	dataSets map[string]*DataSet
 }
 
 func NewServerModel([]*LogicalDevice, []*DataSet) *ServerModel {
-	return &ServerModel{ModelNode: *NewModelNode(), dataSet: make(map[string]*DataSet)}
+	return &ServerModel{ModelNode: *NewModelNode(), dataSets: make(map[string]*DataSet)}
 
 }
 
 func (m *ServerModel) getDataSet(ref string) *DataSet {
-	return m.dataSet[ref]
+	return m.dataSets[ref]
 }
 
-func (m *ServerModel) getNodeFromVariableDef(def *SEQUENCE) *FcModelNode {
-	ObjectName objectName = variableDef.getVariableSpecification().getName();
+func (m *ServerModel) getNodeFromVariableDef(variableDef *VariableDefsSEQUENCE) *FcModelNode {
+	objectName := variableDef.variableSpecification.name
 
-	if (objectName == nil) {
-		throw (
-			ServiceError.FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT,
-			"name in objectName is not selected");
+	if objectName == nil {
+		throw(
+			"FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT name in objectName is not selected")
 	}
 
-	DomainSpecific domainSpecific = objectName.getDomainSpecific();
+	domainSpecific := objectName.domainSpecific
 
-	if (domainSpecific == nil) {
-		throw (
-			ServiceError.FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT,
-			"domain_specific in name is not selected");
+	if domainSpecific == nil {
+		throw(
+			"FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT domain_specific in name is not selected")
 	}
 
-	ModelNode modelNode = getChild(domainSpecific.getDomainID().toString());
+	modelNode := m.children[domainSpecific.domainID.toString()]
 
-	if (modelNode == nil) {
-		return nil;
+	if modelNode == nil {
+		return nil
 	}
 
-	String mmsItemId = domainSpecific.getItemID().toString();
-	int index1 = mmsItemId.indexOf('$');
+	mmsItemId := domainSpecific.itemID.toString()
 
-	if (index1 == -1) {
-		throw (
-			ServiceError.FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT,
-			"invalid mms item id: " + domainSpecific.getItemID());
+	index1 := strings.Index(mmsItemId, "$")
+
+	if index1 == -1 {
+		throw(
+			"FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT invalid mms item id: " + domainSpecific.itemID.toString())
 	}
 
-	LogicalNode ln = (LogicalNode) modelNode.getChild(mmsItemId.substring(0, index1));
+	ln := (*LogicalNode)(unsafe.Pointer(modelNode.getChild(mmsItemId[0:index1], "")))
 
-	if (ln == nil) {
-		return nil;
+	if ln == nil {
+		return nil
 	}
 
-	int index2 = mmsItemId.indexOf('$', index1 + 1);
+	//index2 := strings.Index("$") mmsItemId.indexOf('$', index1+1)
+	index2 := strings.Index(mmsItemId[index1+1:], "$")
+	if index2 == -1 {
+		throw(
+			"FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT invalid mms item id")
+	}
+	index2 += index1 + 1
 
-	if (index2 == -1) {
-		throw (
-			ServiceError.FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT, "invalid mms item id");
+	fc := mmsItemId[index1+1 : index2]
+
+	if fc == "" {
+		throw(
+			"FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT unknown functional constraint: " + mmsItemId[index1+1:index2])
 	}
 
-	Fc fc = Fc.fromString(mmsItemId.substring(index1 + 1, index2));
+	index1 = index2
 
-	if (fc == nil) {
-		throw (
-			ServiceError.FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT,
-			"unknown functional constraint: " + mmsItemId.substring(index1 + 1, index2));
-	}
+	index2 = strings.Index(mmsItemId[index1+1:], "$")
 
-	index1 = index2;
-
-	index2 = mmsItemId.indexOf('$', index1 + 1);
-
-	if (index2 == -1) {
-		if (fc == Fc.RP) {
-			return ln.getUrcb(mmsItemId.substring(index1 + 1));
+	if index2 == -1 {
+		if fc == RP {
+			urcb := ln.urcbs[(mmsItemId[index1+1:])]
+			return (*FcModelNode)(unsafe.Pointer(urcb))
 		}
-		if (fc == Fc.BR) {
-			return ln.getBrcb(mmsItemId.substring(index1 + 1));
+		if fc == BR {
+			brcb := ln.brcbs[mmsItemId[index1+1:]]
+			return (*FcModelNode)(unsafe.Pointer(brcb))
 		}
-		return (FcModelNode) ln.getChild(mmsItemId.substring(index1 + 1), fc);
+		return (*FcModelNode)(unsafe.Pointer(ln.getChild(mmsItemId[index1+1:0], fc)))
 	}
+	index2 += index1 + 1
 
-	if (fc == Fc.RP) {
-		modelNode = ln.getUrcb(mmsItemId.substring(index1 + 1, index2));
-	} else if (fc == Fc.BR) {
-		modelNode = ln.getBrcb(mmsItemId.substring(index1 + 1, index2));
+	if fc == RP {
+		urcb := ln.urcbs[mmsItemId[index1+1:index2]]
+		modelNode = (*ModelNode)(unsafe.Pointer(urcb))
+	} else if fc == BR {
+		brcb := ln.brcbs[mmsItemId[index1+1:index2]]
+		modelNode = (*ModelNode)(unsafe.Pointer(brcb))
 	} else {
-		modelNode = ln.getChild(mmsItemId.substring(index1 + 1, index2), fc);
+		modelNode = ln.getChild(mmsItemId[index1+1:index2], fc)
 	}
 
-	index1 = index2;
-	index2 = mmsItemId.indexOf('$', index1 + 1);
-	while (index2 != -1) {
-		modelNode = modelNode.getChild(mmsItemId.substring(index1 + 1, index2));
-		index1 = index2;
-		index2 = mmsItemId.indexOf('$', index1 + 1);
+	index1 = index2
+	index2 = strings.Index(mmsItemId[index1+1:], "$")
+	if index2 != -1 {
+		index2 += index1 + 1
+	}
+	for index2 != -1 {
+		modelNode = modelNode.getChild(mmsItemId[index1+1:index2], "")
+		index1 = index2
+		index2 = strings.Index(mmsItemId[index1+1:], "$")
+		if index2 != -1 {
+			index2 += index1 + 1
+		}
 	}
 
-	modelNode = modelNode.getChild(mmsItemId.substring(index1 + 1));
+	modelNode = modelNode.getChild(mmsItemId[index1+1:], "")
 
-	if (variableDef.getAlternateAccess() == nil) {
+	if variableDef.alternateAccess == nil {
 		// no array is in this node path
-		return (FcModelNode) modelNode;
+		return (*FcModelNode)(unsafe.Pointer(modelNode))
 	}
 
-	AlternateAccessSelection altAccIt =
-		variableDef.getAlternateAccess().getCHOICE().get(0).getUnnamed();
+	altAccIt :=
+		variableDef.alternateAccess.seqOf[0].unnamed
 
-	if (altAccIt.getSelectAlternateAccess() != nil) {
+	if altAccIt.selectAlternateAccess != nil {
 		// path to node below an array element
 		modelNode =
-			((Array) modelNode)
-		.getChild(
-			altAccIt.getSelectAlternateAccess().getAccessSelection().getIndex().intValue());
+			((*Array)(unsafe.Pointer(modelNode))).getChildIndex(altAccIt.selectAlternateAccess.accessSelection.index.intValue())
 
-		String mmsSubArrayItemId =
-			altAccIt
-		.getSelectAlternateAccess()
-		.getAlternateAccess()
-		.getCHOICE()
-		.get(0)
-		.getUnnamed()
-		.getSelectAccess()
-		.getComponent()
-		.getBasic()
-		.toString();
+		mmsSubArrayItemId :=
+			altAccIt.selectAlternateAccess.alternateAccess.seqOf[0].unnamed.selectAccess.component.basic.toString()
 
-		index1 = -1;
-		index2 = mmsSubArrayItemId.indexOf('$');
-		while (index2 != -1) {
-			modelNode = modelNode.getChild(mmsSubArrayItemId.substring(index1 + 1, index2));
-			index1 = index2;
-			index2 = mmsItemId.indexOf('$', index1 + 1);
+		index1 = -1
+		index2 = strings.Index(mmsSubArrayItemId, "$")
+		for index2 != -1 {
+			modelNode = modelNode.getChild(mmsSubArrayItemId[index1+1:index2], "")
+			index1 = index2
+			index2 = strings.Index(mmsItemId[index1+1:], "$")
+			if index2 != -1 {
+				index2 += index1 + 1
+			}
 		}
 
-		return (FcModelNode) modelNode.getChild(mmsSubArrayItemId.substring(index1 + 1));
+		child := modelNode.getChild(mmsSubArrayItemId[index1:1], "")
+		return (*FcModelNode)(unsafe.Pointer(child))
 	} else {
 		// path to an array element
-		return (FcModelNode)
-		((Array) modelNode).getChild(altAccIt.getSelectAccess().getIndex().intValue());
+		node := (*Array)(unsafe.Pointer(modelNode)).getChildIndex(altAccIt.selectAccess.index.intValue())
+		return (*FcModelNode)(unsafe.Pointer(node))
 	}
 }
-}
 
-func (m *ServerModel) addDataSet(set *DataSet) {
-	dataSets.put(dataSet.getReferenceStr().replace('$', '.'), dataSet);
-	for (ModelNode ld : children.values()) {
-		for (ModelNode ln : ld.getChildren()) {
-			for (Urcb urcb : ((LogicalNode) ln).getUrcbs()) {
-				urcb.dataSet = getDataSet(urcb.getDatSet().getStringValue().replace('$', '.'));
+func (m *ServerModel) addDataSet(dataSet *DataSet) {
+	m.dataSets[strings.ReplaceAll(dataSet.dataSetReference, "$", ".")] = dataSet
+
+	for _, ld := range m.children {
+		for _, ln := range ld.children {
+			for _, urcb := range (*LogicalNode)(unsafe.Pointer(ln)).urcbs {
+				urcb.dataSet = m.dataSets[(strings.ReplaceAll(urcb.getDatSet().getStringValue(), "$", "."))]
 			}
-			for (Brcb brcb : ((LogicalNode) ln).getBrcbs()) {
-				brcb.dataSet = getDataSet(brcb.getDatSet().getStringValue().replace('$', '.'));
+			for _, brcb := range (*LogicalNode)(unsafe.Pointer(ln)).brcbs {
+				brcb.dataSet = m.dataSets[(strings.ReplaceAll(brcb.getDatSet().getStringValue(), "$", "."))]
 			}
 		}
 	}
 }
 
-func (m *ServerModel) removeDataSet(ref string) {
-	DataSet dataSet = dataSets.get(dataSetReference);
-	if (dataSet == nil || !dataSet.isDeletable()) {
-		return nil;
+func (m *ServerModel) removeDataSet(dataSetReference string) *DataSet {
+
+	dataSet := m.dataSets[dataSetReference]
+	if dataSet == nil || !dataSet.deletable {
+		return nil
 	}
-	DataSet removedDataSet = dataSets.remove(dataSetReference);
-	for (ModelNode ld : children.values()) {
-		for (ModelNode ln : ld.getChildren()) {
-			for (Urcb urcb : ((LogicalNode) ln).getUrcbs()) {
-				urcb.dataSet = getDataSet(urcb.getDatSet().getStringValue().replace('$', '.'));
+
+	m.dataSets[dataSetReference] = nil
+	removedDataSet := dataSet
+	for _, ld := range m.children {
+		for _, ln := range ld.children {
+			for _, urcb := range (*LogicalNode)(unsafe.Pointer(ln)).urcbs {
+				urcb.dataSet = m.dataSets[(strings.ReplaceAll(urcb.getDatSet().getStringValue(), "$", "."))]
 			}
-			for (Brcb brcb : ((LogicalNode) ln).getBrcbs()) {
-				brcb.dataSet = getDataSet(brcb.getDatSet().getStringValue().replace('$', '.'));
+			for _, brcb := range (*LogicalNode)(unsafe.Pointer(ln)).brcbs {
+				brcb.dataSet = m.dataSets[(strings.ReplaceAll(brcb.getDatSet().getStringValue(), "$", "."))]
 			}
 		}
 	}
-	return removedDataSet;
+
+	return removedDataSet
 }

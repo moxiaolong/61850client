@@ -42,7 +42,7 @@ func (p *ConfirmedErrorPDU) decode(is *bytes.Buffer, withTag bool) int {
 	}
 
 	if berTag.equals(128, 32, 2) {
-		p.serviceError = ()
+		p.serviceError = NewServiceError()
 		vByteCount += p.serviceError.decode(is, false)
 		if lengthVal >= 0 && vByteCount == lengthVal {
 			return tlByteCount + vByteCount

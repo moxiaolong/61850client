@@ -134,3 +134,7 @@ func NewArray(objectReference *ObjectReference, fc string, children []*FcModelNo
 
 	return a
 }
+
+func (a *Array) getChildIndex(index int) *ModelNode {
+	return a.items[index]
+}

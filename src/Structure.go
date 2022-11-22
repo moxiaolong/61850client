@@ -6,7 +6,7 @@ import (
 )
 
 type Structure struct {
-	components *Components
+	components *TypeDescriptionComponents
 	tag        *BerTag
 	code       []byte
 	packed     *BerBoolean

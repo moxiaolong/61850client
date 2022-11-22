@@ -51,7 +51,7 @@ func parseGetDataDefinitionResponse(confirmedServiceResponse *ConfirmedServiceRe
 	return ln
 }
 
-func getFcDataObjectsFromSubStructure(lnRef *ObjectReference, fc string, components *Components) []*FcDataObject {
+func getFcDataObjectsFromSubStructure(lnRef *ObjectReference, fc string, components *TypeDescriptionComponents) []*FcDataObject {
 	structComponents := components.seqOf
 	dataObjects := make([]*FcDataObject, 0)
 
@@ -84,7 +84,7 @@ func getFcDataObjectsFromSubStructure(lnRef *ObjectReference, fc string, compone
 	return dataObjects
 }
 
-func getDoSubModelNodesFromSubStructure(parentRef *ObjectReference, fc string, structure *Components) []*FcModelNode {
+func getDoSubModelNodesFromSubStructure(parentRef *ObjectReference, fc string, structure *TypeDescriptionComponents) []*FcModelNode {
 	structComponents := structure.getSEQUENCE()
 	dataObjects := make([]*FcModelNode, 0)
 

@@ -264,7 +264,7 @@ func (r *ClientReceiver) processReport(mmsPdu *MMSpdu) *Report {
 
 	var reasonCodes []*BdaReasonForInclusion = nil
 	if optFlds.isReasonForInclusion() {
-		//reasonCodes = make([]*BdaReasonForInclusion, len(dataSet.getMembers()))
+		//reasonCodes = make([]*BdaReasonForInclusion, len(dataSets.getMembers()))
 		reasonCodes = make([]*BdaReasonForInclusion, 0)
 		for i := 0; i < len(dataSet.getMembers()); i++ {
 			if inclusionBitString[i] {

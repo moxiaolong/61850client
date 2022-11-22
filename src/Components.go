@@ -5,13 +5,13 @@ import (
 	"strconv"
 )
 
-type Components struct {
+type TypeDescriptionComponents struct {
 	code  []byte
 	tag   *BerTag
-	seqOf []*SEQUENCE
+	seqOf []*TypeDescriptionSEQUENCE
 }
 
-func (c *Components) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
+func (c *TypeDescriptionComponents) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
 	if c.code != nil {
 		reverseOS.write(c.code)
 		if withTag {
@@ -34,7 +34,7 @@ func (c *Components) encode(reverseOS *ReverseByteArrayOutputStream, withTag boo
 	return codeLength
 }
 
-func (c *Components) decode(is *bytes.Buffer, withTag bool) int {
+func (c *TypeDescriptionComponents) decode(is *bytes.Buffer, withTag bool) int {
 	tlByteCount := 0
 	vByteCount := 0
 	berTag := NewEmptyBerTag()
@@ -57,7 +57,8 @@ func (c *Components) decode(is *bytes.Buffer, withTag bool) int {
 		if !berTag.equals(0, 32, 16) {
 			throw("tag does not match mandatory sequence of/set of component.")
 		}
-		element := NewSEQUENCE()
+		//TODO
+		element := NewTypeDescriptionSEQUENCE()
 		vByteCount += element.decode(is, false)
 		c.seqOf = append(c.seqOf, element)
 	}
@@ -67,13 +68,13 @@ func (c *Components) decode(is *bytes.Buffer, withTag bool) int {
 	return tlByteCount + vByteCount
 }
 
-func (c *Components) getSEQUENCE() []*SEQUENCE {
+func (c *TypeDescriptionComponents) getSEQUENCE() []*TypeDescriptionSEQUENCE {
 	if c.seqOf == nil {
-		c.seqOf = make([]*SEQUENCE, 0)
+		c.seqOf = make([]*TypeDescriptionSEQUENCE, 0)
 	}
 	return c.seqOf
 }
 
-func NewComponents() *Components {
-	return &Components{tag: NewBerTag(0, 32, 16)}
+func NewComponents() *TypeDescriptionComponents {
+	return &TypeDescriptionComponents{tag: NewBerTag(0, 32, 16)}
 }

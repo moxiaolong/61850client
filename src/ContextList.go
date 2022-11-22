@@ -8,7 +8,7 @@ import (
 type ContextList struct {
 	code  []byte
 	tag   *BerTag
-	seqOf []*SEQUENCE
+	seqOf []*ContextListSEQUENCE
 }
 
 func NewContextList(code []byte) *ContextList {

@@ -33,7 +33,7 @@ func (c *WriteResponseCHOICE) decode(is *bytes.Buffer, berTag *BerTag) int {
 		return 0
 	}
 
-	throw("Error decoding CHOICE: tag " + berTag.toString() + " matched to no item.")
+	throw("Error decoding AlternateAccessCHOICE: tag " + berTag.toString() + " matched to no item.")
 	return 0
 }
 
@@ -60,7 +60,7 @@ func (c *WriteResponseCHOICE) encode(reverseOS *ReverseByteArrayOutputStream) in
 		return codeLength
 	}
 
-	throw("Error encoding CHOICE: No element of CHOICE was selected.")
+	throw("Error encoding AlternateAccessCHOICE: No element of AlternateAccessCHOICE was selected.")
 	return 0
 }
 

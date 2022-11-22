@@ -12,7 +12,7 @@ type ServiceError struct {
 	additionalCode        *BerInteger
 }
 
-func () *ServiceError {
+func NewServiceError() *ServiceError {
 
 	return &ServiceError{tag: NewBerTag(0, 32, 16)}
 }

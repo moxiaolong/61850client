@@ -7,12 +7,12 @@ import (
 
 type ResultList struct {
 	tag   *BerTag
-	seqOf []*SEQUENCE
+	seqOf []*ContextListSEQUENCE
 	code  []byte
 }
 
 func NewResultList() *ResultList {
-	return &ResultList{tag: NewBerTag(0, 32, 16), seqOf: make([]*SEQUENCE, 0)}
+	return &ResultList{tag: NewBerTag(0, 32, 16), seqOf: make([]*ContextListSEQUENCE, 0)}
 }
 func (r *ResultList) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
 	if r.code != nil {

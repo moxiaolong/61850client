@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-type SEQUENCE struct {
+type ResultListSEQUENCE struct {
 	transferSyntaxNameList        *TransferSyntaxNameList
 	abstractSyntaxName            *AbstractSyntaxName
 	presentationContextIdentifier *PresentationContextIdentifier
@@ -17,7 +17,7 @@ type SEQUENCE struct {
 	providerReason                *BerInteger
 }
 
-func (s *SEQUENCE) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
+func (s *ResultListSEQUENCE) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
 	codeLength := 0
 	codeLength += s.transferSyntaxNameList.encode(reverseOS, true)
 
@@ -34,7 +34,7 @@ func (s *SEQUENCE) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool)
 	return codeLength
 }
 
-func (s *SEQUENCE) decode(is *bytes.Buffer, withTag bool) int {
+func (s *ResultListSEQUENCE) decode(is *bytes.Buffer, withTag bool) int {
 	tlByteCount := 0
 	vByteCount := 0
 	berTag := NewEmptyBerTag()
@@ -90,6 +90,6 @@ func (s *SEQUENCE) decode(is *bytes.Buffer, withTag bool) int {
 	return 0
 }
 
-func NewSEQUENCE() *SEQUENCE {
-	return &SEQUENCE{tag: NewBerTag(0, 32, 16)}
+func NewResultListSEQUENCE() *ContextListSEQUENCE {
+	return &ContextListSEQUENCE{tag: NewBerTag(0, 32, 16)}
 }

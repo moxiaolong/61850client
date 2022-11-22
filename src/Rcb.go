@@ -4,6 +4,7 @@ import "unsafe"
 
 type Rcb struct {
 	FcDataObject
+	dataSet *DataSet
 }
 
 func NewRcb() *Rcb {
