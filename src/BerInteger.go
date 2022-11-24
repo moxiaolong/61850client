@@ -11,8 +11,8 @@ type BerInteger struct {
 	Tag   *BerTag
 }
 
-func (i *BerInteger) intValue() int {
-	return i.value
+func (t *BerInteger) intValue() int {
+	return t.value
 }
 
 func (t *BerInteger) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
@@ -75,10 +75,26 @@ func (t *BerInteger) decode(is *bytes.Buffer, withTag bool) int {
 		byteCode := make([]byte, length.val)
 		readFully(is, byteCode)
 		codeLength += length.val
-		//TODO
-		byteCode = append(make([]byte, 8-len(byteCode)), byteCode...)
+		negative := byteCode[0]>>7 == 1
+		add := 8 - len(byteCode)
 
-		t.value = int(binary.BigEndian.Uint64(byteCode))
+		byteCode = append(make([]byte, add), byteCode...)
+		//补1
+		if negative {
+			for i := 0; i < add; i++ {
+				byteCode[i] = 255
+			}
+		}
+
+		bytebuffer := bytes.NewBuffer(byteCode)
+		var data int64
+		err := binary.Read(bytebuffer, binary.BigEndian, &data)
+		if err != nil {
+			panic(err)
+		}
+
+		t.value = int(data)
+
 		return codeLength
 	}
 	return -1

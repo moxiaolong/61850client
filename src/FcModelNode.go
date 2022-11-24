@@ -15,5 +15,6 @@ func (n *FcModelNode) copy() *FcModelNode {
 }
 
 func NewFcModelNode() *FcModelNode {
-	return &FcModelNode{ModelNode: *NewModelNode()}
+
+	return &FcModelNode{}
 }

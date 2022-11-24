@@ -12,10 +12,14 @@ func (t *BdaEntryTime) setValueFromMmsDataObj(data *Data) {
 	t.value = data.binaryTime.value
 }
 
+func (t *BdaEntryTime) setDefault() {
+	t.value = make([]byte, 6)
+}
+
 func NewBdaEntryTime(objectReference *ObjectReference, fc string, sAddr string, dchg bool, dupd bool) *BdaEntryTime {
 	basicDataAttribute := NewBasicDataAttribute(objectReference, fc, sAddr, dchg, dupd)
 	basicDataAttribute.basicType = ENTRY_TIME
 	b := &BdaEntryTime{BasicDataAttribute: *basicDataAttribute}
-	b.value = make([]byte, 6)
+	b.setDefault()
 	return b
 }

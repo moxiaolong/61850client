@@ -47,22 +47,29 @@ func (r *ObjectReference) parseForNameList() {
 	for {
 		lastDelim = nextDelim
 		if dotIndex == -1 {
-			//dotIndex = r.objectReference.indexOf('.', lastDelim+1)
-			dotIndex = strings.Index(r.objectReference[lastDelim+1:], ".") + lastDelim + 1
+			//dotIndex = r.ObjectReference.indexOf('.', lastDelim+1)
+			dotIndex = strings.Index(r.objectReference[lastDelim+1:], ".")
+
 			if dotIndex == -1 {
 				dotIndex = len(r.objectReference)
+			} else {
+				dotIndex += lastDelim + 1
 			}
 		}
 		if openingbracketIndex == -1 {
-			openingbracketIndex = strings.Index(r.objectReference[lastDelim+1:], "(") + lastDelim + 1
+			openingbracketIndex = strings.Index(r.objectReference[lastDelim+1:], "(")
 			if openingbracketIndex == -1 {
 				openingbracketIndex = len(r.objectReference)
+			} else {
+				openingbracketIndex += lastDelim + 1
 			}
 		}
 		if closingbracketIndex == -1 {
-			closingbracketIndex = strings.Index(r.objectReference[lastDelim+1:], ")") + lastDelim + 1
+			closingbracketIndex = strings.Index(r.objectReference[lastDelim+1:], ")")
 			if closingbracketIndex == -1 {
 				closingbracketIndex = len(r.objectReference)
+			} else {
+				closingbracketIndex += lastDelim + 1
 			}
 		}
 
@@ -93,6 +100,6 @@ func (r *ObjectReference) parseForNameList() {
 	}
 }
 
-func NewObjectReference(string2 string) *ObjectReference {
-	return &ObjectReference{arrayIndexPosition: -1}
+func NewObjectReference(objectReference string) *ObjectReference {
+	return &ObjectReference{arrayIndexPosition: -1, objectReference: objectReference}
 }

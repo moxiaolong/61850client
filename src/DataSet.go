@@ -3,15 +3,15 @@ package src
 import "strings"
 
 type DataSet struct {
-	members          []*FcModelNode
-	dataSetReference string
+	Members          []*FcModelNode
+	DataSetReference string
 	deletable        bool
-	// Map<Fc, Map<String, FcModelNode>> membersMap
-	membersMap map[string]map[string]*FcModelNode
+	// Map<Fc, Map<String, FcModelNode>> MembersMap
+	MembersMap map[string]map[string]*FcModelNode
 }
 
 func (s *DataSet) getMembers() []*FcModelNode {
-	return s.members
+	return s.Members
 }
 
 func NewDataSet() *DataSet {
@@ -23,19 +23,19 @@ func NewDataSetWithRef(dataSetReference string, members []*FcModelNode, deletabl
 		throw(
 			"DataSet reference " + dataSetReference + " is invalid. Must either start with @ or contain a slash.")
 	}
-	d.members = make([]*FcModelNode, 0)
-	d.dataSetReference = dataSetReference
+	d.Members = make([]*FcModelNode, 0)
+	d.DataSetReference = dataSetReference
 	d.deletable = deletable
-	d.membersMap = make(map[string]map[string]*FcModelNode)
+	d.MembersMap = make(map[string]map[string]*FcModelNode)
 
 	//TODO
 
 	for _, member := range members {
-		d.members = append(d.members, member)
-		if d.membersMap[member.Fc] == nil {
-			d.membersMap[member.Fc] = make(map[string]*FcModelNode)
+		d.Members = append(d.Members, member)
+		if d.MembersMap[member.Fc] == nil {
+			d.MembersMap[member.Fc] = make(map[string]*FcModelNode)
 		}
-		d.membersMap[member.Fc][member.objectReference.toString()] = member
+		d.MembersMap[member.Fc][member.ObjectReference.toString()] = member
 	}
 
 	return d

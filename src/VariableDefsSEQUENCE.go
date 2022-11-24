@@ -42,11 +42,8 @@ func (s *VariableDefsSEQUENCE) encode(reverseOS *ReverseByteArrayOutputStream, w
 
 func (s *VariableDefsSEQUENCE) decode(is *bytes.Buffer, withTag bool) int {
 	tlByteCount := 0
-
 	vByteCount := 0
-
 	numDecodedBytes := 0
-
 	berTag := NewBerTag(0, 0, 0)
 
 	if withTag {
@@ -59,8 +56,8 @@ func (s *VariableDefsSEQUENCE) decode(is *bytes.Buffer, withTag bool) int {
 	lengthVal := length.val
 	vByteCount += berTag.decode(is)
 
-	variableSpecification := NewVariableSpecification()
-	numDecodedBytes = variableSpecification.decode(is, berTag)
+	s.variableSpecification = NewVariableSpecification()
+	numDecodedBytes = s.variableSpecification.decode(is, berTag)
 	if numDecodedBytes != 0 {
 		vByteCount += numDecodedBytes
 		if lengthVal >= 0 && vByteCount == lengthVal {

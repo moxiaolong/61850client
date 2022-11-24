@@ -7,7 +7,7 @@ import (
 
 type VariableDefs struct {
 	tag   *BerTag
-	seqOf []*SEQUENCE
+	seqOf []*VariableDefsSEQUENCE
 	code  []byte
 }
 
@@ -34,7 +34,7 @@ func (d *VariableDefs) decode(is *bytes.Buffer, withTag bool) int {
 		if !berTag.equals(0, 32, 16) {
 			throw("tag does not match mandatory sequence of/set of component.")
 		}
-		element := NewSEQUENCE()
+		element := NewVariableDefsSEQUENCE()
 		vByteCount += element.decode(is, false)
 		d.seqOf = append(d.seqOf, element)
 	}

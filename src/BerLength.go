@@ -50,7 +50,7 @@ func (l *BerLength) decode(is *bytes.Buffer) int {
 					throw("Unexpected end of input stream.")
 				}
 
-				l.val |= int(nextByte) << 8 * (lengthLength - i - 1)
+				l.val |= int(nextByte) << (8 * (lengthLength - i - 1))
 			}
 
 			return lengthLength + 1

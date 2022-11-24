@@ -9,16 +9,47 @@ type ServerModel struct {
 	ModelNode
 	urcbs    map[string]*Urcb
 	brcbs    map[string]*Brcb
-	dataSets map[string]*DataSet
+	DataSets map[string]*DataSet
 }
 
-func NewServerModel([]*LogicalDevice, []*DataSet) *ServerModel {
-	return &ServerModel{ModelNode: *NewModelNode(), dataSets: make(map[string]*DataSet)}
+func NewServerModel(logicalDevices []*LogicalDevice, dataSets []*DataSet) *ServerModel {
+	m := &ServerModel{}
+
+	m.Children = make(map[string]*ModelNode)
+	m.ObjectReference = nil
+	m.urcbs = make(map[string]*Urcb)
+	m.brcbs = make(map[string]*Brcb)
+	m.DataSets = make(map[string]*DataSet)
+
+	for _, logicalDevice := range logicalDevices {
+		m.Children[logicalDevice.ObjectReference.getName()] = (*ModelNode)(unsafe.Pointer(logicalDevice))
+		logicalDevice.parent = (*ModelNode)(unsafe.Pointer(m))
+	}
+
+	m.addDataSets(dataSets)
+
+	for _, ld := range logicalDevices {
+		for _, ln := range ld.Children {
+			l := (*LogicalNode)(unsafe.Pointer(ln))
+			for _, urcb := range l.urcbs {
+				m.urcbs[urcb.ObjectReference.toString()] = urcb
+
+				urcb.dataSet = m.getDataSet(strings.ReplaceAll(urcb.getDatSet().getStringValue(), "$", "."))
+
+			}
+			for _, brcb := range l.brcbs {
+				m.brcbs[brcb.ObjectReference.toString()] = brcb
+				brcb.dataSet = m.getDataSet(strings.ReplaceAll(brcb.getDatSet().getStringValue(), "$", "."))
+			}
+		}
+	}
+
+	return m
 
 }
 
 func (m *ServerModel) getDataSet(ref string) *DataSet {
-	return m.dataSets[ref]
+	return m.DataSets[ref]
 }
 
 func (m *ServerModel) getNodeFromVariableDef(variableDef *VariableDefsSEQUENCE) *FcModelNode {
@@ -36,7 +67,7 @@ func (m *ServerModel) getNodeFromVariableDef(variableDef *VariableDefsSEQUENCE) 
 			"FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT domain_specific in name is not selected")
 	}
 
-	modelNode := m.children[domainSpecific.domainID.toString()]
+	modelNode := m.Children[domainSpecific.domainID.toString()]
 
 	if modelNode == nil {
 		return nil
@@ -85,7 +116,7 @@ func (m *ServerModel) getNodeFromVariableDef(variableDef *VariableDefsSEQUENCE) 
 			brcb := ln.brcbs[mmsItemId[index1+1:]]
 			return (*FcModelNode)(unsafe.Pointer(brcb))
 		}
-		return (*FcModelNode)(unsafe.Pointer(ln.getChild(mmsItemId[index1+1:0], fc)))
+		return (*FcModelNode)(unsafe.Pointer(ln.getChild(mmsItemId[index1+1:], fc)))
 	}
 	index2 += index1 + 1
 
@@ -152,15 +183,15 @@ func (m *ServerModel) getNodeFromVariableDef(variableDef *VariableDefsSEQUENCE) 
 }
 
 func (m *ServerModel) addDataSet(dataSet *DataSet) {
-	m.dataSets[strings.ReplaceAll(dataSet.dataSetReference, "$", ".")] = dataSet
+	m.DataSets[strings.ReplaceAll(dataSet.DataSetReference, "$", ".")] = dataSet
 
-	for _, ld := range m.children {
-		for _, ln := range ld.children {
+	for _, ld := range m.Children {
+		for _, ln := range ld.Children {
 			for _, urcb := range (*LogicalNode)(unsafe.Pointer(ln)).urcbs {
-				urcb.dataSet = m.dataSets[(strings.ReplaceAll(urcb.getDatSet().getStringValue(), "$", "."))]
+				urcb.dataSet = m.DataSets[(strings.ReplaceAll(urcb.getDatSet().getStringValue(), "$", "."))]
 			}
 			for _, brcb := range (*LogicalNode)(unsafe.Pointer(ln)).brcbs {
-				brcb.dataSet = m.dataSets[(strings.ReplaceAll(brcb.getDatSet().getStringValue(), "$", "."))]
+				brcb.dataSet = m.DataSets[(strings.ReplaceAll(brcb.getDatSet().getStringValue(), "$", "."))]
 			}
 		}
 	}
@@ -168,23 +199,41 @@ func (m *ServerModel) addDataSet(dataSet *DataSet) {
 
 func (m *ServerModel) removeDataSet(dataSetReference string) *DataSet {
 
-	dataSet := m.dataSets[dataSetReference]
+	dataSet := m.DataSets[dataSetReference]
 	if dataSet == nil || !dataSet.deletable {
 		return nil
 	}
 
-	m.dataSets[dataSetReference] = nil
+	m.DataSets[dataSetReference] = nil
 	removedDataSet := dataSet
-	for _, ld := range m.children {
-		for _, ln := range ld.children {
+	for _, ld := range m.Children {
+		for _, ln := range ld.Children {
 			for _, urcb := range (*LogicalNode)(unsafe.Pointer(ln)).urcbs {
-				urcb.dataSet = m.dataSets[(strings.ReplaceAll(urcb.getDatSet().getStringValue(), "$", "."))]
+				urcb.dataSet = m.DataSets[(strings.ReplaceAll(urcb.getDatSet().getStringValue(), "$", "."))]
 			}
 			for _, brcb := range (*LogicalNode)(unsafe.Pointer(ln)).brcbs {
-				brcb.dataSet = m.dataSets[(strings.ReplaceAll(brcb.getDatSet().getStringValue(), "$", "."))]
+				brcb.dataSet = m.DataSets[(strings.ReplaceAll(brcb.getDatSet().getStringValue(), "$", "."))]
 			}
 		}
 	}
 
 	return removedDataSet
+}
+
+func (m *ServerModel) addDataSets(dataSets []*DataSet) {
+	for _, dataSet := range dataSets {
+		m.addDataSet(dataSet)
+	}
+	for _, ld := range m.Children {
+		for _, ln := range ld.Children {
+			l := (*LogicalNode)(unsafe.Pointer(ln))
+			for _, urcb := range l.urcbs {
+				urcb.dataSet = m.getDataSet(strings.ReplaceAll(urcb.getDatSet().getStringValue(), "$", "."))
+			}
+			for _, brcb := range l.brcbs {
+				brcb.dataSet = m.getDataSet(strings.ReplaceAll(brcb.getDatSet().getStringValue(), "$", "."))
+			}
+		}
+	}
+
 }

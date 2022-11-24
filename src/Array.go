@@ -118,12 +118,12 @@ func (a *Array) copy() *Array {
 	for _, item := range a.items {
 		itemsCopy = append(itemsCopy, (*FcModelNode)(unsafe.Pointer(item.copy())))
 	}
-	return NewArray(a.objectReference, a.Fc, itemsCopy)
+	return NewArray(a.ObjectReference, a.Fc, itemsCopy)
 }
 
 func NewArray(objectReference *ObjectReference, fc string, children []*FcModelNode) *Array {
 	a := &Array{tag: NewBerTag(0, 32, 16)}
-	a.objectReference = objectReference
+	a.ObjectReference = objectReference
 	a.Fc = fc
 	a.items = make([]*ModelNode, 0)
 	for _, child := range children {
@@ -137,4 +137,13 @@ func NewArray(objectReference *ObjectReference, fc string, children []*FcModelNo
 
 func (a *Array) getChildIndex(index int) *ModelNode {
 	return a.items[index]
+}
+
+func (a *Array) getChild(childName string, fc string) *ModelNode {
+	atoi, err := strconv.Atoi(childName)
+	if err != nil {
+		panic(err)
+	}
+	return a.items[atoi]
+
 }

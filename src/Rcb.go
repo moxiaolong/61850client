@@ -7,17 +7,17 @@ type Rcb struct {
 	dataSet *DataSet
 }
 
-func NewRcb() *Rcb {
-	return &Rcb{FcDataObject: *NewFcDataObject(nil, "", nil)}
+func NewRcb(objectReference *ObjectReference, fc string, children []*FcModelNode) *Rcb {
+	return &Rcb{FcDataObject: *NewFcDataObject(objectReference, fc, children)}
 }
 
 func (r *Rcb) getRptId() *BdaVisibleString {
-	node := r.children["RptID"]
+	node := r.Children["RptID"]
 	pointer := unsafe.Pointer(node)
 	return (*BdaVisibleString)(pointer)
 }
 func (r *Rcb) getDatSet() *BdaVisibleString {
-	node := r.children["DatSet"]
+	node := r.Children["DatSet"]
 	pointer := unsafe.Pointer(node)
 	return (*BdaVisibleString)(pointer)
 }

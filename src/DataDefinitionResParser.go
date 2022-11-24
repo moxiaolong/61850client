@@ -27,21 +27,21 @@ func parseGetDataDefinitionResponse(confirmedServiceResponse *ConfirmedServiceRe
 	fcDataObjects := make([]*FcDataObject, 0)
 
 	for _, fcComponent := range structure.seqOf {
-		if fcComponent.ComponentName == nil {
+		if fcComponent.componentName == nil {
 			throw("Error decoding GetDataDefinitionResponsePdu")
 		}
-		if fcComponent.ComponentType.typeDescription == nil {
+		if fcComponent.componentType.typeDescription == nil {
 			throw(
 				"Error decoding GetDataDefinitionResponsePdu")
 		}
-		fcString := fcComponent.ComponentName.toString()
+		fcString := fcComponent.componentName.toString()
 		if fcString == ("LG") || fcString == ("GO") || fcString == ("GS") || fcString == ("MS") || fcString == ("US") {
 			continue
 		}
 		//fc
-		fc := fcComponent.ComponentName.toString()
+		fc := fcComponent.componentName.toString()
 		subStructure :=
-			fcComponent.ComponentType.typeDescription.structure.components
+			fcComponent.componentType.typeDescription.structure.components
 
 		fcDataObjects = append(fcDataObjects, getFcDataObjectsFromSubStructure(lnRef, fc, subStructure)...)
 	}
@@ -56,19 +56,19 @@ func getFcDataObjectsFromSubStructure(lnRef *ObjectReference, fc string, compone
 	dataObjects := make([]*FcDataObject, 0)
 
 	for _, doComp := range structComponents {
-		if doComp.ComponentName == nil {
+		if doComp.componentName == nil {
 			throw("Error decoding GetDataDefinitionResponsePdu")
 		}
-		if doComp.ComponentType.typeDescription == nil {
+		if doComp.componentType.typeDescription == nil {
 			throw("Error decoding GetDataDefinitionResponsePdu")
 		}
 
-		doRef := NewObjectReference(lnRef.toString() + "." + doComp.ComponentName.toString())
+		doRef := NewObjectReference(lnRef.toString() + "." + doComp.componentName.toString())
 		children :=
 			getDoSubModelNodesFromSubStructure(
 				doRef,
 				fc,
-				doComp.ComponentType.typeDescription.structure.components)
+				doComp.componentType.typeDescription.structure.components)
 		if fc == RP {
 			pointer := unsafe.Pointer(NewUrcb(doRef, children))
 			dataObjects = append(dataObjects, (*FcDataObject)(pointer))
@@ -89,13 +89,13 @@ func getDoSubModelNodesFromSubStructure(parentRef *ObjectReference, fc string, s
 	dataObjects := make([]*FcModelNode, 0)
 
 	for _, component := range structComponents {
-		if component.ComponentName == nil {
+		if component.componentName == nil {
 			throw(
 				"PARAMETER_VALUE_INAPPROPRIATE Error decoding GetDataDefinitionResponsePdu")
 		}
 
-		childName := component.ComponentName.toString()
-		dataObjects = append(dataObjects, getModelNodesFromTypeSpecification(NewObjectReference(parentRef.toString()+"."+childName), fc, component.ComponentType))
+		childName := component.componentName.toString()
+		dataObjects = append(dataObjects, getModelNodesFromTypeSpecification(NewObjectReference(parentRef.toString()+"."+childName), fc, component.componentType))
 
 	}
 
@@ -145,6 +145,7 @@ func convertMmsBasicTypeSpec(ref *ObjectReference, fc string, mmsTypeSpec *TypeD
 		return (*BasicDataAttribute)(unsafe.Pointer(boolean))
 	}
 	if mmsTypeSpec.bitString != nil {
+
 		bitStringMaxLength := math.Abs(float64(mmsTypeSpec.bitString.intValue()))
 
 		if bitStringMaxLength == 13 {

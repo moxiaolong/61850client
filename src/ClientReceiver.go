@@ -181,7 +181,7 @@ func (r *ClientReceiver) processReport(mmsPdu *MMSpdu) *Report {
 		urcbs := r.association.ServerModel.urcbs
 		for s := range urcbs {
 			urcb := urcbs[s]
-			if urcb.getRptId() != nil && urcb.getRptId().getStringValue() == (rptId) || urcb.objectReference.toString() == (rptId) {
+			if urcb.getRptId() != nil && urcb.getRptId().getStringValue() == (rptId) || urcb.ObjectReference.toString() == (rptId) {
 				dataSetRef = urcb.getDatSet().getStringValue()
 				break
 			}
@@ -265,7 +265,7 @@ func (r *ClientReceiver) processReport(mmsPdu *MMSpdu) *Report {
 
 	var reasonCodes []*BdaReasonForInclusion = nil
 	if optFlds.isReasonForInclusion() {
-		//reasonCodes = make([]*BdaReasonForInclusion, len(dataSets.getMembers()))
+		//reasonCodes = make([]*BdaReasonForInclusion, len(DataSets.getMembers()))
 		reasonCodes = make([]*BdaReasonForInclusion, 0)
 		for i := 0; i < len(dataSet.getMembers()); i++ {
 			if inclusionBitString[i] {

@@ -1,17 +1,17 @@
 package src
 
 type ModelNode struct {
-	children        map[string]*ModelNode
-	objectReference *ObjectReference
+	Children        map[string]*ModelNode
+	ObjectReference *ObjectReference
 	parent          *ModelNode
 }
 
 func (m *ModelNode) getChild(name string, fc string) *ModelNode {
-	return m.children[name]
+	return m.Children[name]
 }
 
 func (m *ModelNode) getName() string {
-	return m.objectReference.getName()
+	return m.ObjectReference.getName()
 
 }
 func (m *ModelNode) copy() *ModelNode {

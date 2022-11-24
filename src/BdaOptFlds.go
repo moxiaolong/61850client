@@ -41,8 +41,8 @@ func (f *BdaOptFlds) isReasonForInclusion() bool {
 }
 
 func NewBdaOptFlds(objectReference *ObjectReference, fc string) *BdaOptFlds {
-	NewBdaBitString(objectReference, fc, "", 10, false, false)
 	b := &BdaOptFlds{}
+	b.BdaBitString = *NewBdaBitString(objectReference, fc, "", 10, false, false)
 	b.basicType = OPTFLDS
 	b.value = []byte{0x02, 0x00}
 	return b

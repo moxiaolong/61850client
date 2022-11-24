@@ -14,7 +14,7 @@ type BasicDataAttribute struct {
 func NewBasicDataAttribute(objectReference *ObjectReference, fc string, sAddr string, dchg bool, dupd bool) *BasicDataAttribute {
 	b := &BasicDataAttribute{}
 	b.FcModelNode = *NewFcModelNode()
-	b.objectReference = objectReference
+	b.ObjectReference = objectReference
 	b.Fc = fc
 	b.sAddr = sAddr
 	b.dchg = dchg
@@ -32,4 +32,8 @@ func NewBasicDataAttribute(objectReference *ObjectReference, fc string, sAddr st
 	}
 
 	return b
+}
+
+func (a *BasicDataAttribute) getChild(childName string, fc string) *ModelNode {
+	return nil
 }

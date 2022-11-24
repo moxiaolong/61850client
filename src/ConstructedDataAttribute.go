@@ -8,11 +8,11 @@ type ConstructedDataAttribute struct {
 
 func NewConstructedDataAttribute(objectReference *ObjectReference, fc string, children []*FcModelNode) *ConstructedDataAttribute {
 	c := &ConstructedDataAttribute{}
-	c.objectReference = objectReference
+	c.ObjectReference = objectReference
 	c.Fc = fc
-	c.children = make(map[string]*ModelNode)
+	c.Children = make(map[string]*ModelNode)
 	for _, child := range children {
-		c.children[child.getName()] = (*ModelNode)(unsafe.Pointer(child))
+		c.Children[child.getName()] = (*ModelNode)(unsafe.Pointer(child))
 		child.parent = (*ModelNode)(unsafe.Pointer(c))
 	}
 

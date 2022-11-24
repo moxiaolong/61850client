@@ -142,7 +142,7 @@ func (c *ClientAssociation) Close() {
 
 func (c *ClientAssociation) RetrieveModel() *ServerModel {
 	ldNames := c.retrieveLogicalDevices()
-	lnNames := make([][]string, len(ldNames))
+	lnNames := make([][]string, 0)
 
 	for i := 0; i < len(ldNames); i++ {
 		lnNames = append(lnNames, c.retrieveLogicalNodeNames(ldNames[i]))
@@ -176,10 +176,10 @@ func (c *ClientAssociation) updateDataSets() {
 	if c.ServerModel == nil {
 		throw("Before calling this function you have to get the ServerModel using the retrieveModel() function")
 	}
-	lds := c.ServerModel.children
+	lds := c.ServerModel.Children
 	for _, ld := range lds {
 		serviceRequest :=
-			c.constructGetDirectoryRequest(ld.objectReference.getName(), "", false)
+			c.constructGetDirectoryRequest(ld.ObjectReference.getName(), "", false)
 		confirmedServiceResponse := c.encodeWriteReadDecode(serviceRequest)
 		pointer := unsafe.Pointer(ld)
 		c.decodeAndRetrieveDsNamesAndDefinitions(confirmedServiceResponse, (*LogicalDevice)(pointer))
@@ -402,7 +402,7 @@ func (c *ClientAssociation) retrieveLogicalNodeNames(ld string) []string {
 		once = true
 		serviceRequest := c.constructGetDirectoryRequest(ld, continueAfterRef, true)
 		confirmedServiceResponse := c.encodeWriteReadDecode(serviceRequest)
-		continueAfterRef = c.decodeGetDirectoryResponse(confirmedServiceResponse, lns)
+		continueAfterRef, lns = c.decodeGetDirectoryResponse(confirmedServiceResponse, lns)
 	}
 
 	return lns
@@ -514,7 +514,7 @@ func (c *ClientAssociation) getInvokeId() int {
 	return c.invokeId
 }
 
-func (c *ClientAssociation) decodeGetDirectoryResponse(confirmedServiceResponse *ConfirmedServiceResponse, lns []string) string {
+func (c *ClientAssociation) decodeGetDirectoryResponse(confirmedServiceResponse *ConfirmedServiceResponse, lns []string) (string, []string) {
 	if confirmedServiceResponse.getNameList == nil {
 		throw(
 			"FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT decodeGetLDDirectoryResponse: Error decoding server response")
@@ -540,9 +540,9 @@ func (c *ClientAssociation) decodeGetDirectoryResponse(confirmedServiceResponse 
 	}
 
 	if getNameListResponse.moreFollows != nil && getNameListResponse.moreFollows.value == false {
-		return ""
+		return "", lns
 	} else {
-		return identifier.toString()
+		return identifier.toString(), lns
 	}
 }
 

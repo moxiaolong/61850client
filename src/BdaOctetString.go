@@ -17,11 +17,15 @@ func (s *BdaOctetString) setValue(value []byte) {
 	s.value = value
 }
 
+func (s *BdaOctetString) setDefault() {
+	s.value = make([]byte, 0)
+}
+
 func NewBdaOctetString(objectReference *ObjectReference, fc string, sAddr string, maxLength int, dchg bool, dupd bool) *BdaOctetString {
 	attribute := NewBasicDataAttribute(objectReference, fc, sAddr, dchg, dupd)
 	b := &BdaOctetString{BasicDataAttribute: *attribute}
 	b.basicType = OCTET_STRING
 	b.maxLength = maxLength
-	b.value = make([]byte, 0)
+	b.setDefault()
 	return b
 }

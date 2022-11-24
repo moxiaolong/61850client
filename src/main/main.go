@@ -24,14 +24,27 @@ func main() {
 	clientSap := src.NewClientSap()
 	association := clientSap.Associate(hostName, port, src.NewEventListener())
 	defer func() {
+		err := recover()
+		panic(err)
 		association.Close()
+		if err != nil {
+			panic(err)
+		}
+
 	}()
 
 	//serverModel = src.SclParserParse(modelFilePath)[0]
 	//association.ServerModel = serverModel
 
 	serverModel = association.RetrieveModel()
-	log.Println(serverModel)
+
+	sets := serverModel.DataSets
+	for s, set := range sets {
+		log.Println(s)
+		log.Println(set)
+	}
+	//marshal, _ := json.Marshal(serverModel)
+	//fmt.Printf(" %s  ", string(marshal))
 
 	for {
 		time.Sleep(time.Millisecond * 10)
