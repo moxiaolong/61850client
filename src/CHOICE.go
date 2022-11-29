@@ -52,6 +52,6 @@ func (c *AlternateAccessCHOICE) decode(is *bytes.Buffer, berTag *BerTag) int {
 	return 0
 }
 
-func NewCHOICE() *AlternateAccessCHOICE {
+func NewAlternateAccessCHOICE() *AlternateAccessCHOICE {
 	return &AlternateAccessCHOICE{}
 }

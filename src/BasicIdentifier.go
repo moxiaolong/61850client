@@ -4,6 +4,6 @@ type BasicIdentifier struct {
 	BerVisibleString
 }
 
-func NewBasicIdentifier() *BasicIdentifier {
-	return &BasicIdentifier{BerVisibleString: *NewBerVisibleString(nil)}
+func NewBasicIdentifier(value []byte) *BasicIdentifier {
+	return &BasicIdentifier{BerVisibleString: *NewBerVisibleString(value)}
 }

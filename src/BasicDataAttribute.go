@@ -1,5 +1,9 @@
 package src
 
+type BasicDataAttributeI interface {
+	ModelNodeI
+	GetValueString() string
+}
 type BasicDataAttribute struct {
 	FcModelNode
 	basicType string
@@ -34,6 +38,11 @@ func NewBasicDataAttribute(objectReference *ObjectReference, fc string, sAddr st
 	return b
 }
 
-func (a *BasicDataAttribute) getChild(childName string, fc string) *ModelNode {
+func (a *BasicDataAttribute) getChild(childName string, fc string) ModelNodeI {
+	//none
 	return nil
+}
+
+func (a *BasicDataAttribute) GetValueString() string {
+	return ""
 }

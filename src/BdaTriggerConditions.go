@@ -2,6 +2,20 @@ package src
 
 type BdaTriggerConditions struct {
 	BdaBitString
+	mirror *BdaTriggerConditions
+}
+
+func (s *BdaTriggerConditions) copy() ModelNodeI {
+	newCopy := NewBdaTriggerConditions(s.ObjectReference, s.Fc)
+	valueCopy := make([]byte, 0)
+	copy(valueCopy, s.value)
+	newCopy.value = valueCopy
+	if s.mirror == nil {
+		newCopy.mirror = s
+	} else {
+		newCopy.mirror = s.mirror
+	}
+	return newCopy
 }
 
 func NewBdaTriggerConditions(objectReference *ObjectReference, fc string) *BdaTriggerConditions {

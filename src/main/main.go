@@ -25,7 +25,6 @@ func main() {
 	association := clientSap.Associate(hostName, port, src.NewEventListener())
 	defer func() {
 		err := recover()
-		panic(err)
 		association.Close()
 		if err != nil {
 			panic(err)
@@ -37,6 +36,13 @@ func main() {
 	//association.ServerModel = serverModel
 
 	serverModel = association.RetrieveModel()
+
+	//接受数据
+	fcModelNode := serverModel.AskForFcModelNode("ied1lDevice1/MMXU1.TotW.mag.f", "MX")
+	association.GetDataValues(fcModelNode)
+	fcNodeBasic := fcModelNode.(src.BasicDataAttributeI)
+	println(fcNodeBasic.GetValueString())
+	//接受数据结束
 
 	sets := serverModel.DataSets
 	for s, set := range sets {

@@ -1,22 +1,51 @@
 package src
 
-type ModelNode struct {
-	Children        map[string]*ModelNode
-	ObjectReference *ObjectReference
-	parent          *ModelNode
+type ModelNodeI interface {
+	getChild(name string, fc string) ModelNodeI
+	getChildren() map[string]ModelNodeI
+	getObjectReference() *ObjectReference
+	setValueFromMmsDataObj(data *Data)
+	copy() ModelNodeI
+	setParent(node ModelNodeI)
+	getName() string
+	getParent() ModelNodeI
 }
 
-func (m *ModelNode) getChild(name string, fc string) *ModelNode {
+type ModelNode struct {
+	Children        map[string]ModelNodeI
+	ObjectReference *ObjectReference
+	parent          ModelNodeI
+}
+
+func (m *ModelNode) copy() ModelNodeI {
+	panic("impl me")
+}
+
+func (m *ModelNode) setValueFromMmsDataObj(data *Data) {
+	//none
+}
+
+func (m *ModelNode) setParent(node ModelNodeI) {
+	m.parent = node
+}
+
+func (m *ModelNode) getParent() ModelNodeI {
+	return m.parent
+}
+
+func (m *ModelNode) getChild(name string, fc string) ModelNodeI {
 	return m.Children[name]
+}
+func (m *ModelNode) getChildren() map[string]ModelNodeI {
+	return m.Children
+}
+func (m *ModelNode) getObjectReference() *ObjectReference {
+	return m.ObjectReference
 }
 
 func (m *ModelNode) getName() string {
 	return m.ObjectReference.getName()
 
-}
-func (m *ModelNode) copy() *ModelNode {
-	//TODO implement me
-	panic("implement me")
 }
 
 func NewModelNode() *ModelNode {

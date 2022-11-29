@@ -163,7 +163,7 @@ func (r *ClientReceiver) processReport(mmsPdu *MMSpdu) *Report {
 	var sqNum *int = nil
 	if optFlds.isSequenceNumber() {
 		index++
-		sqNum = &listRes[index].success.Unsigned.value
+		sqNum = &listRes[index].success.unsigned.value
 	}
 
 	var timeOfEntry *BdaEntryTime = nil
@@ -218,14 +218,14 @@ func (r *ClientReceiver) processReport(mmsPdu *MMSpdu) *Report {
 	if optFlds.isConfigRevision() {
 
 		index++
-		confRev = &listRes[index].success.Unsigned.value
+		confRev = &listRes[index].success.unsigned.value
 	}
 
 	var subSqNum *int = nil
 	moreSegmentsFollow := false
 	if optFlds.isSegmentation() {
 		index++
-		subSqNum = &listRes[index].success.Unsigned.value
+		subSqNum = &listRes[index].success.unsigned.value
 		index++
 		moreSegmentsFollow = listRes[index].success.bool.value
 	}
@@ -247,7 +247,7 @@ func (r *ClientReceiver) processReport(mmsPdu *MMSpdu) *Report {
 		index += numMembersReported
 	}
 
-	reportedDataSetMembers := make([]*FcModelNode, 0)
+	reportedDataSetMembers := make([]FcModelNodeI, 0)
 	//reportedDataSetMembers := make([]*FcModelNode, numMembersReported)
 	dataSetIndex := 0
 	for _, dataSetMember := range dataSet.getMembers() {
@@ -258,7 +258,7 @@ func (r *ClientReceiver) processReport(mmsPdu *MMSpdu) *Report {
 			//TPDO
 			dataSetMemberCopy := dataSetMember.copy()
 			dataSetMemberCopy.setValueFromMmsDataObj(accessRes.success)
-			reportedDataSetMembers = append(reportedDataSetMembers, dataSetMemberCopy)
+			reportedDataSetMembers = append(reportedDataSetMembers, dataSetMemberCopy.(FcModelNodeI))
 		}
 		dataSetIndex++
 	}

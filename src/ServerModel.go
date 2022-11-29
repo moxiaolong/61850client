@@ -2,7 +2,6 @@ package src
 
 import (
 	"strings"
-	"unsafe"
 )
 
 type ServerModel struct {
@@ -15,22 +14,22 @@ type ServerModel struct {
 func NewServerModel(logicalDevices []*LogicalDevice, dataSets []*DataSet) *ServerModel {
 	m := &ServerModel{}
 
-	m.Children = make(map[string]*ModelNode)
+	m.Children = make(map[string]ModelNodeI)
 	m.ObjectReference = nil
 	m.urcbs = make(map[string]*Urcb)
 	m.brcbs = make(map[string]*Brcb)
 	m.DataSets = make(map[string]*DataSet)
 
 	for _, logicalDevice := range logicalDevices {
-		m.Children[logicalDevice.ObjectReference.getName()] = (*ModelNode)(unsafe.Pointer(logicalDevice))
-		logicalDevice.parent = (*ModelNode)(unsafe.Pointer(m))
+		m.Children[logicalDevice.ObjectReference.getName()] = (ModelNodeI)(logicalDevice)
+		logicalDevice.parent = m
 	}
 
 	m.addDataSets(dataSets)
 
 	for _, ld := range logicalDevices {
 		for _, ln := range ld.Children {
-			l := (*LogicalNode)(unsafe.Pointer(ln))
+			l := (ln).(*LogicalNode)
 			for _, urcb := range l.urcbs {
 				m.urcbs[urcb.ObjectReference.toString()] = urcb
 
@@ -52,7 +51,7 @@ func (m *ServerModel) getDataSet(ref string) *DataSet {
 	return m.DataSets[ref]
 }
 
-func (m *ServerModel) getNodeFromVariableDef(variableDef *VariableDefsSEQUENCE) *FcModelNode {
+func (m *ServerModel) getNodeFromVariableDef(variableDef *VariableDefsSEQUENCE) ModelNodeI {
 	objectName := variableDef.variableSpecification.name
 
 	if objectName == nil {
@@ -82,7 +81,8 @@ func (m *ServerModel) getNodeFromVariableDef(variableDef *VariableDefsSEQUENCE) 
 			"FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT invalid mms item id: " + domainSpecific.itemID.toString())
 	}
 
-	ln := (*LogicalNode)(unsafe.Pointer(modelNode.getChild(mmsItemId[0:index1], "")))
+	//ln := (*LogicalNode)(modelNode.getChild(mmsItemId[0:index1], ""))
+	ln := (modelNode.getChild(mmsItemId[0:index1], "")).(*LogicalNode)
 
 	if ln == nil {
 		return nil
@@ -110,22 +110,23 @@ func (m *ServerModel) getNodeFromVariableDef(variableDef *VariableDefsSEQUENCE) 
 	if index2 == -1 {
 		if fc == RP {
 			urcb := ln.urcbs[(mmsItemId[index1+1:])]
-			return (*FcModelNode)(unsafe.Pointer(urcb))
+			return urcb
 		}
 		if fc == BR {
 			brcb := ln.brcbs[mmsItemId[index1+1:]]
-			return (*FcModelNode)(unsafe.Pointer(brcb))
+			return brcb
 		}
-		return (*FcModelNode)(unsafe.Pointer(ln.getChild(mmsItemId[index1+1:], fc)))
+		child := ln.getChild(mmsItemId[index1+1:], fc)
+		return child
 	}
 	index2 += index1 + 1
 
 	if fc == RP {
 		urcb := ln.urcbs[mmsItemId[index1+1:index2]]
-		modelNode = (*ModelNode)(unsafe.Pointer(urcb))
+		modelNode = urcb
 	} else if fc == BR {
 		brcb := ln.brcbs[mmsItemId[index1+1:index2]]
-		modelNode = (*ModelNode)(unsafe.Pointer(brcb))
+		modelNode = brcb
 	} else {
 		modelNode = ln.getChild(mmsItemId[index1+1:index2], fc)
 	}
@@ -148,7 +149,7 @@ func (m *ServerModel) getNodeFromVariableDef(variableDef *VariableDefsSEQUENCE) 
 
 	if variableDef.alternateAccess == nil {
 		// no array is in this node path
-		return (*FcModelNode)(unsafe.Pointer(modelNode))
+		return modelNode
 	}
 
 	altAccIt :=
@@ -157,7 +158,7 @@ func (m *ServerModel) getNodeFromVariableDef(variableDef *VariableDefsSEQUENCE) 
 	if altAccIt.selectAlternateAccess != nil {
 		// path to node below an array element
 		modelNode =
-			((*Array)(unsafe.Pointer(modelNode))).getChildIndex(altAccIt.selectAlternateAccess.accessSelection.index.intValue())
+			(modelNode.(*FCArray)).getChildIndex(altAccIt.selectAlternateAccess.accessSelection.index.intValue())
 
 		mmsSubArrayItemId :=
 			altAccIt.selectAlternateAccess.alternateAccess.seqOf[0].unnamed.selectAccess.component.basic.toString()
@@ -174,11 +175,11 @@ func (m *ServerModel) getNodeFromVariableDef(variableDef *VariableDefsSEQUENCE) 
 		}
 
 		child := modelNode.getChild(mmsSubArrayItemId[index1:1], "")
-		return (*FcModelNode)(unsafe.Pointer(child))
+		return child
 	} else {
 		// path to an array element
-		node := (*Array)(unsafe.Pointer(modelNode)).getChildIndex(altAccIt.selectAccess.index.intValue())
-		return (*FcModelNode)(unsafe.Pointer(node))
+		node := modelNode.(*FCArray).getChildIndex(altAccIt.selectAccess.index.intValue())
+		return node
 	}
 }
 
@@ -186,11 +187,11 @@ func (m *ServerModel) addDataSet(dataSet *DataSet) {
 	m.DataSets[strings.ReplaceAll(dataSet.DataSetReference, "$", ".")] = dataSet
 
 	for _, ld := range m.Children {
-		for _, ln := range ld.Children {
-			for _, urcb := range (*LogicalNode)(unsafe.Pointer(ln)).urcbs {
+		for _, ln := range ld.getChildren() {
+			for _, urcb := range ln.(*LogicalNode).urcbs {
 				urcb.dataSet = m.DataSets[(strings.ReplaceAll(urcb.getDatSet().getStringValue(), "$", "."))]
 			}
-			for _, brcb := range (*LogicalNode)(unsafe.Pointer(ln)).brcbs {
+			for _, brcb := range ln.(*LogicalNode).brcbs {
 				brcb.dataSet = m.DataSets[(strings.ReplaceAll(brcb.getDatSet().getStringValue(), "$", "."))]
 			}
 		}
@@ -207,11 +208,11 @@ func (m *ServerModel) removeDataSet(dataSetReference string) *DataSet {
 	m.DataSets[dataSetReference] = nil
 	removedDataSet := dataSet
 	for _, ld := range m.Children {
-		for _, ln := range ld.Children {
-			for _, urcb := range (*LogicalNode)(unsafe.Pointer(ln)).urcbs {
+		for _, ln := range ld.getChildren() {
+			for _, urcb := range ln.(*LogicalNode).urcbs {
 				urcb.dataSet = m.DataSets[(strings.ReplaceAll(urcb.getDatSet().getStringValue(), "$", "."))]
 			}
-			for _, brcb := range (*LogicalNode)(unsafe.Pointer(ln)).brcbs {
+			for _, brcb := range ln.(*LogicalNode).brcbs {
 				brcb.dataSet = m.DataSets[(strings.ReplaceAll(brcb.getDatSet().getStringValue(), "$", "."))]
 			}
 		}
@@ -225,8 +226,8 @@ func (m *ServerModel) addDataSets(dataSets []*DataSet) {
 		m.addDataSet(dataSet)
 	}
 	for _, ld := range m.Children {
-		for _, ln := range ld.Children {
-			l := (*LogicalNode)(unsafe.Pointer(ln))
+		for _, ln := range ld.getChildren() {
+			l := ln.(*LogicalNode)
 			for _, urcb := range l.urcbs {
 				urcb.dataSet = m.getDataSet(strings.ReplaceAll(urcb.getDatSet().getStringValue(), "$", "."))
 			}
@@ -235,5 +236,29 @@ func (m *ServerModel) addDataSets(dataSets []*DataSet) {
 			}
 		}
 	}
+
+}
+
+func (m *ServerModel) findModelNode(objectReferenceStr string, fc string) ModelNodeI {
+	currentNode := (ModelNodeI)(m)
+	objectReference := NewObjectReference(objectReferenceStr)
+	objectReference.parseForNameList()
+	for _, name := range objectReference.nodeNames {
+		currentNode = currentNode.getChild(name, fc)
+		if currentNode == nil {
+			return nil
+		}
+
+	}
+	return currentNode
+}
+
+func (m *ServerModel) AskForFcModelNode(objectReferenceStr string, fc string) FcModelNodeI {
+	modelNode := m.findModelNode(objectReferenceStr, fc)
+	if modelNode == nil {
+		throw("A model node with the given reference and functional constraint could not be found.")
+	}
+
+	return modelNode.(FcModelNodeI)
 
 }

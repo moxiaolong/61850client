@@ -3,72 +3,48 @@ package src
 import (
 	"bytes"
 	"strconv"
-	"unsafe"
 )
 
 type Array struct {
-	FcModelNode
-	tag              *BerTag
-	packed           *BerBoolean
-	numberOfElements *Unsigned32
-	elementType      *TypeSpecification
-	code             []byte
-	items            []*ModelNode
+	tag   *BerTag
+	seqOf []*Data
+	code  []byte
 }
 
 func (a *Array) decode(is *bytes.Buffer, withTag bool) int {
 	tlByteCount := 0
 	vByteCount := 0
+	numDecodedBytes := 0
 	berTag := NewEmptyBerTag()
-
 	if withTag {
 		tlByteCount += a.tag.decodeAndCheck(is)
 	}
 
 	length := NewBerLength()
 	tlByteCount += length.decode(is)
-
 	lengthVal := length.val
-	vByteCount += berTag.decode(is)
 
-	if berTag.equals(128, 0, 0) {
-		a.packed = NewBerBoolean()
-		vByteCount += a.packed.decode(is, false)
+	for vByteCount < lengthVal || lengthVal < 0 {
 		vByteCount += berTag.decode(is)
-	}
 
-	if berTag.equals(128, 0, 1) {
-		a.numberOfElements = NewUnsigned32(0)
-		vByteCount += a.numberOfElements.decode(is, false)
-		vByteCount += berTag.decode(is)
-	} else {
-		throw("tag does not match mandatory sequence component.")
-	}
-
-	if berTag.equals(128, 32, 2) {
-		vByteCount += length.decode(is)
-		a.elementType = NewTypeSpecification()
-		vByteCount += a.elementType.decode(is, nil)
-		vByteCount += length.readEocIfIndefinite(is)
-		if lengthVal >= 0 && vByteCount == lengthVal {
-			return tlByteCount + vByteCount
+		if lengthVal < 0 && berTag.equals(0, 0, 0) {
+			vByteCount += readEocByte(is)
+			break
 		}
-		vByteCount += berTag.decode(is)
-	} else {
-		throw("tag does not match mandatory sequence component.")
-	}
 
-	if lengthVal < 0 {
-		if !berTag.equals(0, 0, 0) {
-			throw("Decoded sequence has wrong end of contents octets")
+		element := NewData()
+		numDecodedBytes = element.decode(is, berTag)
+		if numDecodedBytes == 0 {
+			throw("Tag did not match")
 		}
-		vByteCount += readEocByte(is)
-		return tlByteCount + vByteCount
+		vByteCount += numDecodedBytes
+		a.seqOf = append(a.seqOf, element)
 	}
-
-	throw(
-		"Unexpected end of sequence, length tag: " + strconv.Itoa(lengthVal) + ", bytes decoded: " + strconv.Itoa(vByteCount))
-	return 0
+	if lengthVal >= 0 && vByteCount != lengthVal {
+		throw(
+			"Decoded SequenceOf or SetOf has wrong length. Expected " + strconv.Itoa(lengthVal) + " but has " + strconv.Itoa(vByteCount))
+	}
+	return tlByteCount + vByteCount
 }
 
 func (a *Array) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
@@ -81,26 +57,8 @@ func (a *Array) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) in
 	}
 
 	codeLength := 0
-
-	sublength := 0
-
-	sublength = a.elementType.encode(reverseOS)
-	codeLength += sublength
-	codeLength += encodeLength(reverseOS, sublength)
-	// write tag: CONTEXT_CLASS, CONSTRUCTED, 2
-	reverseOS.writeByte(0xA2)
-	codeLength += 1
-
-	codeLength += a.numberOfElements.encode(reverseOS, false)
-	// write tag: CONTEXT_CLASS, PRIMITIVE, 1
-	reverseOS.writeByte(0x81)
-	codeLength += 1
-
-	if a.packed != nil {
-		codeLength += a.packed.encode(reverseOS, false)
-		// write tag: CONTEXT_CLASS, PRIMITIVE, 0
-		reverseOS.writeByte(0x80)
-		codeLength += 1
+	for _, data := range a.seqOf {
+		codeLength += data.encode(reverseOS)
 	}
 
 	codeLength += encodeLength(reverseOS, codeLength)
@@ -112,38 +70,7 @@ func (a *Array) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) in
 	return codeLength
 }
 
-func (a *Array) copy() *Array {
-	itemsCopy := make([]*FcModelNode, 0)
-
-	for _, item := range a.items {
-		itemsCopy = append(itemsCopy, (*FcModelNode)(unsafe.Pointer(item.copy())))
-	}
-	return NewArray(a.ObjectReference, a.Fc, itemsCopy)
-}
-
-func NewArray(objectReference *ObjectReference, fc string, children []*FcModelNode) *Array {
+func NewArray() *Array {
 	a := &Array{tag: NewBerTag(0, 32, 16)}
-	a.ObjectReference = objectReference
-	a.Fc = fc
-	a.items = make([]*ModelNode, 0)
-	for _, child := range children {
-		a.items = append(a.items, &child.ModelNode)
-		child.parent = &a.ModelNode
-	}
-	//TODO 可能有bug
-
 	return a
-}
-
-func (a *Array) getChildIndex(index int) *ModelNode {
-	return a.items[index]
-}
-
-func (a *Array) getChild(childName string, fc string) *ModelNode {
-	atoi, err := strconv.Atoi(childName)
-	if err != nil {
-		panic(err)
-	}
-	return a.items[atoi]
-
 }

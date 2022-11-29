@@ -2,7 +2,27 @@ package src
 
 type BdaInt64 struct {
 	BasicDataAttribute
-	value int
+	value  int
+	mirror *BdaInt64
+}
+
+func (s *BdaInt64) copy() ModelNodeI {
+	newCopy := NewBdaInt64(s.ObjectReference, s.Fc, s.sAddr, s.dchg, s.dupd)
+
+	newCopy.value = s.value
+	if s.mirror == nil {
+		newCopy.mirror = s
+	} else {
+		newCopy.mirror = s.mirror
+	}
+	return newCopy
+}
+
+func (i *BdaInt64) setValueFromMmsDataObj(data *Data) {
+	if data.integer == nil {
+		throw("ServiceError.TYPE_CONFLICT expected type: integer")
+	}
+	i.value = data.integer.value
 }
 
 func (i *BdaInt64) setDefault() {

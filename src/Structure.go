@@ -5,14 +5,14 @@ import (
 	"strconv"
 )
 
-type Structure struct {
+type TypeDescriptionStructure struct {
 	components *TypeDescriptionComponents
 	tag        *BerTag
 	code       []byte
 	packed     *BerBoolean
 }
 
-func (s *Structure) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
+func (s *TypeDescriptionStructure) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
 	if s.code != nil {
 		reverseOS.write(s.code)
 		if withTag {
@@ -43,7 +43,7 @@ func (s *Structure) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool
 	return codeLength
 }
 
-func (s *Structure) decode(is *bytes.Buffer, withTag bool) int {
+func (s *TypeDescriptionStructure) decode(is *bytes.Buffer, withTag bool) int {
 
 	tlByteCount := 0
 
@@ -89,6 +89,6 @@ func (s *Structure) decode(is *bytes.Buffer, withTag bool) int {
 	return 0
 }
 
-func NewStructure() *Structure {
-	return &Structure{tag: NewBerTag(0, 32, 16)}
+func NewDescriptionStructure() *TypeDescriptionStructure {
+	return &TypeDescriptionStructure{tag: NewBerTag(0, 32, 16)}
 }

@@ -149,7 +149,7 @@ func (c *ClientAssociation) RetrieveModel() *ServerModel {
 	}
 	lds := make([]*LogicalDevice, 0)
 	for i := 0; i < len(ldNames); i++ {
-		lns := make([]*LogicalNode, 0)
+		lns := make([]ModelNodeI, 0)
 		for j := 0; j < len(lnNames[i]); j++ {
 			lns = append(lns, c.retrieveDataDefinitions(
 				NewObjectReference(ldNames[i]+"/"+lnNames[i][j])))
@@ -179,10 +179,10 @@ func (c *ClientAssociation) updateDataSets() {
 	lds := c.ServerModel.Children
 	for _, ld := range lds {
 		serviceRequest :=
-			c.constructGetDirectoryRequest(ld.ObjectReference.getName(), "", false)
+			c.constructGetDirectoryRequest(ld.getObjectReference().getName(), "", false)
 		confirmedServiceResponse := c.encodeWriteReadDecode(serviceRequest)
-		pointer := unsafe.Pointer(ld)
-		c.decodeAndRetrieveDsNamesAndDefinitions(confirmedServiceResponse, (*LogicalDevice)(pointer))
+
+		c.decodeAndRetrieveDsNamesAndDefinitions(confirmedServiceResponse, ld.(*LogicalDevice))
 	}
 
 }
@@ -585,10 +585,10 @@ func (c *ClientAssociation) decodeGetDataSetDirectoryResponse(confirmedServiceRe
 			"INSTANCE_NOT_AVAILABLE decodeGetDataSetDirectoryResponse: Instance not available")
 	}
 
-	dsMems := make([]*FcModelNode, 0)
+	dsMems := make([]FcModelNodeI, 0)
 
 	for _, variableDef := range variables {
-		var member *FcModelNode = nil
+		var member FcModelNodeI = nil
 		// TODO remove this try catch statement once all possible FCs are
 		// supported
 		// it is only there so that Functional Constraints such as GS will
@@ -596,10 +596,10 @@ func (c *ClientAssociation) decodeGetDataSetDirectoryResponse(confirmedServiceRe
 		// ignored and not created.
 		func() {
 			defer func() {
-				recover()
+				//r := recover()
 				return
 			}()
-			member = c.ServerModel.getNodeFromVariableDef(variableDef)
+			member = c.ServerModel.getNodeFromVariableDef(variableDef).(FcModelNodeI)
 		}()
 
 		if member == nil {
@@ -629,4 +629,54 @@ func (c *ClientAssociation) decodeGetDataSetDirectoryResponse(confirmedServiceRe
 		c.ServerModel.removeDataSet(dsObjRef)
 		c.ServerModel.addDataSet(dataSet)
 	}
+}
+
+func (c *ClientAssociation) GetDataValues(modelNode FcModelNodeI) {
+	serviceRequest := c.constructGetDataValuesRequest(modelNode)
+	confirmedServiceResponse := c.encodeWriteReadDecode(serviceRequest)
+	c.decodeGetDataValuesResponse(confirmedServiceResponse, modelNode)
+}
+
+func (c *ClientAssociation) constructGetDataValuesRequest(modelNode FcModelNodeI) *ConfirmedServiceRequest {
+	varAccessSpec := c.constructVariableAccessSpecification(modelNode)
+
+	readRequest := NewReadRequest()
+	readRequest.variableAccessSpecification = varAccessSpec
+
+	confirmedServiceRequest := NewConfirmedServiceRequest()
+	confirmedServiceRequest.read = readRequest
+
+	return confirmedServiceRequest
+}
+
+func (c *ClientAssociation) decodeGetDataValuesResponse(confirmedServiceResponse *ConfirmedServiceResponse, modelNode ModelNodeI) {
+	if confirmedServiceResponse.read == nil {
+		throw(
+			"FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT Error decoding GetDataValuesReponsePdu")
+	}
+
+	listOfAccessResults := confirmedServiceResponse.read.listOfAccessResult.seqOf
+
+	if len(listOfAccessResults) != 1 {
+		throw(
+			"PARAMETER_VALUE_INAPPROPRIATE Multiple results received.")
+	}
+
+	accRes := listOfAccessResults[0]
+
+	if accRes.failure != nil {
+		throw("mmsDataAccessErrorToServiceError", strconv.Itoa(accRes.failure.intValue()))
+	}
+	modelNode.setValueFromMmsDataObj(accRes.success)
+}
+
+func (c *ClientAssociation) constructVariableAccessSpecification(modelNode FcModelNodeI) *VariableAccessSpecification {
+	listOfVariable := NewVariableDefs()
+
+	listOfVariable.seqOf = append(listOfVariable.seqOf, modelNode.getMmsVariableDef())
+
+	variableAccessSpecification := NewVariableAccessSpecification()
+	variableAccessSpecification.listOfVariable = listOfVariable
+
+	return variableAccessSpecification
 }

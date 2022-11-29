@@ -6,13 +6,6 @@ import (
 	"unsafe"
 )
 
-type DataDefinitionResParser struct {
-}
-
-func NewDataDefinitionResParser() *DataDefinitionResParser {
-	return &DataDefinitionResParser{}
-}
-
 func parseGetDataDefinitionResponse(confirmedServiceResponse *ConfirmedServiceResponse, lnRef *ObjectReference) *LogicalNode {
 	if confirmedServiceResponse.getVariableAccessAttributes == nil {
 		throw("decodeGetDataDefinitionResponse: Error decoding GetDataDefinitionResponsePdu")
@@ -84,9 +77,9 @@ func getFcDataObjectsFromSubStructure(lnRef *ObjectReference, fc string, compone
 	return dataObjects
 }
 
-func getDoSubModelNodesFromSubStructure(parentRef *ObjectReference, fc string, structure *TypeDescriptionComponents) []*FcModelNode {
+func getDoSubModelNodesFromSubStructure(parentRef *ObjectReference, fc string, structure *TypeDescriptionComponents) []ModelNodeI {
 	structComponents := structure.getSEQUENCE()
-	dataObjects := make([]*FcModelNode, 0)
+	dataObjects := make([]ModelNodeI, 0)
 
 	for _, component := range structComponents {
 		if component.componentName == nil {
@@ -102,12 +95,12 @@ func getDoSubModelNodesFromSubStructure(parentRef *ObjectReference, fc string, s
 	return dataObjects
 }
 
-func getModelNodesFromTypeSpecification(ref *ObjectReference, fc string, mmsTypeSpec *TypeSpecification) *FcModelNode {
+func getModelNodesFromTypeSpecification(ref *ObjectReference, fc string, mmsTypeSpec *TypeSpecification) ModelNodeI {
 	if mmsTypeSpec.typeDescription.array != nil {
 
 		numArrayElements :=
 			mmsTypeSpec.typeDescription.array.numberOfElements.intValue()
-		arrayChildren := make([]*FcModelNode, 0)
+		arrayChildren := make([]ModelNodeI, 0)
 
 		for i := 0; i < numArrayElements; i++ {
 			arrayChildren = append(arrayChildren, getModelNodesFromTypeSpecification(
@@ -117,8 +110,8 @@ func getModelNodesFromTypeSpecification(ref *ObjectReference, fc string, mmsType
 
 		}
 
-		array := NewArray(ref, fc, arrayChildren)
-		return (*FcModelNode)(unsafe.Pointer(array))
+		array := NewFCArray(ref, fc, arrayChildren)
+		return array
 	}
 
 	if mmsTypeSpec.typeDescription.structure != nil {
@@ -126,7 +119,7 @@ func getModelNodesFromTypeSpecification(ref *ObjectReference, fc string, mmsType
 			getDoSubModelNodesFromSubStructure(
 				ref, fc, mmsTypeSpec.typeDescription.structure.components)
 		attribute := NewConstructedDataAttribute(ref, fc, children)
-		return (*FcModelNode)(unsafe.Pointer(attribute))
+		return attribute
 	}
 
 	// it is a single element
@@ -136,35 +129,35 @@ func getModelNodesFromTypeSpecification(ref *ObjectReference, fc string, mmsType
 		throw(
 			"PARAMETER_VALUE_INAPPROPRIATE decodeGetDataDefinitionResponse: Unknown data type received " + ref.toString())
 	}
-	return (*FcModelNode)(unsafe.Pointer(bt))
+	return bt
 }
 
-func convertMmsBasicTypeSpec(ref *ObjectReference, fc string, mmsTypeSpec *TypeDescription) *BasicDataAttribute {
+func convertMmsBasicTypeSpec(ref *ObjectReference, fc string, mmsTypeSpec *TypeDescription) BasicDataAttributeI {
 	if mmsTypeSpec.bool != nil {
 		boolean := NewBdaBoolean(ref, fc, "", false, false)
-		return (*BasicDataAttribute)(unsafe.Pointer(boolean))
+		return boolean
 	}
 	if mmsTypeSpec.bitString != nil {
 
 		bitStringMaxLength := math.Abs(float64(mmsTypeSpec.bitString.intValue()))
 
 		if bitStringMaxLength == 13 {
-			return (*BasicDataAttribute)(unsafe.Pointer(NewBdaQuality(ref, fc, "", false)))
+			return NewBdaQuality(ref, fc, "", false)
 		} else if bitStringMaxLength == 10 {
-			return (*BasicDataAttribute)(unsafe.Pointer(NewBdaOptFlds(ref, fc)))
+			return NewBdaOptFlds(ref, fc)
 		} else if bitStringMaxLength == 6 {
-			return (*BasicDataAttribute)(unsafe.Pointer(NewBdaTriggerConditions(ref, fc)))
+			return NewBdaTriggerConditions(ref, fc)
 		} else if bitStringMaxLength == 2 {
 			if fc == CO {
 				// if name == ctlVal
 				if ref.getName()[1] == 't' {
-					return (*BasicDataAttribute)(unsafe.Pointer(NewBdaTapCommand(ref, fc, "", false, false)))
+					return NewBdaTapCommand(ref, fc, "", false, false)
 				} else {
 					// name == Check
-					return (*BasicDataAttribute)(unsafe.Pointer(NewBdaCheck(ref)))
+					return NewBdaCheck(ref)
 				}
 			} else {
-				return (*BasicDataAttribute)(unsafe.Pointer(NewBdaDoubleBitPos(ref, fc, "", false, false)))
+				return NewBdaDoubleBitPos(ref, fc, "", false, false)
 			}
 		}
 		return nil
@@ -172,33 +165,33 @@ func convertMmsBasicTypeSpec(ref *ObjectReference, fc string, mmsTypeSpec *TypeD
 		switch mmsTypeSpec.integer.intValue() {
 
 		case 8:
-			return (*BasicDataAttribute)(unsafe.Pointer(NewBdaInt8(ref, fc, "", false, false)))
+			return NewBdaInt8(ref, fc, "", false, false)
 		case 16:
-			return (*BasicDataAttribute)(unsafe.Pointer(NewBdaInt16(ref, fc, "", false, false)))
+			return NewBdaInt16(ref, fc, "", false, false)
 		case 32:
-			return (*BasicDataAttribute)(unsafe.Pointer(NewBdaInt32(ref, fc, "", false, false)))
+			return NewBdaInt32(ref, fc, "", false, false)
 		case 64:
-			return (*BasicDataAttribute)(unsafe.Pointer(NewBdaInt64(ref, fc, "", false, false)))
+			return NewBdaInt64(ref, fc, "", false, false)
 		case 128:
-			return (*BasicDataAttribute)(unsafe.Pointer(NewBdaInt128(ref, fc, "", false, false)))
+			return NewBdaInt128(ref, fc, "", false, false)
 		}
 	} else if mmsTypeSpec.unsigned != nil {
 		switch mmsTypeSpec.unsigned.intValue() {
 		case 8:
-			return (*BasicDataAttribute)(unsafe.Pointer(NewBdaInt8U(ref, fc, "", false, false)))
+			return NewBdaInt8U(ref, fc, "", false, false)
 		case 16:
-			return (*BasicDataAttribute)(unsafe.Pointer(NewBdaInt16U(ref, fc, "", false, false)))
+			return NewBdaInt16U(ref, fc, "", false, false)
 		case 32:
-			return (*BasicDataAttribute)(unsafe.Pointer(NewBdaInt32U(ref, fc, "", false, false)))
+			return NewBdaInt32U(ref, fc, "", false, false)
 		}
 	} else if mmsTypeSpec.floatingPoint != nil {
 
 		floatSize := mmsTypeSpec.floatingPoint.formatWidth.intValue()
 		if floatSize == 32 {
-			return (*BasicDataAttribute)(unsafe.Pointer(NewBdaFloat32(ref, fc, "", false, false)))
+			return NewBdaFloat32(ref, fc, "", false, false)
 
 		} else if floatSize == 64 {
-			return (*BasicDataAttribute)(unsafe.Pointer(NewBdaFloat64(ref, fc, "", false, false)))
+			return NewBdaFloat64(ref, fc, "", false, false)
 
 		}
 		throw(
@@ -210,7 +203,7 @@ func convertMmsBasicTypeSpec(ref *ObjectReference, fc string, mmsTypeSpec *TypeD
 			throw(
 				"PARAMETER_VALUE_INAPPROPRIATE OCTET_STRING of size: " + strconv.Itoa(stringSize) + " is not supported.")
 		}
-		return (*BasicDataAttribute)(unsafe.Pointer(NewBdaOctetString(ref, fc, "", int(math.Abs(float64(stringSize))), false, false)))
+		return NewBdaOctetString(ref, fc, "", int(math.Abs(float64(stringSize))), false, false)
 
 	} else if mmsTypeSpec.visibleString != nil {
 		stringSize := mmsTypeSpec.visibleString.intValue()
@@ -218,7 +211,7 @@ func convertMmsBasicTypeSpec(ref *ObjectReference, fc string, mmsTypeSpec *TypeD
 			throw(
 				"PARAMETER_VALUE_INAPPROPRIATE VISIBLE_STRING of size: " + strconv.Itoa(stringSize) + " is not supported.")
 		}
-		return (*BasicDataAttribute)(unsafe.Pointer(NewBdaVisibleString(ref, fc, "", int(math.Abs(float64(stringSize))), false, false)))
+		return NewBdaVisibleString(ref, fc, "", int(math.Abs(float64(stringSize))), false, false)
 
 	} else if mmsTypeSpec.mMSString != nil {
 		stringSize := mmsTypeSpec.mMSString.intValue()
@@ -226,13 +219,13 @@ func convertMmsBasicTypeSpec(ref *ObjectReference, fc string, mmsTypeSpec *TypeD
 			throw(
 				"PARAMETER_VALUE_INAPPROPRIATE UNICODE_STRING of size: " + strconv.Itoa(stringSize) + " is not supported.")
 		}
-		return (*BasicDataAttribute)(unsafe.Pointer(NewBdaUnicodeString(ref, fc, "", int(math.Abs(float64(stringSize))), false, false)))
+		return NewBdaUnicodeString(ref, fc, "", int(math.Abs(float64(stringSize))), false, false)
 
 	} else if mmsTypeSpec.utcTime != nil {
-		return (*BasicDataAttribute)(unsafe.Pointer(NewBdaTimestamp(ref, fc, "", false, false)))
+		return NewBdaTimestamp(ref, fc, "", false, false)
 
 	} else if mmsTypeSpec.binaryTime != nil {
-		return (*BasicDataAttribute)(unsafe.Pointer(NewBdaEntryTime(ref, fc, "", false, false)))
+		return NewBdaEntryTime(ref, fc, "", false, false)
 
 	}
 	return nil

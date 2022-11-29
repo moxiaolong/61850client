@@ -1,18 +1,36 @@
 package src
 
-import "unsafe"
+import (
+	"strconv"
+)
 
 type FcDataObject struct {
 	FcModelNode
 }
 
-func NewFcDataObject(objectReference *ObjectReference, fc string, children []*FcModelNode) *FcDataObject {
+func (n *FcDataObject) setValueFromMmsDataObj(data *Data) {
+	if data.structure == nil {
+		throw("TYPE_CONFLICT expected type: structure")
+	}
+	if len(data.structure.seqOf) != len(n.Children) {
+		throw(
+			"TYPE_CONFLICT  expected type: structure with " + strconv.Itoa(len(n.Children)) + " elements")
+	}
+	index := 0
+	for _, child := range n.Children {
+		child.setValueFromMmsDataObj(data.structure.seqOf[index])
+		index++
+	}
+
+}
+
+func NewFcDataObject(objectReference *ObjectReference, fc string, children []ModelNodeI) *FcDataObject {
 	f := &FcDataObject{}
-	f.Children = make(map[string]*ModelNode)
+	f.Children = make(map[string]ModelNodeI)
 	f.ObjectReference = objectReference
 	for _, child := range children {
-		f.Children[child.ObjectReference.getName()] = (*ModelNode)(unsafe.Pointer(child))
-		child.parent = (*ModelNode)(unsafe.Pointer(f))
+		f.Children[child.getObjectReference().getName()] = (ModelNodeI)(child)
+		child.setParent(f)
 	}
 	f.Fc = fc
 

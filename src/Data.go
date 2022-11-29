@@ -5,7 +5,6 @@ import "bytes"
 type Data struct {
 	visibleString *BerVisibleString
 	bitString     *BerBitString
-	Unsigned      *BerInteger
 	bool          *BerBoolean
 	octetString   *BerOctetString
 	binaryTime    *TimeOfDay
@@ -15,14 +14,14 @@ type Data struct {
 	floatingPoint *FloatingPoint
 	mMSString     *MMSString
 	utcTime       *UtcTime
-	structure     *Structure
+	structure     *DataStructure
 	code          []byte
 }
 
 func (d *Data) decode(is *bytes.Buffer, berTag *BerTag) int {
 
 	tlvByteCount := 0
-	tagWasPassed := (berTag != nil)
+	tagWasPassed := berTag != nil
 
 	if berTag == nil {
 		berTag = NewEmptyBerTag()
@@ -30,13 +29,13 @@ func (d *Data) decode(is *bytes.Buffer, berTag *BerTag) int {
 	}
 
 	if berTag.equals(128, 32, 1) {
-		d.array = NewArray(nil, "", nil)
+		d.array = NewArray()
 		tlvByteCount += d.array.decode(is, false)
 		return tlvByteCount
 	}
 
 	if berTag.equals(128, 32, 2) {
-		d.structure = NewStructure()
+		d.structure = NewDataStructure()
 		tlvByteCount += d.structure.decode(is, false)
 		return tlvByteCount
 	}

@@ -5,36 +5,39 @@ import (
 	"strconv"
 )
 
-type AlternateAccess struct {
-	seqOf []*AlternateAccessCHOICE
+type DataStructure struct {
 	tag   *BerTag
 	code  []byte
+	seqOf []*Data
 }
 
-func (a *AlternateAccess) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
-	if a.code != nil {
-		reverseOS.write(a.code)
-		if withTag {
-			return a.tag.encode(reverseOS) + len(a.code)
-		}
-		return len(a.code)
-	}
+func NewDataStructure() *DataStructure {
+	return &DataStructure{tag: NewBerTag(0, 32, 16)}
+}
 
+func (d *DataStructure) encode(reverseOS *ReverseByteArrayOutputStream, withTag bool) int {
+	if d.code != nil {
+		reverseOS.write(d.code)
+		if withTag {
+			return d.tag.encode(reverseOS) + len(d.code)
+		}
+		return len(d.code)
+	}
 	codeLength := 0
-	for _, item := range a.seqOf {
-		codeLength += item.encode(reverseOS)
+	for _, data := range d.seqOf {
+		codeLength += data.encode(reverseOS)
 	}
 
 	codeLength += encodeLength(reverseOS, codeLength)
 
 	if withTag {
-		codeLength += a.tag.encode(reverseOS)
+		codeLength += d.tag.encode(reverseOS)
 	}
 
 	return codeLength
 }
 
-func (a *AlternateAccess) decode(is *bytes.Buffer, withTag bool) int {
+func (d *DataStructure) decode(is *bytes.Buffer, withTag bool) int {
 
 	tlByteCount := 0
 
@@ -44,7 +47,7 @@ func (a *AlternateAccess) decode(is *bytes.Buffer, withTag bool) int {
 
 	berTag := NewBerTag(0, 0, 0)
 	if withTag {
-		tlByteCount += a.tag.decodeAndCheck(is)
+		tlByteCount += d.tag.decodeAndCheck(is)
 	}
 
 	length := NewBerLength()
@@ -59,21 +62,17 @@ func (a *AlternateAccess) decode(is *bytes.Buffer, withTag bool) int {
 			break
 		}
 
-		element := NewAlternateAccessCHOICE()
+		element := NewData()
 		numDecodedBytes = element.decode(is, berTag)
 		if numDecodedBytes == 0 {
 			throw("Tag did not match")
 		}
 		vByteCount += numDecodedBytes
-		a.seqOf = append(a.seqOf, element)
+		d.seqOf = append(d.seqOf, element)
 	}
 	if lengthVal >= 0 && vByteCount != lengthVal {
 		throw(
-			"Decoded SequenceOf or SetOf has wrong length. Expected " + strconv.Itoa(lengthVal) + " but has " + strconv.Itoa(vByteCount))
+			"Decoded SequenceOf or SetOf has wrong length. Expected " + strconv.Itoa(lengthVal) + strconv.Itoa(vByteCount) + " but has ")
 	}
 	return tlByteCount + vByteCount
-}
-
-func NewAlternateAccess() *AlternateAccess {
-	return &AlternateAccess{tag: NewBerTag(0, 32, 16)}
 }

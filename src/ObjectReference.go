@@ -100,6 +100,20 @@ func (r *ObjectReference) parseForNameList() {
 	}
 }
 
+func (r *ObjectReference) getArrayIndexPosition() int {
+	if r.nodeNames == nil {
+		r.parseForNameList()
+	}
+	return r.arrayIndexPosition
+}
+
+func (r *ObjectReference) size() int {
+	if r.nodeNames == nil {
+		r.parseForNameList()
+	}
+	return len(r.nodeNames)
+}
+
 func NewObjectReference(objectReference string) *ObjectReference {
 	return &ObjectReference{arrayIndexPosition: -1, objectReference: objectReference}
 }

@@ -5,6 +5,6 @@ type Urcb struct {
 	Test string
 }
 
-func NewUrcb(objectReference *ObjectReference, children []*FcModelNode) *Urcb {
+func NewUrcb(objectReference *ObjectReference, children []ModelNodeI) *Urcb {
 	return &Urcb{Rcb: *NewRcb(objectReference, RP, children)}
 }

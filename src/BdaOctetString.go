@@ -8,6 +8,27 @@ type BdaOctetString struct {
 	BasicDataAttribute
 	value     []byte
 	maxLength int
+	mirror    *BdaOctetString
+}
+
+func (f *BdaOctetString) copy() ModelNodeI {
+	newCopy := NewBdaOctetString(f.ObjectReference, f.Fc, f.sAddr, f.maxLength, f.dchg, f.dupd)
+	valueCopy := make([]byte, 0)
+	copy(valueCopy, f.value)
+	newCopy.value = valueCopy
+	if f.mirror == nil {
+		newCopy.mirror = f
+	} else {
+		newCopy.mirror = f.mirror
+	}
+	return newCopy
+}
+
+func (s *BdaOctetString) setValueFromMmsDataObj(data *Data) {
+	if data.octetString == nil {
+		throw("ServiceError.TYPE_CONFLICT expected type: octet_string")
+	}
+	s.value = data.octetString.value
 }
 
 func (s *BdaOctetString) setValue(value []byte) {

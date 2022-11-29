@@ -17,7 +17,7 @@ func (n *DomainName) decode(is *bytes.Buffer, berTag *BerTag) int {
 	}
 
 	if berTag.equals(0, 0, 26) {
-		n.basic = NewBasicIdentifier()
+		n.basic = NewBasicIdentifier(nil)
 		tlvByteCount += n.basic.decode(is, false)
 		return tlvByteCount
 	}

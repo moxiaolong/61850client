@@ -33,7 +33,7 @@ func (c *AccessSelectionComponent) decode(is *bytes.Buffer, berTag *BerTag) int 
 	}
 
 	if berTag.equals(0, 0, 26) {
-		c.basic = NewBasicIdentifier()
+		c.basic = NewBasicIdentifier(nil)
 		tlvByteCount += c.basic.decode(is, false)
 		return tlvByteCount
 	}

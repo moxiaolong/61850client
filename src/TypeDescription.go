@@ -3,9 +3,9 @@ package src
 import "bytes"
 
 type TypeDescription struct {
-	structure     *Structure
+	structure     *TypeDescriptionStructure
 	code          []byte
-	array         *Array
+	array         *TypeDescriptionArray
 	bool          *BerNull
 	bitString     *Integer32
 	integer       *Unsigned8
@@ -28,13 +28,13 @@ func (d *TypeDescription) decode(is *bytes.Buffer, berTag *BerTag) int {
 	}
 
 	if berTag.equals(128, 32, 1) {
-		d.array = NewArray(nil, "", nil)
+		d.array = NewTypeDescriptionArray()
 		tlvByteCount += d.array.decode(is, false)
 		return tlvByteCount
 	}
 
 	if berTag.equals(128, 32, 2) {
-		d.structure = NewStructure()
+		d.structure = NewDescriptionStructure()
 		tlvByteCount += d.structure.decode(is, false)
 		return tlvByteCount
 	}
