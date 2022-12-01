@@ -59,6 +59,6 @@ func (b *BerBoolean) encode(reverseOS *ReverseByteArrayOutputStream, withTag boo
 	return codeLength
 }
 
-func NewBerBoolean() *BerBoolean {
-	return &BerBoolean{tag: NewBerTag(0, 0, 1)}
+func NewBerBoolean(value bool) *BerBoolean {
+	return &BerBoolean{tag: NewBerTag(0, 0, 1), value: value}
 }

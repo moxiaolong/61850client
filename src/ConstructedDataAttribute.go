@@ -6,6 +6,28 @@ type ConstructedDataAttribute struct {
 	FcModelNode
 }
 
+func (c *ConstructedDataAttribute) getMmsDataObj() *Data {
+	structure := NewDataStructure()
+
+	for _, modelNode := range c.getChildren() {
+		child := modelNode.getMmsDataObj()
+		if child == nil {
+			throw(
+				"Unable to convert Child: " + modelNode.getObjectReference().toString() + " to MMS Data Object.")
+		}
+		structure.seqOf = append(structure.seqOf, child)
+	}
+
+	if len(structure.seqOf) == 0 {
+		throw("Converting ModelNode: " + c.getObjectReference().toString() + " to MMS Data Object resulted in Sequence of size zero.")
+	}
+
+	data := NewData()
+	data.structure = structure
+
+	return data
+}
+
 func (c *ConstructedDataAttribute) setValueFromMmsDataObj(data *Data) {
 	if data.structure == nil {
 		throw("ServiceError.TYPE_CONFLICT expected type: structure")

@@ -11,6 +11,12 @@ type BdaOctetString struct {
 	mirror    *BdaOctetString
 }
 
+func (f *BdaOctetString) getMmsDataObj() *Data {
+	data := NewData()
+	data.octetString = NewBerOctetString(f.value)
+	return data
+}
+
 func (f *BdaOctetString) copy() ModelNodeI {
 	newCopy := NewBdaOctetString(f.ObjectReference, f.Fc, f.sAddr, f.maxLength, f.dchg, f.dupd)
 	valueCopy := make([]byte, 0)

@@ -2,7 +2,7 @@ package main
 
 import (
 	"Go61850Client/src"
-	"log"
+	"sync"
 	"time"
 )
 
@@ -25,8 +25,14 @@ func main() {
 	association := clientSap.Associate(hostName, port, src.NewEventListener())
 	defer func() {
 		err := recover()
-		association.Close()
+		var wg sync.WaitGroup
+		wg.Add(1)
+		go func() {
+			defer func() { wg.Done() }()
+			association.Close()
+		}()
 		if err != nil {
+			wg.Wait()
 			panic(err)
 		}
 
@@ -37,20 +43,20 @@ func main() {
 
 	serverModel = association.RetrieveModel()
 
-	//接受数据
-	fcModelNode := serverModel.AskForFcModelNode("ied1lDevice1/MMXU1.TotW.mag.f", "MX")
-	association.GetDataValues(fcModelNode)
-	fcNodeBasic := fcModelNode.(src.BasicDataAttributeI)
-	println(fcNodeBasic.GetValueString())
-	//接受数据结束
+	////接受数据
+	//fcModelNode := serverModel.AskForFcModelNode("ied1lDevice1/MMXU1.TotW.mag.f", "MX")
+	//association.GetDataValues(fcModelNode)
+	//fcNodeBasic := fcModelNode.(src.BasicDataAttributeI)
+	//println(fcNodeBasic.GetValueString())
+	////接受数据结束
 
-	sets := serverModel.DataSets
-	for s, set := range sets {
-		log.Println(s)
-		log.Println(set)
-	}
-	//marshal, _ := json.Marshal(serverModel)
-	//fmt.Printf(" %s  ", string(marshal))
+	//写入数据
+	//fcModelNode := serverModel.AskForFcModelNode("ied1lDevice1/LLN0.NamPlt.vendor", "DC")
+	//fcModelNode.(*src.BdaVisibleString).SetValue("abc")
+	//association.SetDataValues(fcModelNode)
+	//写入数据结束
+
+	//association.SetDataSetValues(ds)
 
 	for {
 		time.Sleep(time.Millisecond * 10)

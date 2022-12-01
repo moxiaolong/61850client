@@ -8,6 +8,26 @@ type FcDataObject struct {
 	FcModelNode
 }
 
+func (n *FcDataObject) getMmsDataObj() *Data {
+	dataStructure := NewDataStructure()
+	for _, modelNode := range n.getChildren() {
+		child := modelNode.getMmsDataObj()
+		if child == nil {
+			throw("Unable to convert Child: " + modelNode.getObjectReference().toString() + " to MMS Data Object.")
+		}
+		dataStructure.seqOf = append(dataStructure.seqOf, child)
+	}
+
+	if len(dataStructure.seqOf) == 0 {
+		throw("Converting ModelNode: " + n.ObjectReference.toString() + " to MMS Data Object resulted in Sequence of size zero.")
+	}
+
+	data := NewData()
+	data.structure = dataStructure
+
+	return data
+}
+
 func (n *FcDataObject) setValueFromMmsDataObj(data *Data) {
 	if data.structure == nil {
 		throw("TYPE_CONFLICT expected type: structure")

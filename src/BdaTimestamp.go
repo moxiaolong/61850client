@@ -8,6 +8,12 @@ type BdaTimestamp struct {
 	mirror *BdaTimestamp
 }
 
+func (f *BdaTimestamp) getMmsDataObj() *Data {
+	data := NewData()
+	data.utcTime = NewUtcTime(f.value)
+	return data
+}
+
 func (f *BdaTimestamp) copy() ModelNodeI {
 	newCopy := NewBdaTimestamp(f.ObjectReference, f.Fc, f.sAddr, f.dchg, f.dupd)
 	valueCopy := make([]byte, 0)

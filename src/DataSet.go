@@ -7,11 +7,37 @@ type DataSet struct {
 	DataSetReference string
 	deletable        bool
 	// Map<Fc, Map<String, FcModelNode>> MembersMap
-	MembersMap map[string]map[string]FcModelNodeI
+	MembersMap    map[string]map[string]FcModelNodeI
+	mmsObjectName *ObjectName
 }
 
 func (s *DataSet) getMembers() []FcModelNodeI {
 	return s.Members
+}
+
+func (s *DataSet) getMmsObjectName() *ObjectName {
+	if s.mmsObjectName != nil {
+		return s.mmsObjectName
+	}
+
+	if s.DataSetReference[0] == '@' {
+		s.mmsObjectName = NewObjectName()
+		s.mmsObjectName.aaSpecific = NewIdentifier([]byte(s.DataSetReference))
+		return s.mmsObjectName
+	}
+
+	slash := strings.Index(s.DataSetReference, "/")
+	domainID := s.DataSetReference[0:slash]
+	itemID := strings.ReplaceAll(s.DataSetReference[slash+1:], ".", "$")
+
+	domainSpecificObjectName := NewDomainSpecific()
+	domainSpecificObjectName.domainID = NewIdentifier([]byte(domainID))
+	domainSpecificObjectName.itemID = NewIdentifier([]byte(itemID))
+
+	s.mmsObjectName = NewObjectName()
+	s.mmsObjectName.domainSpecific = domainSpecificObjectName
+
+	return s.mmsObjectName
 }
 
 func NewDataSet() *DataSet {

@@ -8,6 +8,15 @@ type BdaFloat64 struct {
 	mirror *BdaFloat64
 }
 
+func (s *BdaFloat64) getMmsDataObj() *Data {
+	if s.value == nil {
+		return nil
+	}
+	data := NewData()
+	data.FloatingPoint = NewFloatingPoint(s.value)
+	return data
+}
+
 func (s *BdaFloat64) copy() ModelNodeI {
 	newCopy := NewBdaFloat64(s.ObjectReference, s.Fc, s.sAddr, s.dchg, s.dupd)
 
@@ -22,10 +31,10 @@ func (s *BdaFloat64) copy() ModelNodeI {
 
 func (i *BdaFloat64) setValueFromMmsDataObj(data *Data) {
 
-	if data.floatingPoint == nil || len(data.floatingPoint.value) != 9 {
+	if data.FloatingPoint == nil || len(data.FloatingPoint.value) != 9 {
 		throw("ServiceError.TYPE_CONFLICT expected type: floating_point as an octet string of size 9")
 	}
-	i.value = data.floatingPoint.value
+	i.value = data.FloatingPoint.value
 
 }
 

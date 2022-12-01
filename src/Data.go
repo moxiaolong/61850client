@@ -11,7 +11,7 @@ type Data struct {
 	array         *Array
 	integer       *BerInteger
 	unsigned      *BerInteger
-	floatingPoint *FloatingPoint
+	FloatingPoint *FloatingPoint
 	mMSString     *MMSString
 	utcTime       *UtcTime
 	structure     *DataStructure
@@ -41,7 +41,7 @@ func (d *Data) decode(is *bytes.Buffer, berTag *BerTag) int {
 	}
 
 	if berTag.equals(128, 0, 3) {
-		d.bool = NewBerBoolean()
+		d.bool = NewBerBoolean(false)
 		tlvByteCount += d.bool.decode(is, false)
 		return tlvByteCount
 	}
@@ -65,8 +65,8 @@ func (d *Data) decode(is *bytes.Buffer, berTag *BerTag) int {
 	}
 
 	if berTag.equals(128, 0, 7) {
-		d.floatingPoint = NewFloatingPoint()
-		tlvByteCount += d.floatingPoint.decode(is, false)
+		d.FloatingPoint = NewFloatingPoint(nil)
+		tlvByteCount += d.FloatingPoint.decode(is, false)
 		return tlvByteCount
 	}
 
@@ -83,19 +83,19 @@ func (d *Data) decode(is *bytes.Buffer, berTag *BerTag) int {
 	}
 
 	if berTag.equals(128, 0, 12) {
-		d.binaryTime = NewTimeOfDay()
+		d.binaryTime = NewTimeOfDay(nil)
 		tlvByteCount += d.binaryTime.decode(is, false)
 		return tlvByteCount
 	}
 
 	if berTag.equals(128, 0, 16) {
-		d.mMSString = NewMMSString()
+		d.mMSString = NewMMSString(nil)
 		tlvByteCount += d.mMSString.decode(is, false)
 		return tlvByteCount
 	}
 
 	if berTag.equals(128, 0, 17) {
-		d.utcTime = NewUtcTime()
+		d.utcTime = NewUtcTime(nil)
 		tlvByteCount += d.utcTime.decode(is, false)
 		return tlvByteCount
 	}
@@ -155,8 +155,8 @@ func (d *Data) encode(reverseOS *ReverseByteArrayOutputStream) int {
 		return codeLength
 	}
 
-	if d.floatingPoint != nil {
-		codeLength += d.floatingPoint.encode(reverseOS, false)
+	if d.FloatingPoint != nil {
+		codeLength += d.FloatingPoint.encode(reverseOS, false)
 		// write tag: CONTEXT_CLASS, PRIMITIVE, 7
 		reverseOS.writeByte(0x87)
 		codeLength += 1

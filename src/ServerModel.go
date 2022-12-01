@@ -33,12 +33,12 @@ func NewServerModel(logicalDevices []*LogicalDevice, dataSets []*DataSet) *Serve
 			for _, urcb := range l.urcbs {
 				m.urcbs[urcb.ObjectReference.toString()] = urcb
 
-				urcb.dataSet = m.getDataSet(strings.ReplaceAll(urcb.getDatSet().getStringValue(), "$", "."))
+				urcb.dataSet = m.GetDataSet(strings.ReplaceAll(urcb.getDatSet().getStringValue(), "$", "."))
 
 			}
 			for _, brcb := range l.brcbs {
 				m.brcbs[brcb.ObjectReference.toString()] = brcb
-				brcb.dataSet = m.getDataSet(strings.ReplaceAll(brcb.getDatSet().getStringValue(), "$", "."))
+				brcb.dataSet = m.GetDataSet(strings.ReplaceAll(brcb.getDatSet().getStringValue(), "$", "."))
 			}
 		}
 	}
@@ -47,7 +47,7 @@ func NewServerModel(logicalDevices []*LogicalDevice, dataSets []*DataSet) *Serve
 
 }
 
-func (m *ServerModel) getDataSet(ref string) *DataSet {
+func (m *ServerModel) GetDataSet(ref string) *DataSet {
 	return m.DataSets[ref]
 }
 
@@ -229,10 +229,10 @@ func (m *ServerModel) addDataSets(dataSets []*DataSet) {
 		for _, ln := range ld.getChildren() {
 			l := ln.(*LogicalNode)
 			for _, urcb := range l.urcbs {
-				urcb.dataSet = m.getDataSet(strings.ReplaceAll(urcb.getDatSet().getStringValue(), "$", "."))
+				urcb.dataSet = m.GetDataSet(strings.ReplaceAll(urcb.getDatSet().getStringValue(), "$", "."))
 			}
 			for _, brcb := range l.brcbs {
-				brcb.dataSet = m.getDataSet(strings.ReplaceAll(brcb.getDatSet().getStringValue(), "$", "."))
+				brcb.dataSet = m.GetDataSet(strings.ReplaceAll(brcb.getDatSet().getStringValue(), "$", "."))
 			}
 		}
 	}

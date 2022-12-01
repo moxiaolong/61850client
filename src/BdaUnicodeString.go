@@ -7,6 +7,13 @@ type BdaUnicodeString struct {
 	mirror    *BdaUnicodeString
 }
 
+func (f *BdaUnicodeString) getMmsDataObj() *Data {
+	data := NewData()
+	data.mMSString = NewMMSString(f.value)
+	return data
+
+}
+
 func (f *BdaUnicodeString) copy() ModelNodeI {
 	newCopy := NewBdaUnicodeString(f.ObjectReference, f.Fc, f.sAddr, f.maxLength, f.dchg, f.dupd)
 	valueCopy := make([]byte, 0)

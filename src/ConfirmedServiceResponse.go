@@ -7,7 +7,7 @@ type ConfirmedServiceResponse struct {
 	getVariableAccessAttributes    *GetVariableAccessAttributesResponse
 	getNameList                    *GetNameListResponse
 	read                           *ReadResponse
-	writeByteByte                  *WriteResponse
+	write                          *WriteResponse
 	defineNamedVariableList        *DefineNamedVariableListResponse
 	getNamedVariableListAttributes *GetNamedVariableListAttributesResponse
 	deleteNamedVariableList        *DeleteNamedVariableListResponse
@@ -40,8 +40,8 @@ func (r *ConfirmedServiceResponse) decode(is *bytes.Buffer, berTag *BerTag) int 
 	}
 
 	if berTag.equals(128, 32, 5) {
-		r.writeByteByte = NewWriteResponse()
-		tlvByteCount += r.writeByteByte.decode(is, false)
+		r.write = NewWriteResponse()
+		tlvByteCount += r.write.decode(is, false)
 		return tlvByteCount
 	}
 
@@ -191,8 +191,8 @@ func (r *ConfirmedServiceResponse) encode(reverseOS *ReverseByteArrayOutputStrea
 		return codeLength
 	}
 
-	if r.writeByteByte != nil {
-		codeLength += r.writeByteByte.encode(reverseOS, false)
+	if r.write != nil {
+		codeLength += r.write.encode(reverseOS, false)
 		// writeByte tag: CONTEXT_CLASS, CONSTRUCTED, 5
 		reverseOS.writeByte(0xA5)
 		codeLength += 1

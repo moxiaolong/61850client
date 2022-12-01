@@ -8,6 +8,12 @@ type BdaBitString struct {
 	maxNumBits int
 }
 
+func (b *BdaBitString) getMmsDataObj() *Data {
+	data := NewData()
+	data.bitString = NewBerBitString(nil, b.value, b.maxNumBits)
+	return data
+}
+
 func (b *BdaBitString) setValueFromMmsDataObj(data *Data) {
 	if data.bitString == nil {
 		throw("ServiceError.TYPE_CONFLICT expected type: bit_string")
@@ -22,6 +28,7 @@ func NewBdaBitString(objectReference *ObjectReference, fc string, sAddr string, 
 	attribute := NewBasicDataAttribute(objectReference, fc, sAddr, dchg, dupd)
 	b := &BdaBitString{BasicDataAttribute: *attribute}
 	b.maxNumBits = maxNumBits
+	b.setDefault()
 	return b
 }
 

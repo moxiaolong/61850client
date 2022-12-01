@@ -620,7 +620,7 @@ func (c *ClientAssociation) decodeGetDataSetDirectoryResponse(confirmedServiceRe
 			"INSTANCE_NOT_AVAILABLE decodeGetDataSetDirectoryResponse: LN for returned DataSet is not available")
 	}
 
-	existingDs := c.ServerModel.getDataSet(dsObjRef)
+	existingDs := c.ServerModel.GetDataSet(dsObjRef)
 	if existingDs == nil {
 		c.ServerModel.addDataSet(dataSet)
 	} else if !existingDs.deletable {
@@ -679,4 +679,107 @@ func (c *ClientAssociation) constructVariableAccessSpecification(modelNode FcMod
 	variableAccessSpecification.listOfVariable = listOfVariable
 
 	return variableAccessSpecification
+}
+
+func (c *ClientAssociation) SetDataValues(node FcModelNodeI) {
+	serviceRequest := c.constructSetDataValuesRequest(node)
+	confirmedServiceResponse := c.encodeWriteReadDecode(serviceRequest)
+	c.decodeSetDataValuesResponse(confirmedServiceResponse)
+}
+
+//return error string
+func (c *ClientAssociation) SetDataSetValues(dataSet *DataSet) []string {
+	serviceRequest := c.constructSetDataSetValues(dataSet)
+	confirmedServiceResponse := c.encodeWriteReadDecode(serviceRequest)
+	return c.decodeSetDataSetValuesResponse(confirmedServiceResponse)
+}
+
+func (c *ClientAssociation) constructSetDataValuesRequest(modelNode FcModelNodeI) *ConfirmedServiceRequest {
+	variableAccessSpecification := c.constructVariableAccessSpecification(modelNode)
+
+	listOfData := NewListOfData()
+	listOfData.seqOf = append(listOfData.seqOf, modelNode.getMmsDataObj())
+
+	writeRequest := NewWriteRequest()
+	writeRequest.listOfData = listOfData
+	writeRequest.variableAccessSpecification = variableAccessSpecification
+
+	confirmedServiceRequest := NewConfirmedServiceRequest()
+	confirmedServiceRequest.write = writeRequest
+
+	return confirmedServiceRequest
+}
+
+func (c *ClientAssociation) decodeSetDataValuesResponse(confirmedServiceResponse *ConfirmedServiceResponse) {
+	writeResponse := confirmedServiceResponse.write
+
+	if writeResponse == nil {
+		throw("FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT SetDataValuesResponse: improper response")
+	}
+
+	subChoice := writeResponse.seqOf[0]
+
+	if subChoice.failure != nil {
+		throw("mmsDataAccessErrorToServiceError" + strconv.Itoa(subChoice.failure.intValue()))
+	}
+}
+
+func (c *ClientAssociation) constructSetDataSetValues(dataSet *DataSet) *ConfirmedServiceRequest {
+
+	varAccessSpec := NewVariableAccessSpecification()
+	varAccessSpec.variableListName = dataSet.getMmsObjectName()
+
+	listOfData := NewListOfData()
+
+	for _, member := range dataSet.Members {
+		listOfData.seqOf = append(listOfData.seqOf, member.getMmsDataObj())
+	}
+
+	writeRequest := NewWriteRequest()
+	writeRequest.variableAccessSpecification = varAccessSpec
+	writeRequest.listOfData = listOfData
+
+	confirmedServiceRequest := NewConfirmedServiceRequest()
+	confirmedServiceRequest.write = writeRequest
+
+	return confirmedServiceRequest
+}
+
+func (c *ClientAssociation) decodeSetDataSetValuesResponse(confirmedServiceResponse *ConfirmedServiceResponse) []string {
+	if confirmedServiceResponse.write == nil {
+		throw("FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT Error decoding SetDataSetValuesReponsePdu")
+	}
+
+	writeResponse := confirmedServiceResponse.write
+	serviceErrors := make([]string, 0)
+	for _, accessResult := range writeResponse.seqOf {
+		if accessResult.success != nil {
+			serviceErrors = append(serviceErrors, "")
+		} else {
+			serviceErrors = append(serviceErrors, mmsDataAccessErrorToServiceError(accessResult.failure))
+		}
+	}
+
+	return serviceErrors
+}
+
+func mmsDataAccessErrorToServiceError(dataAccessError *DataAccessError) string {
+	switch dataAccessError.value {
+	case 1:
+		return "FAILED_DUE_TO_SERVER_CONSTRAINT, MMS DataAccessError: hardware-fault"
+	case 2:
+		return "INSTANCE_LOCKED_BY_OTHER_CLIENT, MMS DataAccessError: temporarily-unavailable"
+	case 3:
+		return "ACCESS_VIOLATION MMS, DataAccessError: object-access-denied"
+	case 5:
+		return "PARAMETER_VALUE_INCONSISTENT, MMS DataAccessError: invalid-address"
+	case 7:
+		return "TYPE_CONFLICT,MMS DataAccessError: type-inconsistent"
+	case 10:
+		return "INSTANCE_NOT_AVAILABLE, MMS DataAccessError: object-non-existent"
+	case 11:
+		return "PARAMETER_VALUE_INCONSISTENT, MMS DataAccessError: object-value-invalid"
+	default:
+		return "FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT, MMS DataAccessError: " + strconv.Itoa(dataAccessError.value)
+	}
 }

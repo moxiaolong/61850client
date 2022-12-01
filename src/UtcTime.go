@@ -4,6 +4,6 @@ type UtcTime struct {
 	BerOctetString
 }
 
-func NewUtcTime() *UtcTime {
-	return &UtcTime{BerOctetString: *NewBerOctetString(nil)}
+func NewUtcTime(value []byte) *UtcTime {
+	return &UtcTime{BerOctetString: *NewBerOctetString(value)}
 }

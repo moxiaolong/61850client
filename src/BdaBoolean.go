@@ -8,6 +8,12 @@ type BdaBoolean struct {
 	mirror *BdaBoolean
 }
 
+func (i *BdaBoolean) getMmsDataObj() *Data {
+	data := NewData()
+	data.bool = NewBerBoolean(i.value)
+	return data
+}
+
 func (i *BdaBoolean) copy() ModelNodeI {
 	boolean := NewBdaBoolean(i.ObjectReference, i.Fc, i.sAddr, i.dchg, i.dupd)
 	boolean.value = i.value

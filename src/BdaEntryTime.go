@@ -8,6 +8,15 @@ type BdaEntryTime struct {
 	mirror *BdaEntryTime
 }
 
+func (f *BdaEntryTime) getMmsDataObj() *Data {
+	if f.value == nil {
+		return nil
+	}
+	data := NewData()
+	data.binaryTime = NewTimeOfDay(f.value)
+	return data
+}
+
 func (f *BdaEntryTime) copy() ModelNodeI {
 	newCopy := NewBdaEntryTime(f.ObjectReference, f.Fc, f.sAddr, f.dchg, f.dupd)
 	valueCopy := make([]byte, 0)

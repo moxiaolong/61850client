@@ -15,6 +15,26 @@ type FCArray struct {
 	items            []ModelNodeI
 }
 
+func (a *FCArray) getMmsDataObj() *Data {
+	dataArray := NewArray()
+	for _, modelNode := range a.items {
+		mmsArrayItem := modelNode.getMmsDataObj()
+		if mmsArrayItem == nil {
+			throw(
+				"Unable to convert Child: " + modelNode.getObjectReference().toString() + " to MMS Data Object.")
+		}
+		dataArray.seqOf = append(dataArray.seqOf, mmsArrayItem)
+	}
+
+	if len(dataArray.seqOf) == 0 {
+		throw("Converting ModelNode: " + a.ObjectReference.toString() + " to MMS Data Object resulted in Sequence of size zero.")
+	}
+
+	data := NewData()
+	data.array = dataArray
+	return data
+}
+
 func (a *FCArray) setValueFromMmsDataObj(data *Data) {
 	if data.array == nil {
 		throw("TYPE_CONFLICT expected type: array")
@@ -47,7 +67,7 @@ func (a *FCArray) decode(is *bytes.Buffer, withTag bool) int {
 	vByteCount += berTag.decode(is)
 
 	if berTag.equals(128, 0, 0) {
-		a.packed = NewBerBoolean()
+		a.packed = NewBerBoolean(false)
 		vByteCount += a.packed.decode(is, false)
 		vByteCount += berTag.decode(is)
 	}

@@ -27,7 +27,7 @@ func (r *GetVariableAccessAttributesResponse) decode(is *bytes.Buffer, withTag b
 	vByteCount += berTag.decode(is)
 
 	if berTag.equals(128, 0, 0) {
-		r.mmsDeletable = NewBerBoolean()
+		r.mmsDeletable = NewBerBoolean(false)
 		vByteCount += r.mmsDeletable.decode(is, false)
 		vByteCount += berTag.decode(is)
 	} else {

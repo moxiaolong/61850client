@@ -6,6 +6,12 @@ type BdaInt8U struct {
 	mirror *BdaInt8U
 }
 
+func (s *BdaInt8U) getMmsDataObj() *Data {
+	data := NewData()
+	data.integer = NewBerInteger(nil, s.value)
+	return data
+}
+
 func (s *BdaInt8U) copy() ModelNodeI {
 	newCopy := NewBdaInt8U(s.ObjectReference, s.Fc, s.sAddr, s.dchg, s.dupd)
 

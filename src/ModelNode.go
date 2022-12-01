@@ -5,6 +5,7 @@ type ModelNodeI interface {
 	getChildren() map[string]ModelNodeI
 	getObjectReference() *ObjectReference
 	setValueFromMmsDataObj(data *Data)
+	getMmsDataObj() *Data
 	copy() ModelNodeI
 	setParent(node ModelNodeI)
 	getName() string
@@ -18,6 +19,9 @@ type ModelNode struct {
 }
 
 func (m *ModelNode) copy() ModelNodeI {
+	panic("impl me")
+}
+func (m *ModelNode) getMmsDataObj() *Data {
 	panic("impl me")
 }
 

@@ -4,6 +4,6 @@ type TimeOfDay struct {
 	BerOctetString
 }
 
-func NewTimeOfDay() *TimeOfDay {
-	return &TimeOfDay{BerOctetString: *NewBerOctetString(nil)}
+func NewTimeOfDay(value []byte) *TimeOfDay {
+	return &TimeOfDay{BerOctetString: *NewBerOctetString(value)}
 }

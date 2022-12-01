@@ -4,6 +4,6 @@ type FloatingPoint struct {
 	BerOctetString
 }
 
-func NewFloatingPoint() *FloatingPoint {
-	return &FloatingPoint{BerOctetString: *NewBerOctetString(nil)}
+func NewFloatingPoint(value []byte) *FloatingPoint {
+	return &FloatingPoint{BerOctetString: *NewBerOctetString(value)}
 }

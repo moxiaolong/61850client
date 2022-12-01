@@ -38,7 +38,7 @@ func (r *GetNameListResponse) decode(is *bytes.Buffer, withTag bool) int {
 	}
 
 	if berTag.equals(128, 0, 1) {
-		r.moreFollows = NewBerBoolean()
+		r.moreFollows = NewBerBoolean(false)
 		vByteCount += r.moreFollows.decode(is, false)
 		if lengthVal >= 0 && vByteCount == lengthVal {
 			return tlByteCount + vByteCount

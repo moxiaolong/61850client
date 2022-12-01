@@ -7,6 +7,16 @@ type BdaVisibleString struct {
 	mirror    *BdaVisibleString
 }
 
+func (f *BdaVisibleString) getMmsDataObj() *Data {
+	data := NewData()
+	data.visibleString = NewBerVisibleString(f.value)
+	return data
+}
+
+func (f *BdaVisibleString) SetValue(value string) {
+	f.value = []byte(value)
+}
+
 func (f *BdaVisibleString) copy() ModelNodeI {
 	newCopy := NewBdaVisibleString(f.ObjectReference, f.Fc, f.sAddr, f.maxLength, f.dchg, f.dupd)
 	valueCopy := make([]byte, 0)

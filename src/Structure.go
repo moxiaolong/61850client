@@ -60,7 +60,7 @@ func (s *TypeDescriptionStructure) decode(is *bytes.Buffer, withTag bool) int {
 	vByteCount += berTag.decode(is)
 
 	if berTag.equals(128, 0, 0) {
-		s.packed = NewBerBoolean()
+		s.packed = NewBerBoolean(false)
 		vByteCount += s.packed.decode(is, false)
 		vByteCount += berTag.decode(is)
 	}

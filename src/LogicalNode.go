@@ -41,7 +41,7 @@ func (n *LogicalNode) addUrcb(urcb *Urcb, addDataSet bool) {
 	if addDataSet {
 		dataSetRef := urcb.getDatSet().getStringValue()
 		if dataSetRef != "" {
-			urcb.dataSet = (n.parent.getParent()).(*ServerModel).getDataSet(strings.ReplaceAll(dataSetRef, "$", "."))
+			urcb.dataSet = (n.parent.getParent()).(*ServerModel).GetDataSet(strings.ReplaceAll(dataSetRef, "$", "."))
 		}
 	}
 }

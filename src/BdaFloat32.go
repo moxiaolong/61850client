@@ -1,6 +1,8 @@
 package src
 
 import (
+	"bytes"
+	"encoding/binary"
 	"fmt"
 	"unsafe"
 )
@@ -9,6 +11,15 @@ type BdaFloat32 struct {
 	BasicDataAttribute
 	value  []byte
 	mirror *BdaFloat32
+}
+
+func (s *BdaFloat32) getMmsDataObj() *Data {
+	if s.value == nil {
+		return nil
+	}
+	data := NewData()
+	data.FloatingPoint = NewFloatingPoint(s.value)
+	return data
 }
 
 func (s *BdaFloat32) copy() ModelNodeI {
@@ -29,11 +40,22 @@ func (i *BdaFloat32) GetValueString() string {
 	f := (*float32)(unsafe.Pointer(&t))
 	return fmt.Sprintf("%f", float64(*f))
 }
+
+func (i *BdaFloat32) SetFloat(float float32) {
+	buffer := bytes.NewBuffer(make([]byte, 0))
+	buffer.WriteByte(8)
+	err := binary.Write(buffer, binary.BigEndian, float)
+	if err != nil {
+		panic("write float error")
+	}
+	i.value = buffer.Bytes()
+}
+
 func (i *BdaFloat32) setValueFromMmsDataObj(data *Data) {
-	if data.floatingPoint == nil || len(data.floatingPoint.value) != 5 {
+	if data.FloatingPoint == nil || len(data.FloatingPoint.value) != 5 {
 		throw("ServiceError.TYPE_CONFLICT expected type: floating_point as an octet string of size 5")
 	}
-	i.value = data.floatingPoint.value
+	i.value = data.FloatingPoint.value
 }
 
 func (i *BdaFloat32) setDefault() {

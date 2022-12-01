@@ -29,8 +29,20 @@ func (r *ClientReceiver) run() {
 	defer func() {
 		err := recover()
 		if err != nil {
-			r.close(err)
-			panic(err)
+			var wg sync.WaitGroup
+			wg.Add(1)
+			go func() {
+				defer func() {
+					recover()
+					wg.Done()
+				}()
+				r.close(err)
+			}()
+			if err != nil {
+				wg.Wait()
+				panic(err)
+			}
+
 		}
 	}()
 
@@ -195,7 +207,7 @@ func (r *ClientReceiver) processReport(mmsPdu *MMSpdu) *Report {
 
 	dataSetRef = strings.ReplaceAll(dataSetRef, "$", ".")
 
-	dataSet := r.association.ServerModel.getDataSet(dataSetRef)
+	dataSet := r.association.ServerModel.GetDataSet(dataSetRef)
 	if dataSet == nil {
 		throw(
 			"unable to find data set that matches the given data set reference of the report.")

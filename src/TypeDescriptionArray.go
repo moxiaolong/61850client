@@ -28,7 +28,7 @@ func (a *TypeDescriptionArray) decode(is *bytes.Buffer, withTag bool) int {
 	vByteCount += berTag.decode(is)
 
 	if berTag.equals(128, 0, 0) {
-		a.packed = NewBerBoolean()
+		a.packed = NewBerBoolean(false)
 		vByteCount += a.packed.decode(is, false)
 		vByteCount += berTag.decode(is)
 	}

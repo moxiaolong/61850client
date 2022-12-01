@@ -27,7 +27,7 @@ func (r *ReadRequest) decode(is *bytes.Buffer, withTag bool) int {
 	vByteCount += berTag.decode(is)
 
 	if berTag.equals(128, 0, 0) {
-		r.specificationWithResult = NewBerBoolean()
+		r.specificationWithResult = NewBerBoolean(false)
 		vByteCount += r.specificationWithResult.decode(is, false)
 		vByteCount += berTag.decode(is)
 	}

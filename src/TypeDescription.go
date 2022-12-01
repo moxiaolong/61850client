@@ -82,7 +82,7 @@ func (d *TypeDescription) decode(is *bytes.Buffer, berTag *BerTag) int {
 	}
 
 	if berTag.equals(128, 0, 12) {
-		d.binaryTime = NewBerBoolean()
+		d.binaryTime = NewBerBoolean(false)
 		tlvByteCount += d.binaryTime.decode(is, false)
 		return tlvByteCount
 	}
