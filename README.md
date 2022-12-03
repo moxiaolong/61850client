@@ -3,23 +3,25 @@
 实现了Client部分。
 
 建立连接
-```golang
+```go
 clientSap := src.NewClientSap()
 association := clientSap.Associate(hostName, port, src.NewEventListener())
 ```
 接受SCL模型
-```golang
+```go
 serverModel := association.RetrieveModel()
 ```
 请求数据
-```golang
+```go
 fcModelNode := serverModel.AskForFcModelNode("ied1lDevice1/MMXU1.TotW.mag.f", "MX")
 association.GetDataValues(fcModelNode)
 fcNodeBasic := fcModelNode.(src.BasicDataAttributeI)
 println(fcNodeBasic.GetValueString())
 ```
 写入数据
-```
-TODO
+```go
+fcModelNode := serverModel.AskForFcModelNode("ied1lDevice1/LLN0.NamPlt.vendor", "DC")
+fcModelNode.(*src.BdaVisibleString).SetValue("abc")
+association.SetDataValues(fcModelNode)
 ```
 	
