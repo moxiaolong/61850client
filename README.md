@@ -24,4 +24,5 @@ fcModelNode := serverModel.AskForFcModelNode("ied1lDevice1/LLN0.NamPlt.vendor", 
 fcModelNode.(*src.BdaVisibleString).SetValue("abc")
 association.SetDataValues(fcModelNode)
 ```
+
 	
