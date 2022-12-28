@@ -127,6 +127,7 @@ func (c *ClientAssociation) handleInitiateResponse(responsePdu *MMSpdu, proposed
 
 func (c *ClientAssociation) Close() {
 	c.lock.Lock()
+	defer c.lock.Unlock()
 	if c.Closed == false {
 		c.Closed = true
 		c.AcseAssociation.disconnect()
@@ -136,7 +137,6 @@ func (c *ClientAssociation) Close() {
 		mmsPdu.confirmedRequestPDU = NewConfirmedRequestPDU()
 		c.incomingResponses <- mmsPdu
 	}
-	c.lock.Unlock()
 
 }
 

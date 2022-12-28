@@ -27,6 +27,7 @@ func (r *ClientReceiver) start() {
 }
 
 func (r *ClientReceiver) run() {
+	defer r.association.incomingResponsesLock.Unlock()
 	defer func() {
 		err := recover()
 		if err != nil {
@@ -116,6 +117,7 @@ func (r *ClientReceiver) run() {
 
 func (r *ClientReceiver) close(err any) {
 	r.lock.Lock()
+	defer r.lock.Unlock()
 	if r.closed == false {
 		r.closed = true
 		r.association.AcseAssociation.disconnect()
@@ -131,7 +133,6 @@ func (r *ClientReceiver) close(err any) {
 
 	}
 
-	r.lock.Unlock()
 }
 
 func (r *ClientReceiver) processReport(mmsPdu *MMSpdu) *Report {
@@ -306,6 +307,7 @@ func (r *ClientReceiver) processReport(mmsPdu *MMSpdu) *Report {
 
 func (r *ClientReceiver) removeExpectedResponse() *MMSpdu {
 	r.association.incomingResponsesLock.Lock()
+	defer r.association.incomingResponsesLock.Unlock()
 	r.expectedResponseId = -1
 	spdu := <-r.association.incomingResponses
 	r.association.incomingResponsesLock.Unlock()
