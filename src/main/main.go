@@ -1,7 +1,7 @@
 package main
 
 import (
-	"Go61850Client/src"
+	"github.com/moxiaolong/61850client/src"
 	"sync"
 	"time"
 )

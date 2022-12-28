@@ -9,10 +9,10 @@ import (
 type AcseAssociation struct {
 	MessageTimeout          int
 	associateResponseAPDU   *bytes.Buffer
-	tConnection             *TConnection
+	TConnection             *TConnection
 	pSelLocalBerOctetString *RespondingPresentationSelector
 	tSap                    *ClientTSap
-	connected               bool
+	Connected               bool
 }
 
 func (a *AcseAssociation) getAssociateResponseAPdu() *bytes.Buffer {
@@ -22,14 +22,14 @@ func (a *AcseAssociation) getAssociateResponseAPdu() *bytes.Buffer {
 }
 
 func (a *AcseAssociation) disconnect() {
-	a.connected = false
-	if a.tConnection != nil {
-		a.tConnection.disconnect()
+	a.Connected = false
+	if a.TConnection != nil {
+		a.TConnection.disconnect()
 	}
 }
 
 func (a *AcseAssociation) startAssociation(payload *bytes.Buffer, address string, port int, sSelRemote []byte, sSelLocal []byte, pSelRemote []byte, tSAP *ClientTSap, apTitleCalled []int, apTitleCalling []int, aeQualifierCalled int, aeQualifierCalling int) {
-	if a.connected {
+	if a.Connected {
 		throw("io")
 	}
 
@@ -124,7 +124,7 @@ func decodePConResponse(ppdu *bytes.Buffer) *bytes.Buffer {
 }
 
 func (a *AcseAssociation) startSConnection(ssduList [][]byte, ssduOffsets []int, ssduLengths []int, address string, port int, tSAP *ClientTSap, sSelRemote []byte, sSelLocal []byte) *bytes.Buffer {
-	if a.connected {
+	if a.Connected {
 		throw("io error")
 	}
 
@@ -227,9 +227,9 @@ func (a *AcseAssociation) startSConnection(ssduList [][]byte, ssduOffsets []int,
 	ssduOffsets = append([]int{0}, ssduOffsets...)
 	ssduLengths = append([]int{len(spduHeader)}, ssduLengths...)
 
-	a.tConnection = tSAP.connectTo(address, port)
+	a.TConnection = tSAP.connectTo(address, port)
 
-	a.tConnection.send(ssduList, ssduOffsets, ssduLengths)
+	a.TConnection.send(ssduList, ssduOffsets, ssduLengths)
 
 	// TODO how much should be allocated here?
 	pduBuffer := bytes.NewBuffer(make([]byte, 0))
@@ -239,7 +239,7 @@ func (a *AcseAssociation) startSConnection(ssduList [][]byte, ssduOffsets []int,
 			throw("ResponseTimeout waiting for connection response.")
 		}
 	}()
-	a.tConnection.receive(pduBuffer)
+	a.TConnection.receive(pduBuffer)
 
 	// read ISO 8327-1 Header
 	// SPDU Type: ACCEPT (14)
@@ -353,7 +353,7 @@ parameterLoop:
 
 	// got correct ACCEPT (AC) from the server
 
-	a.connected = true
+	a.Connected = true
 
 	return pduBuffer
 }
@@ -382,10 +382,10 @@ func (a *AcseAssociation) extractInteger(buffer *bytes.Buffer, size byte) int64 
 }
 
 func (a *AcseAssociation) receive(pduBuffer *bytes.Buffer) []byte {
-	if !a.connected {
-		throw("ACSE Association not connected")
+	if !a.Connected {
+		throw("ACSE Association not Connected")
 	}
-	a.tConnection.receive(pduBuffer)
+	a.TConnection.receive(pduBuffer)
 
 	a.decodeSessionLayer(pduBuffer)
 
@@ -451,7 +451,7 @@ func (a *AcseAssociation) sendByteBuffer(payload *bytes.Buffer) {
 
 	ssduList, ssduOffsets, ssduLengths = a.encodeSessionLayer(ssduList, ssduOffsets, ssduLengths)
 
-	a.tConnection.send(ssduList, ssduOffsets, ssduLengths)
+	a.TConnection.send(ssduList, ssduOffsets, ssduLengths)
 }
 
 func (a *AcseAssociation) encodePresentationLayer(payload *bytes.Buffer, ssduList [][]byte, ssduOffsets []int, ssduLengths []int) ([][]byte, []int, []int) {
@@ -587,7 +587,7 @@ func getPresentationUserDataField(userDataBytes []byte) *UserData {
 
 func NewAcseAssociation(tConnection *TConnection, pSelLocal []byte) *AcseAssociation {
 	a := &AcseAssociation{}
-	a.tConnection = tConnection
+	a.TConnection = tConnection
 	a.pSelLocalBerOctetString = NewRespondingPresentationSelector(pSelLocal)
 
 	return a

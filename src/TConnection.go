@@ -17,7 +17,7 @@ type TConnection struct {
 	messageTimeout         int
 	messageFragmentTimeout int
 	serverThread           *ServerThread
-	closed                 bool
+	Closed                 bool
 	os                     *bufio.Writer
 	is                     *bufio.Reader
 	srcRef                 int
@@ -46,7 +46,7 @@ func NewTConnection(socket *net.Conn, maxTPduSizeParam int, messageTimeout int, 
 		messageTimeout:         messageTimeout,
 		messageFragmentTimeout: messageFragmentTimeout,
 		serverThread:           serverThread,
-		closed:                 false,
+		Closed:                 false,
 		os:                     writeByteByter,
 		is:                     reader,
 		maxTPduSize:            maxTPduSize,
@@ -57,7 +57,7 @@ func NewTConnection(socket *net.Conn, maxTPduSizeParam int, messageTimeout int, 
  * Listens for a NewTPDU and writeByteBytes the extracted TSDU into the passed buffer.
  *
  * @param tSduBuffer the buffer that is filled with the received TSDU data.
- * @throws EOFException if a Disconnect Request (DR) was received or the socket was simply closed
+ * @throws EOFException if a Disconnect Request (DR) was received or the socket was simply Closed
  * @throws SocketTimeoutException if a messageFragmentTimeout is thrown by the socket while
  *     receiving the remainder of a message
  * @throws IOException if an ErrorPDU (ER) was received, any syntax error in the received message
@@ -335,7 +335,7 @@ func (t *TConnection) startConnection() {
 }
 
 /**
- * This function is called once a client has connected to the server. It listens for a Connection
+ * This function is called once a client has Connected to the server. It listens for a Connection
  * Request (CR). If this is successful it replies afterwards with a Connection Confirm (CC).
  * According to the norm a syntax error in the CR should be followed by an ER. This implementation
  * does not send an ER because it seems unnecessary.
@@ -674,7 +674,7 @@ func (t *TConnection) disconnect() {
 
 /** Will close the TCP connection if It's still open and free any resources of this connection. */
 func (t *TConnection) close() {
-	closed := t.closed
+	closed := t.Closed
 	serverThread := t.serverThread
 	if !closed {
 		closed = true

@@ -14,11 +14,11 @@ type ClientAssociation struct {
 	responseTimeout       int
 	negotiatedMaxPduSize  int
 	reportListener        *EventListener
-	acseAssociation       *AcseAssociation
+	AcseAssociation       *AcseAssociation
 	clientReceiver        *ClientReceiver
 	servicesSupported     []byte
 	lock                  *sync.Mutex
-	closed                bool
+	Closed                bool
 	incomingResponses     chan *MMSpdu
 	incomingResponsesLock *sync.Mutex
 	invokeId              int
@@ -33,7 +33,7 @@ func NewClientAssociation(address string, port int, acseSap *ClientAcseSap, prop
 	c.lock = &sync.Mutex{}
 	c.incomingResponses = make(chan *MMSpdu)
 	c.incomingResponsesLock = &sync.Mutex{}
-	c.closed = false
+	c.Closed = false
 	c.responseTimeout = responseTimeout
 	acseSap.tSap.MessageFragmentTimeout = messageFragmentTimeout
 	acseSap.tSap.MessageTimeout = responseTimeout
@@ -52,13 +52,13 @@ func NewClientAssociation(address string, port int, acseSap *ClientAcseSap, prop
 	reverseOStream := NewReverseByteArrayOutputStream(500)
 	initiateRequestMMSpdu.encode(reverseOStream)
 
-	c.acseAssociation =
+	c.AcseAssociation =
 		acseSap.associate(
 			address,
 			port,
 			reverseOStream.getByteBuffer())
 
-	initResponse := c.acseAssociation.getAssociateResponseAPdu()
+	initResponse := c.AcseAssociation.getAssociateResponseAPdu()
 
 	initiateResponseMmsPdu := NewMMSpdu()
 
@@ -71,7 +71,7 @@ func NewClientAssociation(address string, port int, acseSap *ClientAcseSap, prop
 		proposedMaxServOutstandingCalled,
 		proposedDataStructureNestingLevel)
 
-	c.acseAssociation.MessageTimeout = 0
+	c.AcseAssociation.MessageTimeout = 0
 	c.clientReceiver = NewClientReceiver(c.negotiatedMaxPduSize, c)
 	c.clientReceiver.start()
 	return c
@@ -83,7 +83,7 @@ func (c *ClientAssociation) handleInitiateResponse(responsePdu *MMSpdu, proposed
 	}
 
 	if responsePdu.initiateResponsePDU == nil {
-		c.acseAssociation.disconnect()
+		c.AcseAssociation.disconnect()
 		throw("Error decoding InitiateResponse Pdu")
 	}
 
@@ -109,7 +109,7 @@ func (c *ClientAssociation) handleInitiateResponse(responsePdu *MMSpdu, proposed
 
 	if c.negotiatedMaxPduSize < 64 || c.negotiatedMaxPduSize > proposedMaxPduSize || negotiatedMaxServOutstandingCalling > proposedMaxServOutstandingCalling || negotiatedMaxServOutstandingCalling < 0 || negotiatedMaxServOutstandingCalled > proposedMaxServOutstandingCalled || negotiatedMaxServOutstandingCalled < 0 || negotiatedDataStructureNestingLevel > proposedDataStructureNestingLevel || negotiatedDataStructureNestingLevel < 0 {
 
-		c.acseAssociation.disconnect()
+		c.AcseAssociation.disconnect()
 		throw("Error negotiating parameters")
 	}
 
@@ -127,9 +127,9 @@ func (c *ClientAssociation) handleInitiateResponse(responsePdu *MMSpdu, proposed
 
 func (c *ClientAssociation) Close() {
 	c.lock.Lock()
-	if c.closed == false {
-		c.closed = true
-		c.acseAssociation.disconnect()
+	if c.Closed == false {
+		c.Closed = true
+		c.AcseAssociation.disconnect()
 		go c.reportListener.associationClosed()
 
 		mmsPdu := NewMMSpdu()
@@ -231,7 +231,7 @@ func (c *ClientAssociation) encodeWriteReadDecode(serviceRequest *ConfirmedServi
 				panic(r)
 			}
 		}()
-		c.acseAssociation.sendByteBuffer(c.reverseOStream.getByteBuffer())
+		c.AcseAssociation.sendByteBuffer(c.reverseOStream.getByteBuffer())
 	}()
 
 	var decodedResponsePdu *MMSpdu = nil
@@ -267,7 +267,7 @@ func (c *ClientAssociation) encodeWriteReadDecode(serviceRequest *ConfirmedServi
 
 	if decodedResponsePdu.confirmedRequestPDU != nil {
 		c.incomingResponses <- decodedResponsePdu
-		throw("connection was closed", c.clientReceiver.lastIOException)
+		throw("connection was Closed", c.clientReceiver.lastIOException)
 	}
 
 	testForInitiateErrorResponse(decodedResponsePdu)

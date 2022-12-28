@@ -2,6 +2,7 @@ package src
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 	"sync"
 )
@@ -38,18 +39,15 @@ func (r *ClientReceiver) run() {
 				}()
 				r.close(err)
 			}()
-			if err != nil {
-				wg.Wait()
-				panic(err)
-			}
-
+			wg.Wait()
+			fmt.Printf("线程退出 %v", err)
 		}
 	}()
 
 	for {
 		r.pduBuffer.Reset()
 		var buffer []byte
-		buffer = r.association.acseAssociation.receive(r.pduBuffer)
+		buffer = r.association.AcseAssociation.receive(r.pduBuffer)
 		decodedResponsePdu := NewMMSpdu()
 		decodedResponsePdu.decode(bytes.NewBuffer(buffer))
 
@@ -120,7 +118,7 @@ func (r *ClientReceiver) close(err any) {
 	r.lock.Lock()
 	if r.closed == false {
 		r.closed = true
-		r.association.acseAssociation.disconnect()
+		r.association.AcseAssociation.disconnect()
 
 		if r.reportListener != nil {
 			go r.reportListener.associationClosed(err)
