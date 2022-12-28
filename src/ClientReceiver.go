@@ -27,7 +27,6 @@ func (r *ClientReceiver) start() {
 }
 
 func (r *ClientReceiver) run() {
-	defer r.association.incomingResponsesLock.Unlock()
 	defer func() {
 		err := recover()
 		if err != nil {
