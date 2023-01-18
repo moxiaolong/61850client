@@ -40,8 +40,22 @@ func (s *DataSet) getMmsObjectName() *ObjectName {
 	return s.mmsObjectName
 }
 
-func NewDataSet() *DataSet {
-	return &DataSet{}
+func NewDataSet(dataSetReference string, members []FcModelNodeI, deletable bool) *DataSet {
+
+	d := &DataSet{}
+
+	d.Members = make([]FcModelNodeI, 0)
+	d.DataSetReference = dataSetReference
+	d.deletable = deletable
+
+	d.MembersMap = make(map[string]map[string]FcModelNodeI)
+	for _, member := range members {
+		d.Members = append(d.Members, member)
+		d.MembersMap[(member.getFc())] = make(map[string]FcModelNodeI)
+		d.MembersMap[(member.getFc())][member.getObjectReference().toString()] = member
+	}
+
+	return d
 }
 func NewDataSetWithRef(dataSetReference string, members []FcModelNodeI, deletable bool) *DataSet {
 	d := &DataSet{}

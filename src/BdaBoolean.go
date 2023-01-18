@@ -38,6 +38,10 @@ func (i *BdaBoolean) setDefault() {
 func (i *BdaBoolean) GetValueString() string {
 	return strconv.FormatBool(i.value)
 }
+
+func (i *BdaBoolean) setValue(b bool) {
+
+}
 func NewBdaBoolean(objectReference *ObjectReference, fc string, sAddr string, dchg bool, dupd bool) *BdaBoolean {
 
 	attribute := NewBasicDataAttribute(objectReference, fc, sAddr, dchg, dupd)

@@ -29,3 +29,23 @@ func NewBdaTriggerConditions(objectReference *ObjectReference, fc string) *BdaTr
 func (s *BdaTriggerConditions) setDefault() {
 	s.value = []byte{0x04}
 }
+
+func (s *BdaTriggerConditions) setDataChange(b bool) {
+	//TODO
+}
+
+func (s *BdaTriggerConditions) setQualityChange(b bool) {
+
+}
+
+func (s *BdaTriggerConditions) setDataUpdate(b bool) {
+
+}
+
+func (s *BdaTriggerConditions) setIntegrity(b bool) {
+
+}
+
+func (s *BdaTriggerConditions) setGeneralInterrogation(b bool) {
+
+}

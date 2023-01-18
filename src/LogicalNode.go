@@ -2,14 +2,13 @@ package src
 
 import (
 	"strings"
-	"unsafe"
 )
 
 type LogicalNode struct {
 	ModelNode
 	urcbs         map[string]*Urcb
 	brcbs         map[string]*Brcb
-	fcDataObjects map[string]map[string]*FcDataObject
+	fcDataObjects map[string]map[string]FcDataObjectI
 }
 
 func (n *LogicalNode) setValueFromMmsDataObj(data *Data) {
@@ -23,7 +22,7 @@ func (n *LogicalNode) getMmsVariableDef() *VariableDefsSEQUENCE {
 }
 
 func (n *LogicalNode) copy() ModelNodeI {
-	dataObjectsCopy := make([]*FcDataObject, 0)
+	dataObjectsCopy := make([]FcDataObjectI, 0)
 	for _, obj := range n.Children {
 		dataObjectsCopy = append(dataObjectsCopy, obj.copy().(*FcDataObject))
 	}
@@ -46,27 +45,27 @@ func (n *LogicalNode) addUrcb(urcb *Urcb, addDataSet bool) {
 	}
 }
 
-func NewLogicalNode(objectReference *ObjectReference, fcDataObjects []*FcDataObject) *LogicalNode {
+func NewLogicalNode(objectReference *ObjectReference, fcDataObjects []FcDataObjectI) *LogicalNode {
 	l := &LogicalNode{}
 	l.Children = make(map[string]ModelNodeI)
-	l.fcDataObjects = make(map[string]map[string]*FcDataObject)
+	l.fcDataObjects = make(map[string]map[string]FcDataObjectI)
 	l.ObjectReference = objectReference
 	l.urcbs = make(map[string]*Urcb)
 	l.brcbs = make(map[string]*Brcb)
 
 	for _, fcDataObject := range fcDataObjects {
-		key := fcDataObject.ObjectReference.getName() + fcDataObject.Fc
+		key := fcDataObject.GetObjectReference().getName() + fcDataObject.getFc()
 		l.Children[key] = fcDataObject
 
-		if l.fcDataObjects[fcDataObject.Fc] == nil {
-			l.fcDataObjects[fcDataObject.Fc] = make(map[string]*FcDataObject)
+		if l.fcDataObjects[fcDataObject.getFc()] == nil {
+			l.fcDataObjects[fcDataObject.getFc()] = make(map[string]FcDataObjectI)
 		}
-		l.fcDataObjects[fcDataObject.Fc][fcDataObject.ObjectReference.getName()] = fcDataObject
-		fcDataObject.parent = l
-		if fcDataObject.Fc == RP {
-			l.addUrcb((*Urcb)(unsafe.Pointer(fcDataObject)), false)
-		} else if fcDataObject.Fc == BR {
-			l.addBrcb((*Brcb)(unsafe.Pointer(fcDataObject)))
+		l.fcDataObjects[fcDataObject.getFc()][fcDataObject.GetObjectReference().getName()] = fcDataObject
+		fcDataObject.setParent(l)
+		if fcDataObject.getFc() == RP {
+			l.addUrcb((fcDataObject).(*Urcb), false)
+		} else if fcDataObject.getFc() == BR {
+			l.addBrcb((fcDataObject).(*Brcb))
 		}
 	}
 	return l

@@ -4,10 +4,18 @@ import (
 	"strconv"
 )
 
+type FcDataObjectI interface {
+	FcModelNodeI
+	GetObjectReference() *ObjectReference
+}
+
 type FcDataObject struct {
 	FcModelNode
 }
 
+func (n *FcDataObject) GetObjectReference() *ObjectReference {
+	return n.ObjectReference
+}
 func (n *FcDataObject) getMmsDataObj() *Data {
 	dataStructure := NewDataStructure()
 	for _, modelNode := range n.getChildren() {

@@ -34,6 +34,10 @@ func (i *BdaInt8U) setValueFromMmsDataObj(data *Data) {
 func (i *BdaInt8U) setDefault() {
 	i.value = 0
 }
+
+func (s *BdaInt8U) setValue(atoi int) {
+
+}
 func NewBdaInt8U(objectReference *ObjectReference, fc string, sAddr string, dchg bool, dupd bool) *BdaInt8U {
 
 	attribute := NewBasicDataAttribute(objectReference, fc, sAddr, dchg, dupd)

@@ -38,6 +38,10 @@ func (s *BdaUnicodeString) setDefault() {
 	s.value = make([]byte, 0)
 }
 
+func (f *BdaUnicodeString) setValue(val []byte) {
+
+}
+
 func NewBdaUnicodeString(objectReference *ObjectReference, fc string, sAddr string, maxlenght int, dchg bool, dupd bool) *BdaUnicodeString {
 
 	b := &BdaUnicodeString{}

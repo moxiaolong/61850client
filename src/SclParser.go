@@ -36,7 +36,7 @@ func (d *TypeDefinitions) putEnumType(enumType *EnumType) {
 
 func (d *TypeDefinitions) getLNodeType(lnType string) *LnType {
 	for _, ntype := range d.lnodeTypes {
-		if ntype.id == (lnType) {
+		if ntype.Id == (lnType) {
 			return ntype
 		}
 	}
@@ -46,7 +46,7 @@ func (d *TypeDefinitions) getLNodeType(lnType string) *LnType {
 
 func (d *TypeDefinitions) getDOType(doType string) *DoType {
 	for _, dotype := range d.doTypes {
-		if dotype.id == (doType) {
+		if dotype.Id == (doType) {
 			return dotype
 		}
 	}
@@ -54,12 +54,39 @@ func (d *TypeDefinitions) getDOType(doType string) *DoType {
 	return nil
 }
 
-func (d *TypeDefinitions) getDaType(getType string) *DaType {
-
+func (d *TypeDefinitions) getDaType(daType string) *DaType {
+	for _, datype := range d.daTypes {
+		if datype.Id == daType {
+			return datype
+		}
+	}
+	return nil
 }
 
-func (d *TypeDefinitions) getEnumType(atype string) *EnumType {
+func (d *TypeDefinitions) getEnumType(enumTypeRef string) *EnumType {
+	for _, enumType := range d.enumTypes {
+		if enumType.Id == enumTypeRef {
+			return enumType
+		}
+	}
+	return nil
+}
 
+func NewSclParser() *SclParser {
+	return &SclParser{
+		ServerModel: nil,
+		doc:         nil,
+		typeDefinitions: &TypeDefinitions{
+			lnodeTypes: nil,
+			doTypes:    nil,
+			daTypes:    nil,
+			enumTypes:  nil,
+		},
+		iedName:              "",
+		useResvTmsAttributes: false,
+		dataSetDefs:          nil,
+		dataSetsMap:          nil,
+	}
 }
 
 type SclParser struct {
@@ -90,7 +117,7 @@ func (p *SclParser) ParseStream(content []byte) error {
 		return err
 	}
 
-	iedList := p.doc.SelectElements("IED")
+	iedList := p.doc.Root().SelectElements("IED")
 	if len(iedList) == 0 {
 		return errors.New("No IED section found!")
 
@@ -134,7 +161,7 @@ func (p *SclParser) ParseStream(content []byte) error {
 }
 
 func (p *SclParser) readTypeDefinitions() error {
-	dttSections := p.doc.SelectElements("DataTypeTemplates")
+	dttSections := p.doc.Root().SelectElements("DataTypeTemplates")
 	if len(dttSections) != 1 {
 		return errors.New("Only one DataTypeSection allowed")
 	}
@@ -174,7 +201,7 @@ func (p *SclParser) createAccessPoint(iedServer *etree.Element) (serverSap *Serv
 			namedItem := iedServer.SelectAttr("name")
 			if namedItem == nil {
 				err = errors.New("AccessPoint has no name attribute!")
-				return
+				return nil, err
 			}
 			// TODO save this name?
 			serverSap = NewServerSap(102, 0, server)
@@ -204,7 +231,10 @@ func (p *SclParser) createServerModel(serverXMLNode *etree.Element) (s *ServerMo
 	p.dataSetsMap = make(map[string]*DataSet)
 	for _, dataSetDef := range p.dataSetDefs {
 
-		dataSet := p.createDataSet(p.ServerModel, dataSetDef.logicalNode, dataSetDef.defXmlNode)
+		dataSet, err := p.createDataSet(serverModel, dataSetDef.logicalNode, dataSetDef.defXmlNode)
+		if err != nil {
+			return nil, err
+		}
 		p.dataSetsMap[dataSet.DataSetReference] = dataSet
 	}
 	dataSets := make([]*DataSet, 0)
@@ -285,24 +315,24 @@ func (p *SclParser) createNewLogicalNode(lnXmlNode *etree.Element, parentRef str
 		}
 	}
 
-	if inst == "" {
-		err = errors.New("Required attribute \"inst\" not found!")
-		return nil, err
-	}
-	if lnType == "" {
-		err = errors.New("Required attribute \"lnType\" not found!")
-		return nil, err
-	}
-	if lnClass == "" {
-		err = errors.New("Required attribute \"lnClass\" not found!")
-		return nil, err
-	}
+	//if inst == "" {
+	//	err = errors.New("Required attribute \"inst\" not found!")
+	//	return nil, err
+	//}
+	//if lnType == "" {
+	//	err = errors.New("Required attribute \"lnType\" not found!")
+	//	return nil, err
+	//}
+	//if lnClass == "" {
+	//	err = errors.New("Required attribute \"lnClass\" not found!")
+	//	return nil, err
+	//}
 
 	ref := parentRef + "/" + prefix + lnClass + inst
 
 	lnTypeDef := p.typeDefinitions.getLNodeType(lnType)
 
-	dataObjects := make([]*FcDataObject, 0)
+	dataObjects := make([]FcDataObjectI, 0)
 
 	if lnTypeDef == nil {
 		err = errors.New("LNType " + lnType + " not defined!")
@@ -333,7 +363,13 @@ func (p *SclParser) createNewLogicalNode(lnXmlNode *etree.Element, parentRef str
 	// look for ReportControl
 	for _, childNode := range lnXmlNode.ChildElements() {
 		if "ReportControl" == (childNode.Tag) {
-			dataObjects = append(dataObjects, p.createReportControlBlocks(childNode, ref))
+			rcb, err := p.createReportControlBlocks(childNode, ref)
+			if err != nil {
+				return nil, err
+			}
+			for _, item := range rcb {
+				dataObjects = append(dataObjects, item)
+			}
 		}
 	}
 
@@ -349,7 +385,7 @@ func (p *SclParser) createNewLogicalNode(lnXmlNode *etree.Element, parentRef str
 	return lNode, nil
 }
 
-func (p *SclParser) createFcDataObjects(name string, parentRef string, doTypeID string, doiNode *etree.Element) (fc []*FcDataObject, err error) {
+func (p *SclParser) createFcDataObjects(name string, parentRef string, doTypeID string, doiNode *etree.Element) (fc []FcDataObjectI, err error) {
 
 	doType := p.typeDefinitions.getDOType(doTypeID)
 
@@ -409,10 +445,6 @@ func (p *SclParser) createFcDataObjects(name string, parentRef string, doTypeID 
 			childNodes = append(childNodes, object)
 		}
 
-		a1 := make([]interface{}, 0)
-		a2 := make([]string, 0)
-		a1 = append(a1, a2[0], a2[1])
-
 	}
 
 	subFCDataMap := make(map[string][]ModelNodeI)
@@ -421,7 +453,7 @@ func (p *SclParser) createFcDataObjects(name string, parentRef string, doTypeID 
 		subFCDataMap[childNode.(FcModelNodeI).getFc()] = append(subFCDataMap[childNode.(FcModelNodeI).getFc()], childNode.(FcModelNodeI))
 	}
 
-	fcDataObjects := make([]*FcDataObject, 0)
+	fcDataObjects := make([]FcDataObjectI, 0)
 	objectReference := NewObjectReference(ref)
 
 	for s, is := range subFCDataMap {
@@ -432,7 +464,7 @@ func (p *SclParser) createFcDataObjects(name string, parentRef string, doTypeID 
 	return fcDataObjects, nil
 }
 
-func (p *SclParser) createReportControlBlocks(xmlNode *etree.Element, parentRef string) (rcb []*Rcb, err error) {
+func (p *SclParser) createReportControlBlocks(xmlNode *etree.Element, parentRef string) (rcb []RcbI, err error) {
 
 	fc := RP
 
@@ -466,7 +498,7 @@ func (p *SclParser) createReportControlBlocks(xmlNode *etree.Element, parentRef 
 		}
 	}
 
-	rcbInstances := make([]*Rcb, 0)
+	rcbInstances := make([]RcbI, 0)
 
 	for z := 1; z <= maxInstances; z++ {
 
@@ -543,7 +575,7 @@ func (p *SclParser) createReportControlBlocks(xmlNode *etree.Element, parentRef 
 						// }
 					}
 				}
-			} else if "RptEnabled" == childNode.Tag) {
+			} else if "RptEnabled" == childNode.Tag {
 				rptEnabledMaxAttr := childNode.SelectAttr("max")
 				if rptEnabledMaxAttr != nil {
 					atoi, err := strconv.Atoi(rptEnabledMaxAttr.Value)
@@ -636,7 +668,7 @@ func (p *SclParser) createReportControlBlocks(xmlNode *etree.Element, parentRef 
 
 		children = append(children, NewBdaBoolean(NewObjectReference(reportObjRef.toString()+".GI"), fc, "", false, false))
 
-		var rcb interface{}
+		var rcb RcbI
 
 		if fc == BR {
 
@@ -681,7 +713,7 @@ func (p *SclParser) createReportControlBlocks(xmlNode *etree.Element, parentRef 
 			rcb = NewUrcb(reportObjRef, children)
 		}
 
-		rcbInstances = append(rcbInstances, (rcb).(*Rcb))
+		rcbInstances = append(rcbInstances, rcb)
 	}
 
 	return rcbInstances, nil
@@ -697,7 +729,7 @@ func (p *SclParser) createDataSet(model *ServerModel, lNode *LogicalNode, dsXmlN
 
 	name := nameAttribute.Value
 
-	dsMembers := make([]*FcModelNode, 0)
+	dsMembers := make([]FcModelNodeI, 0)
 
 	for _, fcdaXmlNode := range dsXmlNode.ChildElements() {
 
@@ -759,27 +791,27 @@ func (p *SclParser) createDataSet(model *ServerModel, lNode *LogicalNode, dsXmlN
 
 				objectReference := p.iedName + ldInst + "/" + prefix + lnClass + lnInst + "." + doName + daName
 
-				fcdaNode := p.ServerModel.findModelNode(objectReference, fc)
+				fcdaNode := model.findModelNode(objectReference, fc)
 
 				if fcdaNode == nil {
 					err = errors.New(
 						"Specified FCDA: " + objectReference + " in DataSet: " + nameAttribute.Key + " not found in Model.")
 					return nil, err
 				}
-				dsMembers = append(dsMembers, fcdaNode.(*FcModelNode))
+				dsMembers = append(dsMembers, fcdaNode.(FcModelNodeI))
 
 			} else {
 
 				objectReference := p.iedName + ldInst + "/" + prefix + lnClass + lnInst
 
-				logicalNode := p.ServerModel.findModelNode(objectReference, "")
+				logicalNode := model.findModelNode(objectReference, "")
 				if logicalNode == nil {
 					err = errors.New("Specified FCDA: " + objectReference + " in DataSet: " + nameAttribute.Key + " not found in Model.")
 					return nil, err
 				}
 				fcDataObjects := logicalNode.getChildren()[fc]
 				for _, dataObj := range fcDataObjects.getChildren() {
-					dsMembers = append(dsMembers, dataObj.(*FcModelNode))
+					dsMembers = append(dsMembers, dataObj.(FcModelNodeI))
 				}
 
 			}
@@ -815,7 +847,7 @@ func (p *SclParser) createArrayOfDataAttributes(ref string, dataAttribute *Da, i
 	return NewFCArray(NewObjectReference(ref), fc, arrayItems), nil
 }
 
-func (p *SclParser) createDataAttribute(ref string, fc string, dattr AbstractDataAttribute, iXmlNode *etree.Element, dchg bool, dupd bool, qchg bool) (m FcModelNodeI, err error) {
+func (p *SclParser) createDataAttribute(ref string, fc string, dattr AbstractDataAttributeI, iXmlNode *etree.Element, dchg bool, dupd bool, qchg bool) (m FcModelNodeI, err error) {
 
 	dataAttribute, ok := dattr.(*Da)
 	if ok {
@@ -865,7 +897,7 @@ func (p *SclParser) createDataAttribute(ref string, fc string, dattr AbstractDat
 
 		if val == "" {
 			// insert value from DA element
-			val = dattr.value
+			val = dattr.getValue()
 		}
 	}
 
@@ -1113,4 +1145,20 @@ func (p *SclParser) createDataAttribute(ref string, fc string, dattr AbstractDat
 		return nil, err
 	}
 
+}
+
+func (p *SclParser) findINode(node *etree.Element, dattrName string) *etree.Element {
+	if node == nil {
+		return nil
+	}
+	for _, childNode := range node.ChildElements() {
+		if childNode.Attr != nil {
+			attr := childNode.SelectAttr("name")
+			if attr != nil && attr.Value == dattrName {
+				return childNode
+			}
+		}
+	}
+
+	return nil
 }

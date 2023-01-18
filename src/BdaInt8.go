@@ -49,3 +49,7 @@ func NewBdaInt8(objectReference *ObjectReference, fc string, sAddr string, dchg 
 func (i *BdaInt8) GetValueString() string {
 	return strconv.Itoa(i.value)
 }
+
+func (s *BdaInt8) setValue(b int) {
+
+}

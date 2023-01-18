@@ -56,3 +56,7 @@ func (i *BdaFloat64) GetValueString() string {
 	//TODO 需要测
 	return fmt.Sprintf("%s", i.value)
 }
+
+func (s *BdaFloat64) setValue(bytes []byte) {
+
+}

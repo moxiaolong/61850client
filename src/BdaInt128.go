@@ -51,3 +51,7 @@ func NewBdaInt128(objectReference *ObjectReference, fc string, sAddr string, dch
 func (i *BdaInt128) GetValueString() string {
 	return strconv.Itoa(i.value)
 }
+
+func (s *BdaInt128) setValue(atoi int) {
+
+}

@@ -25,16 +25,16 @@ func NewServerModel(logicalDevices []*LogicalDevice, dataSets []*DataSet) *Serve
 		logicalDevice.parent = m
 	}
 
-	m.addDataSets(dataSets)
+	if dataSets != nil {
+		m.addDataSets(dataSets)
+	}
 
 	for _, ld := range logicalDevices {
 		for _, ln := range ld.Children {
 			l := (ln).(*LogicalNode)
 			for _, urcb := range l.urcbs {
 				m.urcbs[urcb.ObjectReference.toString()] = urcb
-
 				urcb.dataSet = m.GetDataSet(strings.ReplaceAll(urcb.getDatSet().getStringValue(), "$", "."))
-
 			}
 			for _, brcb := range l.brcbs {
 				m.brcbs[brcb.ObjectReference.toString()] = brcb

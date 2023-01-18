@@ -34,6 +34,10 @@ func (i *BdaInt16U) setValueFromMmsDataObj(data *Data) {
 func (i *BdaInt16U) setDefault() {
 	i.value = 0
 }
+
+func (s *BdaInt16U) setValue(atoi int) {
+
+}
 func NewBdaInt16U(objectReference *ObjectReference, fc string, sAddr string, dchg bool, dupd bool) *BdaInt16U {
 
 	attribute := NewBasicDataAttribute(objectReference, fc, sAddr, dchg, dupd)

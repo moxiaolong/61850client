@@ -61,6 +61,10 @@ func (i *BdaFloat32) setValueFromMmsDataObj(data *Data) {
 func (i *BdaFloat32) setDefault() {
 	i.value = []byte{8, 0, 0, 0, 0}
 }
+
+func (s *BdaFloat32) setValue(i []byte) {
+
+}
 func NewBdaFloat32(objectReference *ObjectReference, fc string, sAddr string, dchg bool, dupd bool) *BdaFloat32 {
 
 	attribute := NewBasicDataAttribute(objectReference, fc, sAddr, dchg, dupd)

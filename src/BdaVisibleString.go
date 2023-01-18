@@ -57,3 +57,7 @@ func NewBdaVisibleString(objectReference *ObjectReference, fc string, sAddr stri
 func (s *BdaVisibleString) GetValueString() string {
 	return string(s.value)
 }
+
+func (f *BdaVisibleString) setValue(value string) {
+
+}

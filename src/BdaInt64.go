@@ -35,6 +35,10 @@ func (i *BdaInt64) setDefault() {
 	i.value = 0
 }
 
+func (s *BdaInt64) setValue(atoi int) {
+
+}
+
 func NewBdaInt64(objectReference *ObjectReference, fc string, sAddr string, dchg bool, dupd bool) *BdaInt64 {
 	attribute := NewBasicDataAttribute(objectReference, fc, sAddr, dchg, dupd)
 	attribute.basicType = INT64

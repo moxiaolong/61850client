@@ -54,6 +54,30 @@ func (f *BdaOptFlds) isReasonForInclusion() bool {
 	return (f.value[0] & 0x10) == 0x10
 }
 
+func (f *BdaOptFlds) setSequenceNumber(b bool) {
+
+}
+
+func (f *BdaOptFlds) setReportTimestamp(b bool) {
+
+}
+
+func (f *BdaOptFlds) setReasonForInclusion(b bool) {
+
+}
+
+func (f *BdaOptFlds) setDataSetName(b bool) {
+
+}
+
+func (f *BdaOptFlds) setBufferOverflow(b bool) {
+
+}
+
+func (f *BdaOptFlds) setEntryId(b bool) {
+
+}
+
 func NewBdaOptFlds(objectReference *ObjectReference, fc string) *BdaOptFlds {
 	b := &BdaOptFlds{}
 	b.BdaBitString = *NewBdaBitString(objectReference, fc, "", 10, false, false)

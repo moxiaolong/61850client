@@ -17,7 +17,7 @@ func parseGetDataDefinitionResponse(confirmedServiceResponse *ConfirmedServiceRe
 		throw("decodeGetDataDefinitionResponse: Error decoding GetDataDefinitionResponsePdu")
 	}
 	structure := typeSpec.structure.components
-	fcDataObjects := make([]*FcDataObject, 0)
+	fcDataObjects := make([]FcDataObjectI, 0)
 
 	for _, fcComponent := range structure.seqOf {
 		if fcComponent.componentName == nil {
@@ -44,9 +44,9 @@ func parseGetDataDefinitionResponse(confirmedServiceResponse *ConfirmedServiceRe
 	return ln
 }
 
-func getFcDataObjectsFromSubStructure(lnRef *ObjectReference, fc string, components *TypeDescriptionComponents) []*FcDataObject {
+func getFcDataObjectsFromSubStructure(lnRef *ObjectReference, fc string, components *TypeDescriptionComponents) []FcDataObjectI {
 	structComponents := components.seqOf
-	dataObjects := make([]*FcDataObject, 0)
+	dataObjects := make([]FcDataObjectI, 0)
 
 	for _, doComp := range structComponents {
 		if doComp.componentName == nil {

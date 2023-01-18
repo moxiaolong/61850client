@@ -1,5 +1,10 @@
 package src
 
+type RcbI interface {
+	FcDataObjectI
+	getRptId() *BdaVisibleString
+	getDatSet() *BdaVisibleString
+}
 type Rcb struct {
 	FcDataObject
 	dataSet *DataSet
