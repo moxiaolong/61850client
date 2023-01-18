@@ -1,6 +1,7 @@
 package src
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"testing"
 )
@@ -15,5 +16,28 @@ func TestParseStream(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	println("ok")
+	model := parser.ServerModel
+	toMap := serverModelToMap(model)
+	marshal, err := json.Marshal(toMap)
+	println(string(marshal))
+}
+
+func serverModelToMap(serverModel *ServerModel) map[string][]map[string]string {
+	result := make(map[string][]map[string]string)
+	for _, dataSet := range serverModel.DataSets {
+		referenceStr := dataSet.DataSetReference
+		nameList := make([]map[string]string, 0)
+		result[referenceStr] = nameList
+		for _, fcModelNode := range dataSet.Members {
+			fc := fcModelNode.getFc()
+			name := fcModelNode.getObjectReference().toString()
+			fcNodeMap := make(map[string]string)
+			fcNodeMap["ref"] = fc + "$" + name
+			fcNodeMap["desc"] = fcModelNode.getDesc()
+			result[referenceStr] = append(result[referenceStr], fcNodeMap)
+		}
+
+	}
+
+	return result
 }

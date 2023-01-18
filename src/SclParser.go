@@ -743,6 +743,7 @@ func (p *SclParser) createDataSet(model *ServerModel, lNode *LogicalNode, dsXmlN
 			lnInst := ""
 			doName := ""
 			daName := ""
+			desc := ""
 			fc := ""
 
 			attributes := fcdaXmlNode.Attr
@@ -770,6 +771,8 @@ func (p *SclParser) createDataSet(model *ServerModel, lNode *LogicalNode, dsXmlN
 						err = errors.New("FCDA contains invalid FC: " + node.Value)
 						return nil, err
 					}
+				} else if nodeName == "desc" {
+					desc = node.Value
 				}
 			}
 
@@ -792,6 +795,7 @@ func (p *SclParser) createDataSet(model *ServerModel, lNode *LogicalNode, dsXmlN
 				objectReference := p.iedName + ldInst + "/" + prefix + lnClass + lnInst + "." + doName + daName
 
 				fcdaNode := model.findModelNode(objectReference, fc)
+				fcdaNode.setDesc(desc)
 
 				if fcdaNode == nil {
 					err = errors.New(

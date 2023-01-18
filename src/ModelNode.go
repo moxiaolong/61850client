@@ -10,12 +10,15 @@ type ModelNodeI interface {
 	setParent(node ModelNodeI)
 	getName() string
 	getParent() ModelNodeI
+	setDesc(desc string)
+	getDesc() string
 }
 
 type ModelNode struct {
 	Children        map[string]ModelNodeI
 	ObjectReference *ObjectReference
 	parent          ModelNodeI
+	desc            string
 }
 
 func (m *ModelNode) copy() ModelNodeI {
@@ -31,6 +34,12 @@ func (m *ModelNode) setValueFromMmsDataObj(data *Data) {
 
 func (m *ModelNode) setParent(node ModelNodeI) {
 	m.parent = node
+}
+func (m *ModelNode) setDesc(desc string) {
+	m.desc = desc
+}
+func (m *ModelNode) getDesc() string {
+	return m.desc
 }
 
 func (m *ModelNode) getParent() ModelNodeI {
