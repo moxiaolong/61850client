@@ -24,6 +24,7 @@ func TestParseStream(t *testing.T) {
 
 func serverModelToMap(serverModel *ServerModel) map[string][]map[string]string {
 	result := make(map[string][]map[string]string)
+
 	for _, dataSet := range serverModel.DataSets {
 		referenceStr := dataSet.DataSetReference
 		nameList := make([]map[string]string, 0)
@@ -31,10 +32,20 @@ func serverModelToMap(serverModel *ServerModel) map[string][]map[string]string {
 		for _, fcModelNode := range dataSet.Members {
 			fc := fcModelNode.getFc()
 			name := fcModelNode.getObjectReference().toString()
-			fcNodeMap := make(map[string]string)
-			fcNodeMap["ref"] = fc + "$" + name
-			fcNodeMap["desc"] = fcModelNode.getDesc()
-			result[referenceStr] = append(result[referenceStr], fcNodeMap)
+			if fcModelNode.getChildren() != nil && len(fcModelNode.getChildren()) > 0 {
+				for _, item := range fcModelNode.getChildren() {
+					fcNodeMap := make(map[string]string)
+					fcNodeMap["ref"] = fc + "$" + item.getObjectReference().toString()
+					fcNodeMap["desc"] = item.getDesc()
+					result[referenceStr] = append(result[referenceStr], fcNodeMap)
+
+				}
+			} else {
+				fcNodeMap := make(map[string]string)
+				fcNodeMap["ref"] = fc + "$" + name
+				fcNodeMap["desc"] = fcModelNode.getDesc()
+				result[referenceStr] = append(result[referenceStr], fcNodeMap)
+			}
 		}
 
 	}
