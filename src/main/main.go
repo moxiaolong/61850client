@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/moxiaolong/61850client/src"
-	"sync"
 	"time"
 )
 
@@ -23,20 +22,20 @@ func main() {
 
 	clientSap := src.NewClientSap()
 	association := clientSap.Associate(hostName, port, src.NewEventListener())
-	defer func() {
-		err := recover()
-		var wg sync.WaitGroup
-		wg.Add(1)
-		go func() {
-			defer func() { wg.Done() }()
-			association.Close()
-		}()
-		if err != nil {
-			wg.Wait()
-			panic(err)
-		}
-
-	}()
+	//defer func() {
+	//	err := recover()
+	//	var wg sync.WaitGroup
+	//	wg.Add(1)
+	//	go func() {
+	//		defer func() { wg.Done() }()
+	//		association.Close()
+	//	}()
+	//	if err != nil {
+	//		wg.Wait()
+	//		panic(err)
+	//	}
+	//
+	//}()
 
 	//serverModel = src.SclParserParse(modelFilePath)[0]
 	//association.ServerModel = serverModel

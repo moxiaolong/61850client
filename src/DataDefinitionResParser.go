@@ -3,7 +3,6 @@ package src
 import (
 	"math"
 	"strconv"
-	"unsafe"
 )
 
 func parseGetDataDefinitionResponse(confirmedServiceResponse *ConfirmedServiceResponse, lnRef *ObjectReference) *LogicalNode {
@@ -63,14 +62,14 @@ func getFcDataObjectsFromSubStructure(lnRef *ObjectReference, fc string, compone
 				fc,
 				doComp.componentType.typeDescription.structure.components)
 		if fc == RP {
-			pointer := unsafe.Pointer(NewUrcb(doRef, children))
-			dataObjects = append(dataObjects, (*FcDataObject)(pointer))
+			urcb := NewUrcb(doRef, children)
+			dataObjects = append(dataObjects, urcb)
 		} else if fc == BR {
-			pointer := unsafe.Pointer(NewBrcb(doRef, children))
-			dataObjects = append(dataObjects, (*FcDataObject)(pointer))
+			brcb := NewBrcb(doRef, children)
+			dataObjects = append(dataObjects, brcb)
 		} else {
-			pointer := unsafe.Pointer(NewFcDataObject(doRef, fc, children))
-			dataObjects = append(dataObjects, (*FcDataObject)(pointer))
+			object := NewFcDataObject(doRef, fc, children)
+			dataObjects = append(dataObjects, object)
 		}
 	}
 

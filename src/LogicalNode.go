@@ -24,7 +24,7 @@ func (n *LogicalNode) getMmsVariableDef() *VariableDefsSEQUENCE {
 func (n *LogicalNode) copy() ModelNodeI {
 	dataObjectsCopy := make([]FcDataObjectI, 0)
 	for _, obj := range n.Children {
-		dataObjectsCopy = append(dataObjectsCopy, obj.copy().(*FcDataObject))
+		dataObjectsCopy = append(dataObjectsCopy, obj.copy().(FcDataObjectI))
 	}
 	newCopy := NewLogicalNode(n.ObjectReference, dataObjectsCopy)
 	return newCopy
