@@ -51,5 +51,5 @@ func (i *BdaInt8) GetValueString() string {
 }
 
 func (s *BdaInt8) setValue(b int) {
-
+	s.value = b
 }

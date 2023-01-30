@@ -63,7 +63,7 @@ func (i *BdaFloat32) setDefault() {
 }
 
 func (s *BdaFloat32) setValue(i []byte) {
-
+	s.value = i
 }
 func NewBdaFloat32(objectReference *ObjectReference, fc string, sAddr string, dchg bool, dupd bool) *BdaFloat32 {
 

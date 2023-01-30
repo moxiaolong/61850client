@@ -58,5 +58,5 @@ func (i *BdaFloat64) GetValueString() string {
 }
 
 func (s *BdaFloat64) setValue(bytes []byte) {
-
+	s.value = bytes
 }

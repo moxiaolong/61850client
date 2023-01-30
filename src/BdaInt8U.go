@@ -36,7 +36,7 @@ func (i *BdaInt8U) setDefault() {
 }
 
 func (s *BdaInt8U) setValue(atoi int) {
-
+	s.value = atoi
 }
 func NewBdaInt8U(objectReference *ObjectReference, fc string, sAddr string, dchg bool, dupd bool) *BdaInt8U {
 

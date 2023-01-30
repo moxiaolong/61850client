@@ -36,7 +36,7 @@ func (i *BdaInt16) setDefault() {
 }
 
 func (s *BdaInt16) setValue(atoi int) {
-
+	s.value = atoi
 }
 
 func NewBdaInt16(objectReference *ObjectReference, fc string, sAddr string, dchg bool, dupd bool) *BdaInt16 {

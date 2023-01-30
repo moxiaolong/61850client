@@ -51,5 +51,5 @@ func (i *BdaInt32U) GetValueString() string {
 }
 
 func (s *BdaInt32U) setValue(atoi int) {
-
+	s.value = atoi
 }

@@ -40,7 +40,7 @@ func (i *BdaBoolean) GetValueString() string {
 }
 
 func (i *BdaBoolean) setValue(b bool) {
-
+	i.value = b
 }
 func NewBdaBoolean(objectReference *ObjectReference, fc string, sAddr string, dchg bool, dupd bool) *BdaBoolean {
 
