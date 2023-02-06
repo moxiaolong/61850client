@@ -130,12 +130,12 @@ func (c *ClientAssociation) Close() {
 	defer c.lock.Unlock()
 	if c.Closed == false {
 		c.Closed = true
-		c.AcseAssociation.disconnect()
+		go c.AcseAssociation.disconnect()
 		go c.reportListener.associationClosed()
 
-		mmsPdu := NewMMSpdu()
-		mmsPdu.confirmedRequestPDU = NewConfirmedRequestPDU()
-		c.incomingResponses <- mmsPdu
+		//mmsPdu := NewMMSpdu()
+		//mmsPdu.confirmedRequestPDU = NewConfirmedRequestPDU()
+		//c.incomingResponses <- mmsPdu
 	}
 
 }
