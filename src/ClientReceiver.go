@@ -311,8 +311,8 @@ func (r *ClientReceiver) processReport(mmsPdu *MMSpdu) *Report {
 }
 
 func (r *ClientReceiver) removeExpectedResponse() *MMSpdu {
-	defer r.association.incomingResponsesLock.Unlock()
-	r.association.incomingResponsesLock.Lock()
+	//defer r.association.incomingResponsesLock.Unlock()
+	//r.association.incomingResponsesLock.Lock()
 	r.expectedResponseId = -1
 	spdu := <-r.association.incomingResponses
 	return spdu
