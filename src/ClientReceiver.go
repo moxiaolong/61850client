@@ -66,48 +66,54 @@ func (r *ClientReceiver) run() {
 				}
 			}
 		} else if decodedResponsePdu.rejectPDU != nil {
-			r.association.incomingResponsesLock.Lock()
-			{
+
+			func() {
+				defer r.association.incomingResponsesLock.Unlock()
+				r.association.incomingResponsesLock.Lock()
 				if r.expectedResponseId == -1 {
 					// Discarding Reject MMS PDU because no listener for request was found.
-					continue
+					return
 				} else if decodedResponsePdu.rejectPDU.originalInvokeID.value != r.expectedResponseId {
 					// Discarding Reject MMS PDU because no listener with fitting invokeID was found.
-					continue
+					return
 				} else {
 					r.association.incomingResponses <- decodedResponsePdu
 				}
-			}
-			r.association.incomingResponsesLock.Unlock()
+			}()
+
 		} else if decodedResponsePdu.confirmedErrorPDU != nil {
-			r.association.incomingResponsesLock.Lock()
+			func() {
+				defer r.association.incomingResponsesLock.Unlock()
+				r.association.incomingResponsesLock.Lock()
+				if r.expectedResponseId == -1 {
+					// Discarding ConfirmedError MMS PDU because no listener for request was found.
+					return
+				} else if decodedResponsePdu.confirmedErrorPDU.invokeID.value != r.expectedResponseId {
+					// Discarding ConfirmedError MMS PDU because no listener with fitting invokeID was
+					// found.
+					return
+				} else {
+					r.association.incomingResponses <- decodedResponsePdu
+				}
+			}()
 
-			if r.expectedResponseId == -1 {
-				// Discarding ConfirmedError MMS PDU because no listener for request was found.
-				continue
-			} else if decodedResponsePdu.confirmedErrorPDU.invokeID.value != r.expectedResponseId {
-				// Discarding ConfirmedError MMS PDU because no listener with fitting invokeID was
-				// found.
-				continue
-			} else {
-				r.association.incomingResponses <- decodedResponsePdu
-			}
-			r.association.incomingResponsesLock.Unlock()
 		} else {
-			r.association.incomingResponsesLock.Lock()
+			func() {
+				defer r.association.incomingResponsesLock.Unlock()
+				r.association.incomingResponsesLock.Lock()
+				if r.expectedResponseId == -1 {
+					// Discarding ConfirmedResponse MMS PDU because no listener for request was found.
+					return
+				} else if decodedResponsePdu.confirmedResponsePDU.invokeID.value != r.expectedResponseId {
+					// Discarding ConfirmedResponse MMS PDU because no listener with fitting invokeID
+					// was
+					// found.
+					return
+				} else {
+					r.association.incomingResponses <- decodedResponsePdu
+				}
+			}()
 
-			if r.expectedResponseId == -1 {
-				// Discarding ConfirmedResponse MMS PDU because no listener for request was found.
-				continue
-			} else if decodedResponsePdu.confirmedResponsePDU.invokeID.value != r.expectedResponseId {
-				// Discarding ConfirmedResponse MMS PDU because no listener with fitting invokeID
-				// was
-				// found.
-				continue
-			} else {
-				r.association.incomingResponses <- decodedResponsePdu
-			}
-			r.association.incomingResponsesLock.Unlock()
 		}
 
 	}
@@ -305,10 +311,9 @@ func (r *ClientReceiver) processReport(mmsPdu *MMSpdu) *Report {
 }
 
 func (r *ClientReceiver) removeExpectedResponse() *MMSpdu {
-	r.association.incomingResponsesLock.Lock()
 	defer r.association.incomingResponsesLock.Unlock()
+	r.association.incomingResponsesLock.Lock()
 	r.expectedResponseId = -1
 	spdu := <-r.association.incomingResponses
-	r.association.incomingResponsesLock.Unlock()
 	return spdu
 }
