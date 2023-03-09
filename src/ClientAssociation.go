@@ -2,6 +2,7 @@ package src
 
 import "C"
 import (
+	"fmt"
 	"strconv"
 	"strings"
 	"sync"
@@ -226,9 +227,8 @@ func (c *ClientAssociation) encodeWriteReadDecode(serviceRequest *ConfirmedServi
 		defer func() {
 			r := recover()
 			if r != nil {
-				throw("Error sending packet.")
-				c.clientReceiver.close(r)
-				panic(r)
+				go c.clientReceiver.close(r)
+				throw("Error sending packet." + fmt.Sprintf("%+v", r))
 			}
 		}()
 		c.AcseAssociation.sendByteBuffer(c.reverseOStream.getByteBuffer())
